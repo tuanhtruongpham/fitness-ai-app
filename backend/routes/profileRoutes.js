@@ -1,8 +1,23 @@
 const express = require("express");
+const multer = require("multer");
+const path = require("path");
+
 const User = require("../models/User");
 const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
+
+const storage = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+
+  filename: function (req, file, cb) {
+    cb(null, Date.now() + path.extname(file.originalname));
+  },
+});
+
+const upload = multer({ storage });
 
 router.put("/update", authMiddleware, async (req, res) => {
   try {
@@ -30,9 +45,34 @@ router.put("/update", authMiddleware, async (req, res) => {
   } catch (error) {
     res.status(500).json({
       message: "Lỗi server",
-      error,
+      error: error.message,
     });
   }
 });
+
+router.post(
+  "/avatar",
+  authMiddleware,
+  upload.single("avatar"),
+  async (req, res) => {
+    try {
+      const user = await User.findById(req.user.id);
+
+      user.avatar = req.file.filename;
+
+      await user.save();
+
+      res.json({
+        message: "Upload avatar thành công",
+        avatar: req.file.filename,
+      });
+    } catch (error) {
+      res.status(500).json({
+        message: "Lỗi server",
+        error: error.message,
+      });
+    }
+  }
+);
 
 module.exports = router;
