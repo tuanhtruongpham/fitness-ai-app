@@ -1,3 +1,4 @@
+const aiRoutes = require("./routes/aiRoutes");
 const path = require("path");
 const dashboardRoutes = require("./routes/dashboardRoutes");
 const progressRoutes = require("./routes/progressRoutes");
@@ -23,6 +24,7 @@ app.use("/api/meal", mealRoutes);
 app.use("/api/progress", progressRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/api/ai", aiRoutes);
 app.get("/", (req, res) => {
   res.send("Fitness AI API Running");
 });
