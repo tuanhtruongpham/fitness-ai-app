@@ -1,3 +1,7 @@
+const aiRoutes = require("./routes/aiRoutes");
+const path = require("path");
+const dashboardRoutes = require("./routes/dashboardRoutes");
+const progressRoutes = require("./routes/progressRoutes");
 const mealRoutes = require("./routes/mealRoutes");
 const workoutRoutes = require("./routes/workoutRoutes");
 const profileRoutes = require("./routes/profileRoutes");
@@ -17,6 +21,10 @@ app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/workout", workoutRoutes);
 app.use("/api/meal", mealRoutes);
+app.use("/api/progress", progressRoutes);
+app.use("/api/dashboard", dashboardRoutes);
+app.use("/uploads", express.static(path.join(__dirname, "uploads")));
+app.use("/api/ai", aiRoutes);
 app.get("/", (req, res) => {
   res.send("Fitness AI API Running");
 });

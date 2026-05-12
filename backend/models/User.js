@@ -22,6 +22,8 @@ const userSchema = new mongoose.Schema({
   goal: String,
 
   bmi: Number,
+  
+  avatar: String,
 });
 
 module.exports = mongoose.model("User", userSchema);
