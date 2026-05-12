@@ -1,64 +1,50 @@
 const express = require("express");
-const authMiddleware = require("../middleware/authMiddleware");
-
 const router = express.Router();
 
-router.get("/plan", authMiddleware, (req, res) => {
-  const workoutPlan = [
-    {
-      day: "Thứ 2",
-      muscle: "Ngực - Vai - Tay sau",
-      exercises: [
-        {
-          name: "Bench Press",
-          sets: 4,
-          reps: "8-10",
-          video:
-            "https://www.youtube.com/watch?v=rT7DgCr-3pg",
-        },
-        {
-          name: "Shoulder Press",
-          sets: 3,
-          reps: "10-12",
-          video:
-            "https://www.youtube.com/watch?v=qEwKCR5JCog",
-        },
-      ],
-    },
+const Workout = require("../models/Workout");
+const authMiddleware = require("../middleware/authMiddleware");
 
-    {
-      day: "Thứ 3",
-      muscle: "Lưng - Xô - Tay trước",
-      exercises: [
-        {
-          name: "Lat Pulldown",
-          sets: 4,
-          reps: "10-12",
-          video:
-            "https://www.youtube.com/watch?v=CAwf7n6Luuc",
-        },
-      ],
-    },
+router.post("/", authMiddleware, async (req, res) => {
+  try {
+    const { day, muscle, exercises } = req.body;
 
-    {
-      day: "Thứ 4",
-      muscle: "Chân",
-      exercises: [
-        {
-          name: "Squat",
-          sets: 4,
-          reps: "8-10",
-          video:
-            "https://www.youtube.com/watch?v=YaXPRqUwItQ",
-        },
-      ],
-    },
-  ];
+    const workout = new Workout({
+      userId: req.user.id,
+      day,
+      muscle,
+      exercises,
+    });
 
-  res.json({
-    message: "Lấy lịch tập thành công",
-    workoutPlan,
-  });
+    await workout.save();
+
+    res.status(201).json({
+      message: "Tạo lịch tập thành công",
+      workout,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi server",
+      error: error.message,
+    });
+  }
+});
+
+router.get("/", authMiddleware, async (req, res) => {
+  try {
+    const workouts = await Workout.find({
+      userId: req.user.id,
+    });
+
+    res.json({
+      message: "Lấy lịch tập thành công",
+      workouts,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi server",
+      error: error.message,
+    });
+  }
 });
 
 module.exports = router;
