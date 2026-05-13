@@ -4,7 +4,7 @@ import Landing from "./pages/Landing";
 import Onboarding from "./pages/Onboarding";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
-
+import Workout from "./pages/Workout";
 function App() {
   const [page, setPage] = useState("landing");
 
@@ -29,10 +29,26 @@ function App() {
           onLoginSuccess={() => setPage("home")}
         />
       )}
-
+{page === "workout" && (
+  <Workout
+    onNavigate={(targetPage) => setPage(targetPage)}
+    onLogout={() => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setPage("landing");
+    }}
+  />
+)}
       {page === "home" && (
-        <Home />
-      )}
+  <Home
+    onNavigate={(targetPage) => setPage(targetPage)}
+    onLogout={() => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setPage("landing");
+    }}
+  />
+)}
     </>
   );
 }
