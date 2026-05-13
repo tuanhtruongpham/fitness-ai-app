@@ -8,7 +8,7 @@ function Home() {
         <div>
 
           <h1 style={styles.logo}>
-            FITNESS <span style={styles.green}>AI</span>
+            FITNESS <span style={styles.green}>UT</span>
           </h1>
 
           <div style={styles.menu}>

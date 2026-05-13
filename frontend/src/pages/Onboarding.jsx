@@ -154,7 +154,7 @@ function Onboarding({ onFinish }) {
     <div style={styles.page}>
       <div style={styles.header}>
         <h1 style={styles.logo}>
-          FITNESS<span style={styles.green}>AI</span>
+          FITNESS<span style={styles.green}>UT</span>
         </h1>
       </div>
 
