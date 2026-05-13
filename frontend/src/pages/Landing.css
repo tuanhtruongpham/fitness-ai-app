@@ -1,0 +1,39 @@
+body{
+  margin:0;
+  font-family:Poppins;
+}
+
+.hero{
+  min-height:100vh;
+  background:#0f172a;
+  color:white;
+  padding:40px 80px;
+}
+
+.navbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+}
+
+.hero-content{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  margin-top:80px;
+}
+
+.left h1{
+  font-size:72px;
+  line-height:1.1;
+}
+
+.start-btn{
+  padding:18px 40px;
+  border:none;
+  border-radius:50px;
+  background:#84cc16;
+  color:black;
+  font-weight:bold;
+  cursor:pointer;
+}
