@@ -1,4 +1,4 @@
-function Landing({ onStart }) {
+function Landing({ onStart, onLogin }) {
   return (
     <div style={styles.page}>
 
@@ -11,9 +11,15 @@ function Landing({ onStart }) {
 
         <div style={styles.navRight}>
 
-          <button style={styles.loginBtn}>
-            Login
-          </button>
+          <button
+  style={styles.loginBtn}
+  onClick={() => {
+    console.log("clicked login");
+    onLogin();
+  }}
+>
+  Login
+</button>
 
         
         </div>
