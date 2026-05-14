@@ -11,7 +11,7 @@ const workoutDatabase = {
           equipment: "Bodyweight",
           description:
             "Phiên bản chống đẩy dễ hơn dành cho người mới.",
-          video: "",
+          video: "https://www.youtube.com/embed/SR__amDl1c8",
         },
 
         {
