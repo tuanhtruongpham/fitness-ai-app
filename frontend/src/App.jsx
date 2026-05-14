@@ -5,6 +5,8 @@ import Onboarding from "./pages/Onboarding";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Workout from "./pages/Workout";
+import Meal from "./pages/Meal";
+import Progress from "./pages/Progress";
 function App() {
   const [page, setPage] = useState("landing");
 
@@ -31,6 +33,26 @@ function App() {
       )}
 {page === "workout" && (
   <Workout
+    onNavigate={(targetPage) => setPage(targetPage)}
+    onLogout={() => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setPage("landing");
+    }}
+  />
+)}
+{page === "meal" && (
+  <Meal
+    onNavigate={(targetPage) => setPage(targetPage)}
+    onLogout={() => {
+      localStorage.removeItem("token");
+      localStorage.removeItem("user");
+      setPage("landing");
+    }}
+  />
+)}
+{page === "progress" && (
+  <Progress
     onNavigate={(targetPage) => setPage(targetPage)}
     onLogout={() => {
       localStorage.removeItem("token");
