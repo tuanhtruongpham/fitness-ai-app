@@ -1,3 +1,5 @@
+require("dns").setServers(["8.8.8.8", "8.8.4.4"]);
+
 const aiRoutes = require("./routes/aiRoutes");
 const path = require("path");
 const dashboardRoutes = require("./routes/dashboardRoutes");
