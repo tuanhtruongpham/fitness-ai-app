@@ -8,6 +8,9 @@ const profileRoutes = require("./routes/profileRoutes");
 require("dotenv").config();
 
 const connectDB = require("./config/db");
+
+connectDB();
+
 const express = require("express");
 const cors = require("cors");
 const authRoutes = require("./routes/authRoutes");
@@ -29,7 +32,7 @@ app.get("/", (req, res) => {
   res.send("Fitness AI API Running");
 });
 
-connectDB();
+
 
 const PORT = 5000;
 
