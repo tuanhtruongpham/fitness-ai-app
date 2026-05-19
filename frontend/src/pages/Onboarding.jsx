@@ -143,7 +143,7 @@ function Onboarding({ onFinish }) {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              Authorization: `Bearer ${registerResult.token}`,
+              authorization: registerResult.token
             },
             body: JSON.stringify({
               age: calculateAge(),

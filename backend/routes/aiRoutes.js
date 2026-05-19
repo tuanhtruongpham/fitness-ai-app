@@ -1,3 +1,4 @@
+const Meal = require("../models/Meal");
 const express = require("express");
 const router = express.Router();
 
@@ -465,6 +466,22 @@ router.post("/smart-plan", authMiddleware, async (req, res) => {
 
     const workoutPlan = generateWorkout(user.goal, Number(daysPerWeek));
     const mealPlan = generateMealPlan(user.goal);
+    await Meal.create({
+  userId: user._id,
+  goal: user.goal,
+  totalCalories: targetCalories,
+  protein: `${proteinMin}-${proteinMax}g`,
+  carbs: "Auto",
+  fat: "Auto",
+  meals: mealPlan.map((meal) => ({
+    time: meal.time,
+    items: meal.foods.map((food) => ({
+      food,
+      quantity: "-",
+      calories: 0,
+    })),
+  })),
+});
 
     res.json({
       message: "Tạo kế hoạch thông minh thành công",
