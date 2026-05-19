@@ -1,9 +1,13 @@
+
+
 const express = require("express");
 const router = express.Router();
 
 const Meal = require("../models/Meal");
 const authMiddleware = require("../middleware/authMiddleware");
 
+
+// CREATE MEAL
 router.post("/", authMiddleware, async (req, res) => {
   try {
     const { goal, totalCalories, protein, carbs, fat, meals } = req.body;
@@ -32,11 +36,12 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
+// GET MEALS
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const mealPlans = await Meal.find({
       userId: req.user.id,
-    });
+    }).sort({ createdAt: -1 });
 
     res.json({
       message: "Lấy thực đơn thành công",
@@ -49,5 +54,7 @@ router.get("/", authMiddleware, async (req, res) => {
     });
   }
 });
+
+
 
 module.exports = router;
