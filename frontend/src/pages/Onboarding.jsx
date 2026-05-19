@@ -2,10 +2,9 @@ import { useState } from "react";
 
 function Onboarding({ onFinish }) {
   const [step, setStep] = useState(0);
-
   const [errors, setErrors] = useState({});
-
   const [showPassword, setShowPassword] = useState(false);
+  const [loading, setLoading] = useState(false);
 
   const [data, setData] = useState({
     name: "",
@@ -22,25 +21,13 @@ function Onboarding({ onFinish }) {
     password: "",
   });
 
-  const goals = ["Giảm cân", "Giữ cân", "Tăng cân", "Xây cơ bắp"];
+  const goals = ["Giảm cân", "Giữ cân", "Tăng cân", "Tăng cơ"];
 
   const activities = [
-    {
-      title: "Ít vận động",
-      desc: "Phần lớn thời gian ngồi học, ngồi làm việc.",
-    },
-    {
-      title: "Vận động nhẹ",
-      desc: "Có đi lại trong ngày nhưng không tập luyện nhiều.",
-    },
-    {
-      title: "Năng động",
-      desc: "Thường xuyên di chuyển hoặc có tập luyện vài buổi.",
-    },
-    {
-      title: "Rất năng động",
-      desc: "Tập luyện đều hoặc công việc cần vận động nhiều.",
-    },
+    { title: "Ít vận động", desc: "Phần lớn thời gian ngồi học, ngồi làm việc." },
+    { title: "Vận động nhẹ", desc: "Có đi lại trong ngày nhưng không tập luyện nhiều." },
+    { title: "Năng động", desc: "Thường xuyên di chuyển hoặc có tập luyện vài buổi." },
+    { title: "Rất năng động", desc: "Tập luyện đều hoặc công việc cần vận động nhiều." },
   ];
 
   const goalMessage = {
@@ -50,29 +37,37 @@ function Onboarding({ onFinish }) {
       "Giữ cân không có nghĩa là đứng yên. Fitness AI sẽ giúp bạn duy trì vóc dáng, kiểm soát dinh dưỡng và cải thiện sức khỏe ổn định.",
     "Tăng cân":
       "Tăng cân lành mạnh không chỉ là ăn nhiều hơn. Fitness AI sẽ giúp bạn tăng calories đúng cách, kết hợp tập luyện để cơ thể khỏe và đẹp hơn.",
-    "Xây cơ bắp":
+    "Tăng cơ":
       "Xây cơ cần sự kiên trì và kế hoạch đúng. Fitness AI sẽ giúp bạn chọn bài tập, theo dõi protein và cải thiện từng tuần.",
   };
 
   const updateData = (field, value) => {
-    setData({
-      ...data,
-      [field]: value,
-    });
-
-    setErrors({
-      ...errors,
-      [field]: false,
-    });
+    setData({ ...data, [field]: value });
+    setErrors({ ...errors, [field]: false });
   };
 
   const calculateBMI = () => {
     const h = Number(data.height) / 100;
     const w = Number(data.weight);
-
     if (!h || !w) return "";
-
     return (w / (h * h)).toFixed(1);
+  };
+
+  const calculateAge = () => {
+    const birth = new Date(data.birthDate);
+    const today = new Date();
+
+    let age = today.getFullYear() - birth.getFullYear();
+
+    if (
+      today.getMonth() < birth.getMonth() ||
+      (today.getMonth() === birth.getMonth() &&
+        today.getDate() < birth.getDate())
+    ) {
+      age--;
+    }
+
+    return age;
   };
 
   const bmi = calculateBMI();
@@ -80,17 +75,9 @@ function Onboarding({ onFinish }) {
   const validateStep = () => {
     const newErrors = {};
 
-    if (step === 1 && !data.name.trim()) {
-      newErrors.name = true;
-    }
-
-    if (step === 2 && !data.goal) {
-      newErrors.goal = true;
-    }
-
-    if (step === 4 && !data.activity) {
-      newErrors.activity = true;
-    }
+    if (step === 1 && !data.name.trim()) newErrors.name = true;
+    if (step === 2 && !data.goal) newErrors.goal = true;
+    if (step === 4 && !data.activity) newErrors.activity = true;
 
     if (step === 5) {
       if (!data.birthDate) newErrors.birthDate = true;
@@ -100,41 +87,92 @@ function Onboarding({ onFinish }) {
     }
 
     if (step === 6) {
-      if (!data.workoutPlace) {
-        newErrors.workoutPlace = true;
-      }
-
+      if (!data.workoutPlace) newErrors.workoutPlace = true;
       if (data.workoutPlace === "gym" && !data.gymDays) {
         newErrors.gymDays = true;
       }
     }
 
     if (step === 7) {
-      if (!data.email) {
-        newErrors.email = true;
-      }
-
-      if (!data.phone || !/^[0-9]{10}$/.test(data.phone)) {
-        newErrors.phone = true;
-      }
-
-      if (!data.password || data.password.length < 8) {
-        newErrors.password = true;
-      }
+      if (!data.email.trim()) newErrors.email = true;
+      if (!data.phone || !/^[0-9]{10}$/.test(data.phone)) newErrors.phone = true;
+      if (!data.password || data.password.length < 8) newErrors.password = true;
     }
 
     setErrors(newErrors);
-
     return Object.keys(newErrors).length === 0;
   };
 
-  const nextStep = () => {
+  const nextStep = async () => {
     if (!validateStep()) return;
 
     if (step === 7) {
-      alert("Đăng ký thành công! Email xác nhận sẽ được gửi sau khi kết nối backend.");
-      onFinish();
-      return;
+      try {
+        setLoading(true);
+
+        const registerResponse = await fetch(
+          "http://localhost:5000/api/auth/register",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              fullName: data.name,
+              phone: data.phone,
+              email: data.email,
+              password: data.password,
+            }),
+          }
+        );
+
+        const registerResult = await registerResponse.json();
+
+        if (!registerResponse.ok) {
+          alert(registerResult.message || "Đăng ký thất bại");
+          setLoading(false);
+          return;
+        }
+
+        localStorage.setItem("token", registerResult.token);
+        localStorage.setItem("user", JSON.stringify(registerResult.user));
+
+        const profileResponse = await fetch(
+          "http://localhost:5000/api/profile/update",
+          {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              Authorization: `Bearer ${registerResult.token}`,
+            },
+            body: JSON.stringify({
+              age: calculateAge(),
+              height: Number(data.height) / 100,
+              weight: Number(data.weight),
+              gender: data.gender,
+              goal: data.goal,
+            }),
+          }
+        );
+
+        const profileResult = await profileResponse.json();
+
+        if (!profileResponse.ok) {
+          alert(profileResult.message || "Cập nhật hồ sơ thất bại");
+          setLoading(false);
+          return;
+        }
+
+        alert("Đăng ký và cập nhật hồ sơ thành công!");
+        setLoading(false);
+        onFinish();
+        return;
+      } catch (error) {
+        console.log(error);
+        alert("Không thể kết nối server");
+        setLoading(false);
+        return;
+      }
     }
 
     setErrors({});
@@ -160,21 +198,15 @@ function Onboarding({ onFinish }) {
 
       <div style={styles.card}>
         <div style={styles.progressBg}>
-          <div
-            style={{
-              ...styles.progress,
-              width: `${progress}%`,
-            }}
-          ></div>
+          <div style={{ ...styles.progress, width: `${progress}%` }}></div>
         </div>
 
         {step === 0 && (
           <div style={styles.content}>
             <h2>Welcome to Fitness AI</h2>
-
             <p style={styles.desc}>
               Fitness AI sẽ giúp bạn xây dựng kế hoạch tập luyện, dinh dưỡng và
-              theo dõi tiến trình cơ thể thông minh hơn.
+              theo dõi tiến trình cơ thể thông minh hơn!.
             </p>
 
             <div style={styles.previewGrid}>
@@ -188,24 +220,18 @@ function Onboarding({ onFinish }) {
         {step === 1 && (
           <div style={styles.content}>
             <h2>Tên của bạn là gì?</h2>
-
             <p style={styles.desc}>Tụi mình sẽ cá nhân hóa trải nghiệm cho bạn.</p>
 
             <label style={styles.fieldLabel}>Tên của bạn</label>
 
             <input
-              style={{
-                ...styles.input,
-                ...(errors.name ? styles.errorInput : {}),
-              }}
+              style={{ ...styles.input, ...(errors.name ? styles.errorInput : {}) }}
               placeholder="Nhập tên của bạn"
               value={data.name}
               onChange={(e) => updateData("name", e.target.value)}
             />
 
-            {errors.name && (
-              <p style={styles.errorText}>Vui lòng nhập tên của bạn</p>
-            )}
+            {errors.name && <p style={styles.errorText}>Vui lòng nhập tên của bạn</p>}
           </div>
         )}
 
@@ -237,9 +263,7 @@ function Onboarding({ onFinish }) {
               ))}
             </div>
 
-            {errors.goal && (
-              <p style={styles.errorText}>Vui lòng chọn mục tiêu của bạn</p>
-            )}
+            {errors.goal && <p style={styles.errorText}>Vui lòng chọn mục tiêu của bạn</p>}
           </div>
         )}
 
@@ -283,9 +307,7 @@ function Onboarding({ onFinish }) {
               ))}
             </div>
 
-            {errors.activity && (
-              <p style={styles.errorText}>Vui lòng chọn mức độ hoạt động</p>
-            )}
+            {errors.activity && <p style={styles.errorText}>Vui lòng chọn mức độ hoạt động</p>}
           </div>
         )}
 
@@ -305,9 +327,7 @@ function Onboarding({ onFinish }) {
               value={data.birthDate}
               onChange={(e) => updateData("birthDate", e.target.value)}
             />
-            {errors.birthDate && (
-              <p style={styles.errorText}>Vui lòng chọn ngày sinh</p>
-            )}
+            {errors.birthDate && <p style={styles.errorText}>Vui lòng chọn ngày sinh</p>}
 
             <label style={styles.fieldLabel}>Giới tính</label>
             <select
@@ -319,13 +339,11 @@ function Onboarding({ onFinish }) {
               onChange={(e) => updateData("gender", e.target.value)}
             >
               <option value="">Chọn giới tính</option>
-              <option value="male">Nam</option>
-              <option value="female">Nữ</option>
-              <option value="other">Khác</option>
+              <option value="Nam">Nam</option>
+              <option value="Nữ">Nữ</option>
+              <option value="Khác">Khác</option>
             </select>
-            {errors.gender && (
-              <p style={styles.errorText}>Vui lòng chọn giới tính</p>
-            )}
+            {errors.gender && <p style={styles.errorText}>Vui lòng chọn giới tính</p>}
 
             <label style={styles.fieldLabel}>Chiều cao</label>
             <input
@@ -338,9 +356,7 @@ function Onboarding({ onFinish }) {
               value={data.height}
               onChange={(e) => updateData("height", e.target.value)}
             />
-            {errors.height && (
-              <p style={styles.errorText}>Vui lòng nhập chiều cao</p>
-            )}
+            {errors.height && <p style={styles.errorText}>Vui lòng nhập chiều cao</p>}
 
             <label style={styles.fieldLabel}>Cân nặng</label>
             <input
@@ -353,9 +369,7 @@ function Onboarding({ onFinish }) {
               value={data.weight}
               onChange={(e) => updateData("weight", e.target.value)}
             />
-            {errors.weight && (
-              <p style={styles.errorText}>Vui lòng nhập cân nặng</p>
-            )}
+            {errors.weight && <p style={styles.errorText}>Vui lòng nhập cân nặng</p>}
 
             {bmi && (
               <div style={styles.bmiBox}>
@@ -395,9 +409,7 @@ function Onboarding({ onFinish }) {
               </button>
             </div>
 
-            {errors.workoutPlace && (
-              <p style={styles.errorText}>Vui lòng chọn nơi tập</p>
-            )}
+            {errors.workoutPlace && <p style={styles.errorText}>Vui lòng chọn nơi tập</p>}
 
             {data.workoutPlace === "gym" && (
               <>
@@ -441,33 +453,23 @@ function Onboarding({ onFinish }) {
 
             <label style={styles.fieldLabel}>Email</label>
             <input
-              style={{
-                ...styles.input,
-                ...(errors.email ? styles.errorInput : {}),
-              }}
+              style={{ ...styles.input, ...(errors.email ? styles.errorInput : {}) }}
               type="email"
               placeholder="Email address"
               value={data.email}
               onChange={(e) => updateData("email", e.target.value)}
             />
-            {errors.email && (
-              <p style={styles.errorText}>Vui lòng nhập email</p>
-            )}
+            {errors.email && <p style={styles.errorText}>Vui lòng nhập email</p>}
 
             <label style={styles.fieldLabel}>Số điện thoại</label>
             <input
-              style={{
-                ...styles.input,
-                ...(errors.phone ? styles.errorInput : {}),
-              }}
+              style={{ ...styles.input, ...(errors.phone ? styles.errorInput : {}) }}
               type="text"
               placeholder="Số điện thoại 10 chữ số"
               value={data.phone}
               onChange={(e) => updateData("phone", e.target.value)}
             />
-            {errors.phone && (
-              <p style={styles.errorText}>Số điện thoại phải đủ 10 số</p>
-            )}
+            {errors.phone && <p style={styles.errorText}>Số điện thoại phải đủ 10 số</p>}
 
             <label style={styles.fieldLabel}>Mật khẩu</label>
             <div
@@ -494,9 +496,7 @@ function Onboarding({ onFinish }) {
             </div>
 
             {errors.password && (
-              <p style={styles.errorText}>
-                Mật khẩu phải có ít nhất 8 ký tự
-              </p>
+              <p style={styles.errorText}>Mật khẩu phải có ít nhất 8 ký tự</p>
             )}
 
             <p style={styles.passwordNote}>Must be at least 8 characters.</p>
@@ -512,16 +512,23 @@ function Onboarding({ onFinish }) {
           <button
             style={{
               ...styles.backBtn,
-              ...(step === 0 ? styles.disabledBtn : {}),
+              ...(step === 0 || loading ? styles.disabledBtn : {}),
             }}
             onClick={prevStep}
-            disabled={step === 0}
+            disabled={step === 0 || loading}
           >
             BACK
           </button>
 
-          <button style={styles.nextBtn} onClick={nextStep}>
-            {step === 7 ? "HOÀN TẤT" : "NEXT"}
+          <button
+            style={{
+              ...styles.nextBtn,
+              ...(loading ? styles.disabledBtn : {}),
+            }}
+            onClick={nextStep}
+            disabled={loading}
+          >
+            {loading ? "ĐANG XỬ LÝ..." : step === 7 ? "HOÀN TẤT" : "NEXT"}
           </button>
         </div>
       </div>
