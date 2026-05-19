@@ -21,6 +21,10 @@ const upload = multer({ storage });
 
 router.put("/update", authMiddleware, async (req, res) => {
   try {
+    console.log("TOKEN USER:", req.user);
+
+    console.log("BODY:", req.body);
+    
     const { age, height, weight, gender, goal } = req.body;
 
     const bmi = weight / (height * height);
