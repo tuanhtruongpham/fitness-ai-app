@@ -156,7 +156,7 @@ const calculateBMI = () => {
             },
             body: JSON.stringify({
               age: calculateAge(),
-              height: Number(data.height) / 100,
+              height: Number(data.height),
               weight: Number(data.weight),
               gender: data.gender,
               goal: data.goal,
@@ -198,7 +198,15 @@ const calculateBMI = () => {
   const progress = ((step + 1) / 8) * 100;
 
   return (
-    <div style={styles.page}>
+  <div
+    style={styles.page}
+    onKeyDown={(e) => {
+      if (e.key === "Enter") {
+        nextStep();
+      }
+    }}
+    tabIndex={0}
+  >
       <div style={styles.header}>
         <h1 style={styles.logo}>
           FITNESS<span style={styles.green}>UT</span>
@@ -350,7 +358,7 @@ const calculateBMI = () => {
               <option value="">Chọn giới tính</option>
               <option value="Nam">Nam</option>
               <option value="Nữ">Nữ</option>
-              <option value="Khác">Khác</option>
+              <option value="Khác">Khác</option>  
             </select>
             {errors.gender && <p style={styles.errorText}>Vui lòng chọn giới tính</p>}
 
