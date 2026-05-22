@@ -24,6 +24,19 @@ function Home({ onNavigate, onLogout }) {
     }
   };
 
+  // BMI realtime
+  const calculateBMI = (weight, height) => {
+    if (!weight || !height) return 0;
+
+    const h = height / 100;
+    return (weight / (h * h)).toFixed(1);
+  };
+
+  const realtimeBMI = calculateBMI(
+    dashboard?.latestWeight,
+    dashboard?.user?.height
+  );
+
   return (
     <div style={styles.page}>
       <div style={styles.sidebar}>
@@ -36,16 +49,54 @@ function Home({ onNavigate, onLogout }) {
             <div style={styles.activeMenu} onClick={() => onNavigate("home")}>
               🏠 Dashboard
             </div>
-            <div style={styles.menuItem} onClick={() => onNavigate("workout")}>💪 Workout</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("meal")}>🍽 Meal Plan</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("progress")}>📈 Progress</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("ai")}>🤖 AI Coach</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("profile")}>👤 Profile</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("settings")}>⚙ Settings</div>
+
+            <div
+              style={styles.menuItem}
+              onClick={() => onNavigate("workout")}
+            >
+              💪 Workout
+            </div>
+
+            <div
+              style={styles.menuItem}
+              onClick={() => onNavigate("meal")}
+            >
+              🍽 Meal Plan
+            </div>
+
+            <div
+              style={styles.menuItem}
+              onClick={() => onNavigate("progress")}
+            >
+              📈 Progress
+            </div>
+
+            <div
+              style={styles.menuItem}
+              onClick={() => onNavigate("ai")}
+            >
+              🤖 AI Coach
+            </div>
+
+            <div
+              style={styles.menuItem}
+              onClick={() => onNavigate("profile")}
+            >
+              👤 Profile
+            </div>
+
+            <div
+              style={styles.menuItem}
+              onClick={() => onNavigate("settings")}
+            >
+              ⚙ Settings
+            </div>
           </div>
         </div>
 
-        <div style={styles.logout} onClick={onLogout}>🚪 Logout</div>
+        <div style={styles.logout} onClick={onLogout}>
+          🚪 Logout
+        </div>
       </div>
 
       <div style={styles.main}>
@@ -54,8 +105,12 @@ function Home({ onNavigate, onLogout }) {
             <h1 style={styles.title}>
               Good Evening, {dashboard?.user?.fullName || "User"} 💪
             </h1>
-            <p style={styles.subtitle}>Your body is improving today.</p>
+
+            <p style={styles.subtitle}>
+              Your body is improving today.
+            </p>
           </div>
+
           <div style={styles.profile}>🔔 👤</div>
         </div>
 
@@ -68,7 +123,12 @@ function Home({ onNavigate, onLogout }) {
 
           <div style={styles.card}>
             <h3>💪 Exercises</h3>
-            <h1>{dashboard?.completedExercises || 0}/{dashboard?.totalExercises || 0}</h1>
+
+            <h1>
+              {dashboard?.completedExercises || 0}/
+              {dashboard?.totalExercises || 0}
+            </h1>
+
             <p style={styles.cardText}>Completed exercises</p>
           </div>
 
@@ -80,34 +140,54 @@ function Home({ onNavigate, onLogout }) {
 
           <div style={styles.card}>
             <h3>📈 BMI</h3>
-            <h1>{dashboard?.latestBMI || 0}</h1>
+            <h1>{realtimeBMI || 0}</h1>
             <p style={styles.cardText}>Current BMI</p>
           </div>
         </div>
 
         <div style={styles.aiCard}>
           <div>
-            <h2 style={styles.aiTitle}>🤖 AI Coach Recommendation</h2>
+            <h2 style={styles.aiTitle}>
+              🤖 AI Coach Recommendation
+            </h2>
+
             <p style={styles.aiText}>
               Based on your BMI and progress, today you should focus on:
             </p>
 
             <ul style={styles.list}>
-              <li>Goal: {dashboard?.user?.goal || "Chưa cập nhật"}</li>
-              <li>Weight: {dashboard?.latestWeight || "Chưa có"} KG</li>
-              <li>BMI: {dashboard?.latestBMI || "Chưa có"}</li>
-              <li>{dashboard?.latestProgress?.note || "Hãy cập nhật tiến trình để AI gợi ý tốt hơn."}</li>
+              <li>
+                Goal: {dashboard?.user?.goal || "Chưa cập nhật"}
+              </li>
+
+              <li>
+                Weight: {dashboard?.latestWeight || "Chưa có"} KG
+              </li>
+
+              <li>
+                BMI: {realtimeBMI || "Chưa có"}
+              </li>
+
+              <li>
+                {dashboard?.latestProgress?.note ||
+                  "Hãy cập nhật tiến trình để AI gợi ý tốt hơn."}
+              </li>
             </ul>
           </div>
 
-          <button style={styles.aiCircle} onClick={() => onNavigate("ai")}>
+          <button
+            style={styles.aiCircle}
+            onClick={() => onNavigate("ai")}
+          >
             AI
           </button>
         </div>
 
         <div style={styles.bottomGrid}>
           <div style={styles.bigCard}>
-            <h2 style={styles.sectionTitle}>💪 Dashboard Summary</h2>
+            <h2 style={styles.sectionTitle}>
+              💪 Dashboard Summary
+            </h2>
 
             <div style={styles.workoutItem}>
               <span>Total Workouts</span>
@@ -135,22 +215,34 @@ function Home({ onNavigate, onLogout }) {
 
             <div style={styles.workoutItem}>
               <span>Full Name</span>
-              <span>{dashboard?.user?.fullName || "Chưa có"}</span>
+
+              <span>
+                {dashboard?.user?.fullName || "Chưa có"}
+              </span>
             </div>
 
             <div style={styles.workoutItem}>
               <span>Email</span>
-              <span>{dashboard?.user?.email || "Chưa có"}</span>
+
+              <span>
+                {dashboard?.user?.email || "Chưa có"}
+              </span>
             </div>
 
             <div style={styles.workoutItem}>
               <span>Phone</span>
-              <span>{dashboard?.user?.phone || "Chưa có"}</span>
+
+              <span>
+                {dashboard?.user?.phone || "Chưa có"}
+              </span>
             </div>
 
             <div style={styles.workoutItem}>
               <span>Goal</span>
-              <span>{dashboard?.user?.goal || "Chưa cập nhật"}</span>
+
+              <span>
+                {dashboard?.user?.goal || "Chưa cập nhật"}
+              </span>
             </div>
           </div>
         </div>
@@ -160,31 +252,175 @@ function Home({ onNavigate, onLogout }) {
 }
 
 const styles = {
-  page: { display: "flex", minHeight: "100vh", background: "#0f172a", color: "white", fontFamily: "Arial" },
-  sidebar: { width: "260px", background: "#111827", padding: "30px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderRight: "1px solid #1f2937" },
-  logo: { fontSize: "30px", marginBottom: "40px" },
-  green: { color: "#84cc16" },
-  menu: { display: "flex", flexDirection: "column", gap: "16px" },
-  menuItem: { padding: "16px", borderRadius: "14px", background: "#1f2937", cursor: "pointer", transition: "0.3s" },
-  activeMenu: { padding: "16px", borderRadius: "14px", background: "linear-gradient(90deg,#84cc16,#65a30d)", color: "#0f172a", fontWeight: "bold", cursor: "pointer" },
-  logout: { padding: "16px", borderRadius: "14px", background: "#1f2937", textAlign: "center", cursor: "pointer" },
-  main: { flex: 1, padding: "40px" },
-  header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "35px" },
-  title: { margin: 0, fontSize: "38px" },
-  subtitle: { color: "#94a3b8", marginTop: "10px" },
-  profile: { fontSize: "28px" },
-  statsGrid: { display: "grid", gridTemplateColumns: "repeat(4, 1fr)", gap: "20px", marginBottom: "30px" },
-  card: { background: "#111827", padding: "25px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.2)", boxShadow: "0 0 20px rgba(132,204,22,0.08)" },
-  cardText: { color: "#94a3b8" },
-  aiCard: { background: "linear-gradient(90deg,#111827,#1e293b)", borderRadius: "28px", padding: "35px", display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px", border: "1px solid rgba(132,204,22,0.3)" },
-  aiTitle: { marginBottom: "15px", color: "#84cc16" },
-  aiText: { color: "#cbd5e1", marginBottom: "20px", lineHeight: "1.7" },
-  list: { lineHeight: "2" },
-  aiCircle: { width: "140px", height: "140px", borderRadius: "50%", border: "none", background: "#84cc16", color: "#0f172a", display: "flex", justifyContent: "center", alignItems: "center", fontSize: "40px", fontWeight: "bold", boxShadow: "0 0 40px rgba(132,204,22,0.5)", cursor: "pointer" },
-  bottomGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "25px" },
-  bigCard: { background: "#111827", padding: "30px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.2)" },
-  sectionTitle: { marginBottom: "25px", color: "#84cc16" },
-  workoutItem: { display: "flex", justifyContent: "space-between", padding: "15px 0", borderBottom: "1px solid #1f2937" },
+  page: {
+    display: "flex",
+    minHeight: "100vh",
+    background: "#0f172a",
+    color: "white",
+    fontFamily: "Arial",
+  },
+
+  sidebar: {
+    width: "260px",
+    background: "#111827",
+    padding: "30px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    borderRight: "1px solid #1f2937",
+  },
+
+  logo: {
+    fontSize: "30px",
+    marginBottom: "40px",
+  },
+
+  green: {
+    color: "#84cc16",
+  },
+
+  menu: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+  },
+
+  menuItem: {
+    padding: "16px",
+    borderRadius: "14px",
+    background: "#1f2937",
+    cursor: "pointer",
+    transition: "0.3s",
+  },
+
+  activeMenu: {
+    padding: "16px",
+    borderRadius: "14px",
+    background: "linear-gradient(90deg,#84cc16,#65a30d)",
+    color: "#0f172a",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+
+  logout: {
+    padding: "16px",
+    borderRadius: "14px",
+    background: "#1f2937",
+    textAlign: "center",
+    cursor: "pointer",
+  },
+
+  main: {
+    flex: 1,
+    padding: "40px",
+  },
+
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "35px",
+  },
+
+  title: {
+    margin: 0,
+    fontSize: "38px",
+  },
+
+  subtitle: {
+    color: "#94a3b8",
+    marginTop: "10px",
+  },
+
+  profile: {
+    fontSize: "28px",
+  },
+
+  statsGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4, 1fr)",
+    gap: "20px",
+    marginBottom: "30px",
+  },
+
+  card: {
+    background: "#111827",
+    padding: "25px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.2)",
+    boxShadow: "0 0 20px rgba(132,204,22,0.08)",
+  },
+
+  cardText: {
+    color: "#94a3b8",
+  },
+
+  aiCard: {
+    background: "linear-gradient(90deg,#111827,#1e293b)",
+    borderRadius: "28px",
+    padding: "35px",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "30px",
+    border: "1px solid rgba(132,204,22,0.3)",
+  },
+
+  aiTitle: {
+    marginBottom: "15px",
+    color: "#84cc16",
+  },
+
+  aiText: {
+    color: "#cbd5e1",
+    marginBottom: "20px",
+    lineHeight: "1.7",
+  },
+
+  list: {
+    lineHeight: "2",
+  },
+
+  aiCircle: {
+    width: "140px",
+    height: "140px",
+    borderRadius: "50%",
+    border: "none",
+    background: "#84cc16",
+    color: "#0f172a",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: "40px",
+    fontWeight: "bold",
+    boxShadow: "0 0 40px rgba(132,204,22,0.5)",
+    cursor: "pointer",
+  },
+
+  bottomGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "25px",
+  },
+
+  bigCard: {
+    background: "#111827",
+    padding: "30px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.2)",
+  },
+
+  sectionTitle: {
+    marginBottom: "25px",
+    color: "#84cc16",
+  },
+
+  workoutItem: {
+    display: "flex",
+    justifyContent: "space-between",
+    padding: "15px 0",
+    borderBottom: "1px solid #1f2937",
+  },
 };
 
 export default Home;
