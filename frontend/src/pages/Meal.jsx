@@ -30,7 +30,29 @@ function Meal({ onNavigate, onLogout }) {
       console.log(error);
     }
   };
+const generateMealPlan = async () => {
+  try {
+    const token = localStorage.getItem("token");
 
+    await axios.post(
+      "http://localhost:5000/api/ai/smart-plan",
+      {
+        daysPerWeek: 5,
+        activityLevel: 1.55,
+      },
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+
+    await fetchMeals();
+  } catch (error) {
+    console.log(error);
+    alert("Hãy cập nhật đầy đủ Profile trước khi tạo meal plan");
+  }
+};
   const caloriePercent = currentPlan
     ? Math.min(Math.round((Number(currentPlan.totalCalories) / Number(currentPlan.totalCalories)) * 100), 100)
     : 0;
@@ -68,13 +90,17 @@ function Meal({ onNavigate, onLogout }) {
         </div>
 
         {!currentPlan ? (
-          <div style={styles.emptyBox}>
-            <h2>Chưa có meal plan</h2>
-            <p style={styles.cardText}>
-              User này chưa tạo meal plan. Hãy tạo meal plan bằng API hoặc trang Smart Plan.
-            </p>
-          </div>
-        ) : (
+  <div style={styles.emptyBox}>
+    <h2>Chưa có meal plan</h2>
+    <p style={styles.cardText}>
+      User này chưa có meal plan. Bấm nút dưới để AI tự tạo meal plan theo profile.
+    </p>
+
+    <button style={styles.detailBtn} onClick={generateMealPlan}>
+      Generate Meal Plan
+    </button>
+  </div>
+) : (
           <>
             <div style={styles.topGrid}>
               <div style={styles.calorieCard}>

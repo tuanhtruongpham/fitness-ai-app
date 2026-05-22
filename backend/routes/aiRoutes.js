@@ -5,8 +5,14 @@ const User = require("../models/User");
 const Meal = require("../models/Meal");
 const authMiddleware = require("../middleware/authMiddleware");
 
+function normalizeHeight(height) {
+  const h = Number(height);
+  return h > 3 ? h / 100 : h;
+}
+
 function calculateBMI(weight, height) {
-  return Number((weight / (height * height)).toFixed(2));
+  const heightM = normalizeHeight(height);
+  return Number((weight / (heightM * heightM)).toFixed(2));
 }
 
 function classifyBMI(bmi) {
@@ -17,7 +23,8 @@ function classifyBMI(bmi) {
 }
 
 function calculateBMR({ gender, weight, height, age }) {
-  const heightCm = height * 100;
+  const heightM = normalizeHeight(height);
+  const heightCm = heightM * 100;
 
   if (gender === "Nữ") {
     return 10 * weight + 6.25 * heightCm - 5 * age - 161;
@@ -47,7 +54,7 @@ function generateMealPlan(goal) {
 
 router.post("/smart-plan", authMiddleware, async (req, res) => {
   try {
-    const { daysPerWeek, activityLevel = 1.55 } = req.body;
+    const { activityLevel = 1.55 } = req.body;
 
     const user = await User.findById(req.user.id);
 
@@ -57,39 +64,39 @@ router.post("/smart-plan", authMiddleware, async (req, res) => {
       });
     }
 
-    const bmi = calculateBMI(user.weight, user.height);
-    const bmiType = classifyBMI(bmi);
+    const weight = Number(user.weight);
+    const height = Number(user.height);
+    const age = Number(user.age);
 
+    const bmi = calculateBMI(weight, height);
+    const bmiType = classifyBMI(bmi);
     const bmr = calculateBMR({
       gender: user.gender,
-      weight: user.weight,
-      height: user.height,
-      age: user.age,
+      weight,
+      height,
+      age,
     });
 
-    const tdee = Math.round(bmr * activityLevel);
+    const tdee = Math.round(bmr * Number(activityLevel));
 
     let targetCalories = tdee;
 
     if (user.goal === "Tăng cơ" || user.goal === "Tăng cân") {
       targetCalories = tdee + 400;
-    }
-
-    if (user.goal === "Siết mỡ" || user.goal === "Giảm cân") {
+    } else if (user.goal === "Siết mỡ" || user.goal === "Giảm cân") {
       targetCalories = tdee - 400;
     }
 
-    const protein = Math.round(user.weight * 2);
+    targetCalories = Math.max(targetCalories, 1200);
+
+    const protein = Math.round(weight * 2);
     const fat = Math.round((targetCalories * 0.25) / 9);
     const carbs = Math.round((targetCalories - protein * 4 - fat * 9) / 4);
 
     const mealPlan = generateMealPlan(user.goal);
 
-    await Meal.deleteMany({
-      userId: user._id,
-    });
-    console.log("CARBS:", carbs);
-    console.log("FAT:", fat);
+    await Meal.deleteMany({ userId: user._id });
+
     const savedMeal = await Meal.create({
       userId: user._id,
       goal: user.goal,
@@ -120,56 +127,6 @@ router.post("/smart-plan", authMiddleware, async (req, res) => {
         fat: `${fat}g`,
       },
       mealPlan: savedMeal,
-    });
-  } catch (error) {
-    res.status(500).json({
-      message: "Lỗi server",
-      error: error.message,
-    });
-  }
-});
-
-router.post("/chat", authMiddleware, async (req, res) => {
-  try {
-    const { message } = req.body;
-    const text = message.toLowerCase();
-
-    let reply =
-      "Hiện tại tôi chưa hiểu rõ câu hỏi. Hãy hỏi về tập luyện hoặc dinh dưỡng.";
-
-    if (text.includes("tăng cơ") || text.includes("bulk")) {
-      reply =
-        "Để tăng cơ hiệu quả, hãy ưu tiên progressive overload, ngủ đủ 7-8 tiếng và ăn surplus calories.";
-    } else if (
-      text.includes("giảm mỡ") ||
-      text.includes("siết mỡ") ||
-      text.includes("cut")
-    ) {
-      reply =
-        "Để giảm mỡ, hãy giữ deficit calories, cardio 3-5 buổi/tuần và ưu tiên protein cao.";
-    } else if (text.includes("protein")) {
-      reply = "Protein khuyến nghị là khoảng 1.6-2.2g/kg cân nặng mỗi ngày.";
-    } else if (text.includes("cardio")) {
-      reply =
-        "Cardio tốt cho giảm mỡ và tim mạch. Có thể đi bộ dốc, đạp xe hoặc Stairmaster 20-40 phút.";
-    } else if (text.includes("đau vai")) {
-      reply =
-        "Nếu đau vai nhiều, nên giảm volume bài đẩy vai/ngực và nghỉ ngơi vài ngày để hồi phục.";
-    } else if (text.includes("đau lưng")) {
-      reply = "Nếu đau lưng khi tập, hãy kiểm tra form squat/deadlift và giảm mức tạ.";
-    } else if (text.includes("creatine")) {
-      reply =
-        "Creatine monohydrate là supplement an toàn và hiệu quả giúp tăng sức mạnh và hiệu suất tập.";
-    } else if (text.includes("whey")) {
-      reply = "Whey protein giúp bổ sung protein tiện lợi, đặc biệt sau tập.";
-    } else if (text.includes("ngủ")) {
-      reply = "Ngủ đủ 7-8 tiếng rất quan trọng để phục hồi cơ bắp và hormone.";
-    }
-
-    res.json({
-      message: "AI Coach trả lời thành công",
-      question: message,
-      reply,
     });
   } catch (error) {
     res.status(500).json({

@@ -46,12 +46,21 @@ function Onboarding({ onFinish }) {
     setErrors({ ...errors, [field]: false });
   };
 
-  const calculateBMI = () => {
-    const h = Number(data.height) / 100;
-    const w = Number(data.weight);
-    if (!h || !w) return "";
-    return (w / (h * h)).toFixed(1);
-  };
+  const normalizeHeight = (height) => {
+  const h = Number(height);
+  if (!h) return 0;
+
+  return h > 3 ? h / 100 : h;
+};
+
+const calculateBMI = () => {
+  const h = normalizeHeight(data.height);
+  const w = Number(data.weight);
+
+  if (!h || !w) return "";
+
+  return (w / (h * h)).toFixed(1);
+};
 
   const calculateAge = () => {
     const birth = new Date(data.birthDate);
@@ -319,14 +328,14 @@ function Onboarding({ onFinish }) {
 
             <label style={styles.fieldLabel}>Ngày sinh</label>
             <input
-              style={{
-                ...styles.input,
-                ...(errors.birthDate ? styles.errorInput : {}),
-              }}
-              type="date"
-              value={data.birthDate}
-              onChange={(e) => updateData("birthDate", e.target.value)}
-            />
+                style={{
+                  ...styles.input,
+                  ...(errors.birthDate ? styles.errorInput : {}),
+                }}
+                type="date"
+                value={data.birthDate}
+                onChange={(e) => updateData("birthDate", e.target.value)}
+              />
             {errors.birthDate && <p style={styles.errorText}>Vui lòng chọn ngày sinh</p>}
 
             <label style={styles.fieldLabel}>Giới tính</label>
