@@ -12,7 +12,7 @@ export default function AICoach({ onNavigate, onLogout }) {
   const [input, setInput] = useState("");
   const [loading, setLoading] = useState(false);
 
-  const handleSend = () => {
+ const handleSend = async () => {
     if (!input.trim()) return;
 
     setMessages((prev) => [
@@ -26,17 +26,37 @@ export default function AICoach({ onNavigate, onLogout }) {
     setInput("");
     setLoading(true);
 
-    setTimeout(() => {
-      setMessages((prev) => [
-        ...prev,
-        {
-          role: "ai",
-          text: "This is a demo answer. Later, you can connect Gemini API here.",
-        },
-      ]);
+    try {
+  const res = await fetch("http://localhost:5000/api/chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      message: input,
+    }),
+  });
 
-      setLoading(false);
-    }, 800);
+  const data = await res.json();
+
+  setMessages((prev) => [
+    ...prev,
+    {
+      role: "ai",
+      text: data.reply,
+    },
+  ]);
+} catch (error) {
+  setMessages((prev) => [
+    ...prev,
+    {
+      role: "ai",
+      text: "AI server error.",
+    },
+  ]);
+}
+
+setLoading(false);
   };
 
   return (
