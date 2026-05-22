@@ -62,14 +62,14 @@ function Home({ onNavigate, onLogout }) {
         <div style={styles.statsGrid}>
           <div style={styles.card}>
             <h3>🔥 Workouts</h3>
-            <h1>{dashboard?.totalWorkouts || 0}</h1>
-            <p style={styles.cardText}>Total workout plans</p>
+            <h1>{dashboard?.todayWorkoutName || "Rest Day"}</h1>
+            <p style={styles.cardText}>Today's workout</p>
           </div>
 
           <div style={styles.card}>
             <h3>💪 Exercises</h3>
-            <h1>{dashboard?.completedExercises || 0}/{dashboard?.totalExercises || 0}</h1>
-            <p style={styles.cardText}>Completed exercises</p>
+            <h1>{dashboard?.todayExercises || 0}</h1>
+            <p style={styles.cardText}>Exercises today</p>
           </div>
 
           <div style={styles.card}>
@@ -104,6 +104,29 @@ function Home({ onNavigate, onLogout }) {
             AI
           </button>
         </div>
+        <div style={styles.todayWorkoutBox}>
+  <h2 style={styles.sectionTitle}>📅 Today Workout</h2>
+
+  <h1>{dashboard?.todayWorkout?.name}</h1>
+
+  <p style={styles.cardText}>
+    {dashboard?.todayWorkout?.day}
+  </p>
+
+  {dashboard?.todayWorkout?.exercises?.length > 0 ? (
+    <div style={styles.exerciseGrid}>
+      {dashboard.todayWorkout.exercises.map((exercise) => (
+        <div key={exercise} style={styles.exerciseItem}>
+          💪 {exercise}
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p style={styles.cardText}>
+      Hôm nay nghỉ để phục hồi cơ bắp.
+    </p>
+  )}
+</div>
 
         <div style={styles.bottomGrid}>
           <div style={styles.bigCard}>
@@ -185,6 +208,27 @@ const styles = {
   bigCard: { background: "#111827", padding: "30px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.2)" },
   sectionTitle: { marginBottom: "25px", color: "#84cc16" },
   workoutItem: { display: "flex", justifyContent: "space-between", padding: "15px 0", borderBottom: "1px solid #1f2937" },
+  todayWorkoutBox: {
+  background: "#111827",
+  padding: "30px",
+  borderRadius: "24px",
+  border: "1px solid rgba(132,204,22,0.2)",
+  marginBottom: "30px",
+},
+
+exerciseGrid: {
+  display: "grid",
+  gridTemplateColumns: "repeat(2, 1fr)",
+  gap: "14px",
+  marginTop: "20px",
+},
+
+exerciseItem: {
+  background: "#0f172a",
+  padding: "16px",
+  borderRadius: "14px",
+  border: "1px solid #1f2937",
+},
 };
 
 export default Home;

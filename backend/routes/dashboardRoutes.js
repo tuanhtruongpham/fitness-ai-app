@@ -22,6 +22,86 @@ function calculateBMI(weight, height) {
   return Number((w / (heightM * heightM)).toFixed(2));
 }
 
+const weeklySchedule = {
+  1: {
+    day: "Thứ 2",
+    name: "Push Day",
+    exercises: [
+      "Bench Press",
+      "Incline Dumbbell Press",
+      "Shoulder Press",
+      "Lateral Raise",
+      "Tricep Pushdown",
+      "Overhead Extension",
+    ],
+  },
+  2: {
+    day: "Thứ 3",
+    name: "Pull Day",
+    exercises: [
+      "Pull Up",
+      "Barbell Row",
+      "Lat Pulldown",
+      "Seated Row",
+      "Barbell Curl",
+      "Hammer Curl",
+      "Face Pull",
+    ],
+  },
+  3: {
+    day: "Thứ 4",
+    name: "Leg Day",
+    exercises: [
+      "Squat",
+      "Romanian Deadlift",
+      "Leg Press",
+      "Leg Curl",
+      "Calf Raise",
+    ],
+  },
+  4: {
+    day: "Thứ 5",
+    name: "Push Day",
+    exercises: [
+      "Bench Press",
+      "Incline Dumbbell Press",
+      "Shoulder Press",
+      "Lateral Raise",
+      "Tricep Pushdown",
+      "Overhead Extension",
+    ],
+  },
+  5: {
+    day: "Thứ 6",
+    name: "Pull Day",
+    exercises: [
+      "Pull Up",
+      "Barbell Row",
+      "Lat Pulldown",
+      "Seated Row",
+      "Barbell Curl",
+      "Hammer Curl",
+      "Face Pull",
+    ],
+  },
+  6: {
+    day: "Thứ 7",
+    name: "Leg Day",
+    exercises: [
+      "Squat",
+      "Romanian Deadlift",
+      "Leg Press",
+      "Leg Curl",
+      "Calf Raise",
+    ],
+  },
+  0: {
+    day: "Chủ nhật",
+    name: "Rest Day",
+    exercises: [],
+  },
+};
+
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
@@ -31,37 +111,28 @@ router.get("/", authMiddleware, async (req, res) => {
     const mealPlans = await Meal.find({ userId });
     const progressList = await Progress.find({ userId }).sort({ createdAt: -1 });
 
-    const totalWorkouts = workouts.length;
-
-    let totalExercises = 0;
-    let completedExercises = 0;
-
-    workouts.forEach((workout) => {
-      workout.exercises.forEach((exercise) => {
-        totalExercises++;
-
-        if (exercise.completed) {
-          completedExercises++;
-        }
-      });
-    });
-
     const latestProgress = progressList[0] || null;
 
     const realtimeBMI = calculateBMI(user?.weight, user?.height);
     const latestWeight = latestProgress?.weight || user?.weight || null;
 
+    const today = new Date().getDay();
+    const todayWorkout = weeklySchedule[today];
+
     res.json({
       message: "Lấy dữ liệu dashboard thành công",
       dashboard: {
         user,
-        totalWorkouts,
-        totalExercises,
-        completedExercises,
+        totalWorkouts: todayWorkout.name,
+        totalExercises: todayWorkout.exercises.length,
+        completedExercises: 0,
         totalMealPlans: mealPlans.length,
         latestWeight,
         latestBMI: realtimeBMI,
         latestProgress,
+        todayWorkout,
+        todayWorkoutName: todayWorkout.name,
+        todayExercises: todayWorkout.exercises.length,
       },
     });
   } catch (error) {
