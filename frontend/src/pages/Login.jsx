@@ -31,7 +31,8 @@ function Login({ onLoginSuccess, onBack }) {
     if (Object.keys(newErrors).length > 0) return;
 
     try {
-      const response = await fetch("http://localhost:5000/api/auth/login", {
+      const response = await fetch("https://fitness-ai-app-71hw.onrender.com/api/auth/login", 
+        {
         method: "POST",
         headers: {
           "Content-Type": "application/json",

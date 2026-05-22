@@ -12,7 +12,7 @@ function Home({ onNavigate, onLogout }) {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("http://localhost:5000/api/dashboard", {
+      const res = await axios.get("https://fitness-ai-app-71hw.onrender.com", {
         headers: {
           authorization: token,
         },
