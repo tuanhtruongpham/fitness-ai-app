@@ -184,9 +184,17 @@ function Home({ onNavigate, onLogout }) {
   {dashboard?.todayWorkout?.exercises?.length > 0 ? (
     <div style={styles.exerciseGrid}>
       {dashboard.todayWorkout.exercises.map((exercise) => (
-        <div key={exercise} style={styles.exerciseItem}>
-          💪 {exercise}
-        </div>
+        <div
+  key={exercise}
+  style={styles.exerciseItem}
+  onClick={() => {
+    localStorage.setItem("selectedExercise", exercise);
+    localStorage.setItem("selectedWorkout", dashboard?.todayWorkout?.name);
+    onNavigate("workout");
+  }}
+>
+  💪 {exercise}
+</div>
       ))}
     </div>
   ) : (
@@ -310,6 +318,7 @@ exerciseItem: {
   padding: "16px",
   borderRadius: "14px",
   border: "1px solid #1f2937",
+  cursor: "pointer",
 },
 };
 

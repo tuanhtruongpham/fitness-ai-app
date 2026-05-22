@@ -1,5 +1,5 @@
 require("dns").setServers(["8.8.8.8", "8.8.4.4"]);
-
+const chatRoutes = require("./routes/chatRoutes");
 const aiRoutes = require("./routes/aiRoutes");
 const path = require("path");
 const dashboardRoutes = require("./routes/dashboardRoutes");
@@ -30,6 +30,7 @@ app.use("/api/progress", progressRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 app.use("/api/ai", aiRoutes);
+app.use("/api/chat", chatRoutes);
 app.get("/", (req, res) => {
   res.send("Fitness AI API Running");
 });
