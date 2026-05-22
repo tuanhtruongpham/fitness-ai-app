@@ -24,6 +24,19 @@ function Home({ onNavigate, onLogout }) {
     }
   };
 
+  // BMI realtime
+  const calculateBMI = (weight, height) => {
+    if (!weight || !height) return 0;
+
+    const h = height / 100;
+    return (weight / (h * h)).toFixed(1);
+  };
+
+  const realtimeBMI = calculateBMI(
+    dashboard?.latestWeight,
+    dashboard?.user?.height
+  );
+
   return (
     <div style={styles.page}>
       <div style={styles.sidebar}>
@@ -36,16 +49,54 @@ function Home({ onNavigate, onLogout }) {
             <div style={styles.activeMenu} onClick={() => onNavigate("home")}>
               🏠 Dashboard
             </div>
-            <div style={styles.menuItem} onClick={() => onNavigate("workout")}>💪 Workout</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("meal")}>🍽 Meal Plan</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("progress")}>📈 Progress</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("ai")}>🤖 AI Coach</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("profile")}>👤 Profile</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("settings")}>⚙ Settings</div>
+
+            <div
+              style={styles.menuItem}
+              onClick={() => onNavigate("workout")}
+            >
+              💪 Workout
+            </div>
+
+            <div
+              style={styles.menuItem}
+              onClick={() => onNavigate("meal")}
+            >
+              🍽 Meal Plan
+            </div>
+
+            <div
+              style={styles.menuItem}
+              onClick={() => onNavigate("progress")}
+            >
+              📈 Progress
+            </div>
+
+            <div
+              style={styles.menuItem}
+              onClick={() => onNavigate("ai")}
+            >
+              🤖 AI Coach
+            </div>
+
+            <div
+              style={styles.menuItem}
+              onClick={() => onNavigate("profile")}
+            >
+              👤 Profile
+            </div>
+
+            <div
+              style={styles.menuItem}
+              onClick={() => onNavigate("settings")}
+            >
+              ⚙ Settings
+            </div>
           </div>
         </div>
 
-        <div style={styles.logout} onClick={onLogout}>🚪 Logout</div>
+        <div style={styles.logout} onClick={onLogout}>
+          🚪 Logout
+        </div>
       </div>
 
       <div style={styles.main}>
@@ -54,8 +105,12 @@ function Home({ onNavigate, onLogout }) {
             <h1 style={styles.title}>
               Good Evening, {dashboard?.user?.fullName || "User"} 💪
             </h1>
-            <p style={styles.subtitle}>Your body is improving today.</p>
+
+            <p style={styles.subtitle}>
+              Your body is improving today.
+            </p>
           </div>
+
           <div style={styles.profile}>🔔 👤</div>
         </div>
 
@@ -80,27 +135,45 @@ function Home({ onNavigate, onLogout }) {
 
           <div style={styles.card}>
             <h3>📈 BMI</h3>
-            <h1>{dashboard?.latestBMI || 0}</h1>
+            <h1>{realtimeBMI || 0}</h1>
             <p style={styles.cardText}>Current BMI</p>
           </div>
         </div>
 
         <div style={styles.aiCard}>
           <div>
-            <h2 style={styles.aiTitle}>🤖 AI Coach Recommendation</h2>
+            <h2 style={styles.aiTitle}>
+              🤖 AI Coach Recommendation
+            </h2>
+
             <p style={styles.aiText}>
               Based on your BMI and progress, today you should focus on:
             </p>
 
             <ul style={styles.list}>
-              <li>Goal: {dashboard?.user?.goal || "Chưa cập nhật"}</li>
-              <li>Weight: {dashboard?.latestWeight || "Chưa có"} KG</li>
-              <li>BMI: {dashboard?.latestBMI || "Chưa có"}</li>
-              <li>{dashboard?.latestProgress?.note || "Hãy cập nhật tiến trình để AI gợi ý tốt hơn."}</li>
+              <li>
+                Goal: {dashboard?.user?.goal || "Chưa cập nhật"}
+              </li>
+
+              <li>
+                Weight: {dashboard?.latestWeight || "Chưa có"} KG
+              </li>
+
+              <li>
+                BMI: {realtimeBMI || "Chưa có"}
+              </li>
+
+              <li>
+                {dashboard?.latestProgress?.note ||
+                  "Hãy cập nhật tiến trình để AI gợi ý tốt hơn."}
+              </li>
             </ul>
           </div>
 
-          <button style={styles.aiCircle} onClick={() => onNavigate("ai")}>
+          <button
+            style={styles.aiCircle}
+            onClick={() => onNavigate("ai")}
+          >
             AI
           </button>
         </div>
@@ -130,7 +203,9 @@ function Home({ onNavigate, onLogout }) {
 
         <div style={styles.bottomGrid}>
           <div style={styles.bigCard}>
-            <h2 style={styles.sectionTitle}>💪 Dashboard Summary</h2>
+            <h2 style={styles.sectionTitle}>
+              💪 Dashboard Summary
+            </h2>
 
             <div style={styles.workoutItem}>
               <span>Total Workouts</span>
@@ -158,22 +233,34 @@ function Home({ onNavigate, onLogout }) {
 
             <div style={styles.workoutItem}>
               <span>Full Name</span>
-              <span>{dashboard?.user?.fullName || "Chưa có"}</span>
+
+              <span>
+                {dashboard?.user?.fullName || "Chưa có"}
+              </span>
             </div>
 
             <div style={styles.workoutItem}>
               <span>Email</span>
-              <span>{dashboard?.user?.email || "Chưa có"}</span>
+
+              <span>
+                {dashboard?.user?.email || "Chưa có"}
+              </span>
             </div>
 
             <div style={styles.workoutItem}>
               <span>Phone</span>
-              <span>{dashboard?.user?.phone || "Chưa có"}</span>
+
+              <span>
+                {dashboard?.user?.phone || "Chưa có"}
+              </span>
             </div>
 
             <div style={styles.workoutItem}>
               <span>Goal</span>
-              <span>{dashboard?.user?.goal || "Chưa cập nhật"}</span>
+
+              <span>
+                {dashboard?.user?.goal || "Chưa cập nhật"}
+              </span>
             </div>
           </div>
         </div>
