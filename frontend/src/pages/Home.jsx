@@ -73,7 +73,7 @@ function Home({ onNavigate, onLogout }) {
 
             <div
               style={styles.menuItem}
-              onClick={() => onNavigate("ai")}
+              onClick={() => onNavigate("ai-coach")}
             >
               🤖 AI Coach
             </div>
@@ -85,12 +85,7 @@ function Home({ onNavigate, onLogout }) {
               👤 Profile
             </div>
 
-            <div
-              style={styles.menuItem}
-              onClick={() => onNavigate("settings")}
-            >
-              ⚙ Settings
-            </div>
+            
           </div>
         </div>
 
@@ -172,7 +167,7 @@ function Home({ onNavigate, onLogout }) {
 
           <button
             style={styles.aiCircle}
-            onClick={() => onNavigate("ai")}
+            onClick={() => onNavigate("ai-coach")}
           >
             AI
           </button>

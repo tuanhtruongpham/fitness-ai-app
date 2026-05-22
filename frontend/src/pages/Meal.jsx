@@ -70,9 +70,9 @@ const generateMealPlan = async () => {
             <div style={styles.menuItem} onClick={() => onNavigate("workout")}>💪 Workout</div>
             <div style={styles.activeMenu} onClick={() => onNavigate("meal")}>🍽 Meal Plan</div>
             <div style={styles.menuItem} onClick={() => onNavigate("progress")}>📈 Progress</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("ai")}>🤖 AI Coach</div>
+            <div style={styles.menuItem} onClick={() => onNavigate("ai-coach")}>🤖 AI Coach</div>
             <div style={styles.menuItem} onClick={() => onNavigate("profile")}>👤 Profile</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("settings")}>⚙ Settings</div>
+            
           </div>
         </div>
 
