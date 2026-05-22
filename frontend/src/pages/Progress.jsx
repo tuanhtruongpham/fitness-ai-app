@@ -13,7 +13,7 @@ function Progress({ onNavigate, onLogout }) {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("http://localhost:5000/api/progress", {
+      const res = await axios.get("https://fitness-ai-app-71hw.onrender.com/api/progress", {
         headers: {
           authorization: token,
         },

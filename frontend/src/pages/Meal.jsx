@@ -15,7 +15,8 @@ function Meal({ onNavigate, onLogout }) {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("http://localhost:5000/api/meal", {
+      const res = await axios.get("https://fitness-ai-app-71hw.onrender.com/api/meal",
+         {
         headers: {
           authorization: token,
         },
@@ -35,7 +36,7 @@ const generateMealPlan = async () => {
     const token = localStorage.getItem("token");
 
     await axios.post(
-      "http://localhost:5000/api/ai/smart-plan",
+      "https://fitness-ai-app-71hw.onrender.com/api/ai/smart-plan",
       {
         daysPerWeek: 5,
         activityLevel: 1.55,

@@ -120,7 +120,7 @@ const calculateBMI = () => {
         setLoading(true);
 
         const registerResponse = await fetch(
-          "http://localhost:5000/api/auth/register",
+          "https://fitness-ai-app-71hw.onrender.com/api/auth/register",
           {
             method: "POST",
             headers: {
@@ -147,7 +147,7 @@ const calculateBMI = () => {
         localStorage.setItem("user", JSON.stringify(registerResult.user));
 
         const profileResponse = await fetch(
-          "http://localhost:5000/api/profile/update",
+          "https://fitness-ai-app-71hw.onrender.com/api/profile/update",
           {
             method: "PUT",
             headers: {
