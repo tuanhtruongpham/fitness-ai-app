@@ -27,7 +27,7 @@ export default function AICoach({ onNavigate, onLogout }) {
     setLoading(true);
 
     try {
-  const res = await fetch("http://localhost:5000/api/chat", {
+  const res = await fetch("https://fitness-ai-app-71hw.onrender.com/api/chat", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
