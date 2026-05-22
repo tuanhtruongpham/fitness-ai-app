@@ -7,19 +7,29 @@ const Meal = require("../models/Meal");
 const Progress = require("../models/Progress");
 const authMiddleware = require("../middleware/authMiddleware");
 
+function normalizeHeight(height) {
+  const h = Number(height);
+  if (!h) return 0;
+  return h > 3 ? h / 100 : h;
+}
+
+function calculateBMI(weight, height) {
+  const w = Number(weight);
+  const heightM = normalizeHeight(height);
+
+  if (!w || !heightM) return null;
+
+  return Number((w / (heightM * heightM)).toFixed(2));
+}
+
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const userId = req.user.id;
 
     const user = await User.findById(userId).select("-password");
-
     const workouts = await Workout.find({ userId });
-
     const mealPlans = await Meal.find({ userId });
-
-    const progressList = await Progress.find({ userId }).sort({
-      createdAt: -1,
-    });
+    const progressList = await Progress.find({ userId }).sort({ createdAt: -1 });
 
     const totalWorkouts = workouts.length;
 
@@ -38,6 +48,9 @@ router.get("/", authMiddleware, async (req, res) => {
 
     const latestProgress = progressList[0] || null;
 
+    const realtimeBMI = calculateBMI(user?.weight, user?.height);
+    const latestWeight = latestProgress?.weight || user?.weight || null;
+
     res.json({
       message: "Lấy dữ liệu dashboard thành công",
       dashboard: {
@@ -46,8 +59,8 @@ router.get("/", authMiddleware, async (req, res) => {
         totalExercises,
         completedExercises,
         totalMealPlans: mealPlans.length,
-        latestWeight: latestProgress ? latestProgress.weight : user?.weight || null,
-        latestBMI: latestProgress ? latestProgress.bmi : user?.bmi || null,
+        latestWeight,
+        latestBMI: realtimeBMI,
         latestProgress,
       },
     });
