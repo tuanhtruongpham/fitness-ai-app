@@ -14,16 +14,30 @@ function App() {
   const [page, setPage] = useState("landing");
 
   useEffect(() => {
+  const checkLogin = () => {
     const token = localStorage.getItem("token");
 
     if (token) {
       setPage("home");
+    } else {
+      setPage("landing");
     }
-  }, []);
+  };
+
+  checkLogin();
+
+  window.addEventListener("storage", checkLogin);
+
+  return () => {
+    window.removeEventListener("storage", checkLogin);
+  };
+}, []);
 
   const logout = () => {
     localStorage.removeItem("token");
     localStorage.removeItem("user");
+    localStorage.removeItem("isLoggedIn");
+    localStorage.removeItem("needProfile");
 
     setPage("landing");
   };
@@ -38,9 +52,7 @@ function App() {
       )}
 
       {page === "onboarding" && (
-        <Onboarding
-          onFinish={() => setPage("home")}
-        />
+        <Onboarding onFinish={() => setPage("home")} />
       )}
 
       {page === "login" && (
@@ -52,45 +64,35 @@ function App() {
 
       {page === "home" && (
         <Home
-          onNavigate={(targetPage) =>
-            setPage(targetPage)
-          }
+          onNavigate={(targetPage) => setPage(targetPage)}
           onLogout={logout}
         />
       )}
 
       {page === "workout" && (
         <Workout
-          onNavigate={(targetPage) =>
-            setPage(targetPage)
-          }
+          onNavigate={(targetPage) => setPage(targetPage)}
           onLogout={logout}
         />
       )}
 
       {page === "meal" && (
         <Meal
-          onNavigate={(targetPage) =>
-            setPage(targetPage)
-          }
+          onNavigate={(targetPage) => setPage(targetPage)}
           onLogout={logout}
         />
       )}
 
       {page === "progress" && (
         <Progress
-          onNavigate={(targetPage) =>
-            setPage(targetPage)
-          }
+          onNavigate={(targetPage) => setPage(targetPage)}
           onLogout={logout}
         />
       )}
 
       {page === "ai-coach" && (
         <AICoach
-          onNavigate={(targetPage) =>
-            setPage(targetPage)
-          }
+          onNavigate={(targetPage) => setPage(targetPage)}
           onLogout={logout}
         />
       )}

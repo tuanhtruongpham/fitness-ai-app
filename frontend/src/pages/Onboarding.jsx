@@ -1,5 +1,6 @@
 import { useState } from "react";
-
+import { GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 function Onboarding({ onFinish }) {
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState({});
@@ -174,7 +175,6 @@ const calculateBMI = () => {
 
         alert("Đăng ký và cập nhật hồ sơ thành công!");
         setLoading(false);
-        onFinish();
         return;
       } catch (error) {
         console.log(error);
@@ -518,26 +518,43 @@ const calculateBMI = () => {
 
             <p style={styles.passwordNote}>Must be at least 8 characters.</p>
 
-                    <GoogleLogin
-          onSuccess={async (credentialResponse) => {
-            try {
-              const res = await axios.post("https://fitness-ai-app-71hw.onrender.com/api/auth/google", {
-                credential: credentialResponse.credential,
-              });
+            <GoogleLogin
+  size="large"
+  width="380"
+  onSuccess={async (credentialResponse) => {
+    try {
+      const res = await axios.post(
+        "https://fitness-ai-app-71hw.onrender.com/api/auth/google",
+        {
+          credential: credentialResponse.credential,
+        }
+      );
 
-              localStorage.setItem("token", res.data.token);
-              localStorage.setItem("user", JSON.stringify(res.data.user));
+     localStorage.setItem("token", res.data.token);
+localStorage.setItem("user", JSON.stringify(res.data.user));
+localStorage.setItem("isLoggedIn", "true");
 
-              onFinish();
-            } catch (error) {
-              console.log(error);
-              alert("Đăng nhập Google thất bại");
-            }
-          }}
-          onError={() => {
-            alert("Đăng nhập Google thất bại");
-          }}
-        />
+if (
+  !res.data.user.age ||
+  !res.data.user.height ||
+  !res.data.user.weight ||
+  !res.data.user.gender ||
+  !res.data.user.goal
+) {
+  localStorage.setItem("needProfile", "true");
+}
+
+window.location.reload();
+    } catch (error) {
+      console.log("FULL ERROR:", error);
+      console.log("RESPONSE:", error.response?.data);
+      alert(error.message);
+    }
+  }}
+  onError={() => {
+    alert("Đăng nhập Google thất bại");
+  }}
+/>
           </div>
         )}
 
