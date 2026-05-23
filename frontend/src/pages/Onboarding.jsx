@@ -518,10 +518,26 @@ const calculateBMI = () => {
 
             <p style={styles.passwordNote}>Must be at least 8 characters.</p>
 
-            <button style={styles.googleBtn}>
-              <span style={styles.googleIcon}>G</span>
-              Continue with Google
-            </button>
+                    <GoogleLogin
+          onSuccess={async (credentialResponse) => {
+            try {
+              const res = await axios.post("https://fitness-ai-app-71hw.onrender.com/api/auth/google", {
+                credential: credentialResponse.credential,
+              });
+
+              localStorage.setItem("token", res.data.token);
+              localStorage.setItem("user", JSON.stringify(res.data.user));
+
+              onFinish();
+            } catch (error) {
+              console.log(error);
+              alert("Đăng nhập Google thất bại");
+            }
+          }}
+          onError={() => {
+            alert("Đăng nhập Google thất bại");
+          }}
+        />
           </div>
         )}
 

@@ -1,3 +1,5 @@
+import { GoogleLogin } from "@react-oauth/google";
+import axios from "axios";
 import { useState } from "react";
 
 function Login({ onLoginSuccess, onBack }) {
@@ -136,10 +138,33 @@ function Login({ onLoginSuccess, onBack }) {
             <span style={styles.line}></span>
           </div>
 
-          <button style={styles.googleBtn}>
-            <span style={styles.googleIcon}>G</span>
-            Continue with Google
-          </button>
+          <div style={styles.googleBtn}>
+  <GoogleLogin
+          size="large"
+          width="380"
+    onSuccess={async (credentialResponse) => {
+      try {
+        console.log("GOOGLE SUCCESS", credentialResponse);
+
+        const res = await axios.post("https://fitness-ai-app-71hw.onrender.com/api/auth/google", {
+          credential: credentialResponse.credential,
+        });
+
+        localStorage.setItem("token", res.data.token);
+        localStorage.setItem("user", JSON.stringify(res.data.user));
+
+        onFinish();
+      } catch (error) {
+        console.log(error);
+        alert("Đăng nhập Google thất bại");
+      }
+    }}
+    onError={() => {
+      console.log("GOOGLE ERROR");
+      alert("Đăng nhập Google thất bại");
+    }}
+  />
+</div>
 
           <button style={styles.backBtn} onClick={onBack}>
             ← Quay lại trang chủ
