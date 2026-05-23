@@ -154,6 +154,7 @@ function Login({ onLoginSuccess, onBack }) {
         localStorage.setItem("user", JSON.stringify(res.data.user));
 
         onFinish();
+        window.location.reload();
       } catch (error) {
         console.log(error);
         alert("Đăng nhập Google thất bại");
