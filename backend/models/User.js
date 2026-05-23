@@ -18,8 +18,7 @@ fullName: {
 
 phone: {
   type: String,
-  required: true,
-  unique: true,
+  default: "",
 },
   age: Number,
 
