@@ -571,58 +571,42 @@ function Onboarding({ onFinish }) {
 
             <p style={styles.passwordNote}>Must be at least 8 characters.</p>
 
-            <GoogleLogin
-              size="large"
-              width="380"
-              onSuccess={async (credentialResponse) => {
-                try {
-                  const res = await axios.post(`${API_URL}/api/auth/google`, {
-                    credential: credentialResponse.credential,
-                  });
+              <GoogleLogin
+                size="large"
+                width="380"
+                onSuccess={async (credentialResponse) => {
+                  try {
+                    const res = await axios.post(`${API_URL}/api/auth/google`, {
+                      credential: credentialResponse.credential,
+                    });
 
-                  localStorage.setItem("token", res.data.token);
-                  localStorage.setItem("user", JSON.stringify(res.data.user));
-                  localStorage.setItem("isLoggedIn", "true");
+                    localStorage.setItem("token", res.data.token);
+                    localStorage.setItem("user", JSON.stringify(res.data.user));
+                    localStorage.setItem("isLoggedIn", "true");
 
-                  if (
-                    !res.data.user.age ||
-                    !res.data.user.height ||
-                    !res.data.user.weight ||
-                    !res.data.user.gender ||
-                    !res.data.user.goal
-                  ) {
-                    localStorage.setItem("needProfile", "true");
+                    if (
+                      !res.data.user.age ||
+                      !res.data.user.height ||
+                      !res.data.user.weight ||
+                      !res.data.user.gender ||
+                      !res.data.user.goal
+                    ) {
+                      localStorage.setItem("needProfile", "true");
+                    }
+
+ 
+                    window.location.reload();
+                  } catch (error) {
+                    console.log("FULL ERROR:", error);
+                    console.log("RESPONSE:", error.response?.data);
+                    alert(error.message);
                   }
-
- HEAD
-window.location.reload();
-    } catch (error) {
-  console.log("FULL ERROR:", error);
-  console.log("RESPONSE:", JSON.stringify(error.response?.data, null, 2));
-
-  alert(
-    error.response?.data?.message ||
-    "Đăng ký Google thất bại"
-  );
-}
-  }}
-  onError={() => {
-    alert("Đăng nhập Google thất bại");
-  }}
-/>
-=======
-                  window.location.reload();
-                } catch (error) {
-                  console.log("FULL ERROR:", error);
-                  console.log("RESPONSE:", error.response?.data);
-                  alert(error.message);
-                }
-              }}
+                }}
               onError={() => {
                 alert("Đăng nhập Google thất bại");
               }}
             />
->>>>>>> bf97d0a (cập nhập data workout)
+
           </div>
         )}
 
