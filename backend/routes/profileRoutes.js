@@ -19,15 +19,43 @@ const storage = multer.diskStorage({
 
 const upload = multer({ storage });
 
+// ===== BMI AUTO CALCULATE =====
+const calculateBMI = (weight, height) => {
+  let h = Number(height);
+  const w = Number(weight);
+
+  if (!h || !w) return 0;
+
+  // nếu nhập 170 -> đổi thành 1.70m
+  if (h > 3) {
+    h = h / 100;
+  }
+
+  return Number((w / (h * h)).toFixed(1));
+};
+
+// ===== UPDATE PROFILE =====
 router.put("/update", authMiddleware, async (req, res) => {
   try {
     console.log("TOKEN USER:", req.user);
-
     console.log("BODY:", req.body);
-    
-    const { age, height, weight, gender, goal } = req.body;
 
-    const bmi = weight / (height * height);
+    const {
+      age,
+      height,
+      weight,
+      gender,
+      goal,
+      activity,
+      workoutPlace,
+      gymDays,
+      bmi,
+    } = req.body;
+
+    // BMI ưu tiên tính tự động
+    const finalBMI = bmi
+      ? Number(bmi)
+      : calculateBMI(weight, height);
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
@@ -37,7 +65,10 @@ router.put("/update", authMiddleware, async (req, res) => {
         weight,
         gender,
         goal,
-        bmi: Number(bmi.toFixed(2)),
+        activity,
+        workoutPlace,
+        gymDays: Number(gymDays || 3),
+        bmi: finalBMI,
       },
       { new: true }
     ).select("-password");
@@ -54,6 +85,7 @@ router.put("/update", authMiddleware, async (req, res) => {
   }
 });
 
+// ===== UPLOAD AVATAR =====
 router.post(
   "/avatar",
   authMiddleware,

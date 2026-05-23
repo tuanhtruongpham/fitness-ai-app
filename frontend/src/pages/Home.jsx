@@ -146,23 +146,46 @@ function Home({ onNavigate, onLogout }) {
             </p>
 
             <ul style={styles.list}>
-              <li>
-                Goal: {dashboard?.user?.goal || "Chưa cập nhật"}
-              </li>
+            <li>
+  Goal: {dashboard?.user?.goal || "maintenance"}
+</li>
 
-              <li>
-                Weight: {dashboard?.latestWeight || "Chưa có"} KG
-              </li>
+<li>
+  BMI Class:{" "}
+  {dashboard?.aiRecommendation?.bmiClass || "normal"}
+</li>
 
-              <li>
-                BMI: {realtimeBMI || "Chưa có"}
-              </li>
+<li>
+  AI Split:{" "}
+  {dashboard?.aiRecommendation?.split || "Full Body"}
+</li>
 
-              <li>
-                {dashboard?.latestProgress?.note ||
-                  "Hãy cập nhật tiến trình để AI gợi ý tốt hơn."}
-              </li>
+<li>
+  Cardio:{" "}
+  {dashboard?.aiRecommendation?.cardio?.type || "Walking"}
+  {" - "}
+  {dashboard?.aiRecommendation?.cardio?.duration || 0}
+  min
+</li>
+
+<li>
+  Weekly Volume:{" "}
+  {dashboard?.aiRecommendation?.volume || "6-10 sets"}
+</li>
+
+<li>
+  {dashboard?.aiRecommendation?.recommendation ||
+    "AI recommendation unavailable"}
+</li>
             </ul>
+
+            <div style={styles.ruleBox}>
+  {dashboard?.aiRecommendation?.rulesApplied?.map((rule) => (
+    <span key={rule} style={styles.ruleTag}>
+      {rule}
+    </span>
+  ))}
+</div>
           </div>
 
           <button
@@ -319,6 +342,21 @@ exerciseItem: {
   borderRadius: "14px",
   border: "1px solid #1f2937",
   cursor: "pointer",
+},
+ruleBox: {
+  display: "flex",
+  flexWrap: "wrap",
+  gap: "10px",
+  marginTop: "20px",
+},
+
+ruleTag: {
+  padding: "8px 14px",
+  borderRadius: "999px",
+  background: "#84cc16",
+  color: "#0f172a",
+  fontWeight: "bold",
+  fontSize: "14px",
 },
 };
 

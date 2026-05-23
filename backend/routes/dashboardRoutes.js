@@ -7,6 +7,10 @@ const Meal = require("../models/Meal");
 const Progress = require("../models/Progress");
 const authMiddleware = require("../middleware/authMiddleware");
 
+const {
+  generateAIRecommendation,
+} = require("../utils/workoutEngine");
+
 function normalizeHeight(height) {
   const h = Number(height);
   if (!h) return 0;
@@ -19,7 +23,7 @@ function calculateBMI(weight, height) {
 
   if (!w || !heightM) return null;
 
-  return Number((w / (heightM * heightM)).toFixed(2));
+  return Number((w / (heightM * heightM)).toFixed(1));
 }
 
 const weeklySchedule = {
@@ -103,48 +107,58 @@ const weeklySchedule = {
 };
 
 router.get("/", authMiddleware, async (req, res) => {
-  console.log("Dashboard route running");
   try {
     const userId = req.user.id;
 
     const user = await User.findById(userId).select("-password");
     const workouts = await Workout.find({ userId });
     const mealPlans = await Meal.find({ userId });
-    const progressList = await Progress.find({ userId }).sort({ createdAt: -1 });
+    const progressList = await Progress.find({ userId }).sort({
+      createdAt: -1,
+    });
 
     const latestProgress = progressList[0] || null;
 
-    const realtimeBMI = calculateBMI(user?.weight, user?.height);
     const latestWeight = latestProgress?.weight || user?.weight || null;
+    const realtimeBMI = calculateBMI(latestWeight, user?.height);
 
-   const vietnamTime = new Date(
-  new Date().toLocaleString("en-US", {
-    timeZone: "Asia/Ho_Chi_Minh",
-  })
-);
+    const gymDays = Number(user?.gymDays || 3);
 
-const today = vietnamTime.getDay();
+    const aiRecommendation = generateAIRecommendation({
+      goal: user?.goal || "maintenance",
+      bmi: realtimeBMI || user?.bmi || 22,
+      gymDays,
+      workoutPlace: user?.workoutPlace || "gym",
+    });
 
-const todayWorkout = weeklySchedule[today];
+    const vietnamTime = new Date(
+      new Date().toLocaleString("en-US", {
+        timeZone: "Asia/Ho_Chi_Minh",
+      })
+    );
 
-console.log("VN Time:", vietnamTime);
-console.log("Today:", today);
-console.log("Workout:", todayWorkout);
+    const today = vietnamTime.getDay();
+    const todayWorkout = weeklySchedule[today];
 
     res.json({
       message: "Lấy dữ liệu dashboard thành công",
       dashboard: {
         user,
-        totalWorkouts: todayWorkout.name,
+
+        totalWorkouts: workouts.length,
         totalExercises: todayWorkout.exercises.length,
         completedExercises: 0,
         totalMealPlans: mealPlans.length,
+
         latestWeight,
         latestBMI: realtimeBMI,
         latestProgress,
+
         todayWorkout,
         todayWorkoutName: todayWorkout.name,
         todayExercises: todayWorkout.exercises.length,
+
+        aiRecommendation,
       },
     });
   } catch (error) {

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
+
 function Onboarding({ onFinish }) {
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState({});
@@ -22,13 +23,27 @@ function Onboarding({ onFinish }) {
     password: "",
   });
 
+  const API_URL = "https://fitness-ai-app-71hw.onrender.com";
+
   const goals = ["Giảm cân", "Giữ cân", "Tăng cân", "Tăng cơ"];
 
   const activities = [
-    { title: "Ít vận động", desc: "Phần lớn thời gian ngồi học, ngồi làm việc." },
-    { title: "Vận động nhẹ", desc: "Có đi lại trong ngày nhưng không tập luyện nhiều." },
-    { title: "Năng động", desc: "Thường xuyên di chuyển hoặc có tập luyện vài buổi." },
-    { title: "Rất năng động", desc: "Tập luyện đều hoặc công việc cần vận động nhiều." },
+    {
+      title: "Ít vận động",
+      desc: "Phần lớn thời gian ngồi học, ngồi làm việc.",
+    },
+    {
+      title: "Vận động nhẹ",
+      desc: "Có đi lại trong ngày nhưng không tập luyện nhiều.",
+    },
+    {
+      title: "Năng động",
+      desc: "Thường xuyên di chuyển hoặc có tập luyện vài buổi.",
+    },
+    {
+      title: "Rất năng động",
+      desc: "Tập luyện đều hoặc công việc cần vận động nhiều.",
+    },
   ];
 
   const goalMessage = {
@@ -48,20 +63,18 @@ function Onboarding({ onFinish }) {
   };
 
   const normalizeHeight = (height) => {
-  const h = Number(height);
-  if (!h) return 0;
+    const h = Number(height);
+    if (!h) return 0;
+    return h > 3 ? h / 100 : h;
+  };
 
-  return h > 3 ? h / 100 : h;
-};
+  const calculateBMI = () => {
+    const h = normalizeHeight(data.height);
+    const w = Number(data.weight);
 
-const calculateBMI = () => {
-  const h = normalizeHeight(data.height);
-  const w = Number(data.weight);
-
-  if (!h || !w) return "";
-
-  return (w / (h * h)).toFixed(1);
-};
+    if (!h || !w) return "";
+    return (w / (h * h)).toFixed(1);
+  };
 
   const calculateAge = () => {
     const birth = new Date(data.birthDate);
@@ -78,6 +91,13 @@ const calculateBMI = () => {
     }
 
     return age;
+  };
+
+  const mapGoalToBackend = (goal) => {
+    if (goal === "Giảm cân") return "fat_loss";
+    if (goal === "Tăng cơ") return "muscle_gain";
+    if (goal === "Tăng cân") return "weight_gain";
+    return "maintenance";
   };
 
   const bmi = calculateBMI();
@@ -105,8 +125,12 @@ const calculateBMI = () => {
 
     if (step === 7) {
       if (!data.email.trim()) newErrors.email = true;
-      if (!data.phone || !/^[0-9]{10}$/.test(data.phone)) newErrors.phone = true;
-      if (!data.password || data.password.length < 8) newErrors.password = true;
+      if (!data.phone || !/^[0-9]{10}$/.test(data.phone)) {
+        newErrors.phone = true;
+      }
+      if (!data.password || data.password.length < 8) {
+        newErrors.password = true;
+      }
     }
 
     setErrors(newErrors);
@@ -120,21 +144,18 @@ const calculateBMI = () => {
       try {
         setLoading(true);
 
-        const registerResponse = await fetch(
-          "https://fitness-ai-app-71hw.onrender.com/api/auth/register",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json",
-            },
-            body: JSON.stringify({
-              fullName: data.name,
-              phone: data.phone,
-              email: data.email,
-              password: data.password,
-            }),
-          }
-        );
+        const registerResponse = await fetch(`${API_URL}/api/auth/register`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            fullName: data.name,
+            phone: data.phone,
+            email: data.email,
+            password: data.password,
+          }),
+        });
 
         const registerResult = await registerResponse.json();
 
@@ -146,24 +167,26 @@ const calculateBMI = () => {
 
         localStorage.setItem("token", registerResult.token);
         localStorage.setItem("user", JSON.stringify(registerResult.user));
+        localStorage.setItem("isLoggedIn", "true");
 
-        const profileResponse = await fetch(
-          "https://fitness-ai-app-71hw.onrender.com/api/profile/update",
-          {
-            method: "PUT",
-            headers: {
-              "Content-Type": "application/json",
-              authorization: registerResult.token
-            },
-            body: JSON.stringify({
-              age: calculateAge(),
-              height: Number(data.height),
-              weight: Number(data.weight),
-              gender: data.gender,
-              goal: data.goal,
-            }),
-          }
-        );
+        const profileResponse = await fetch(`${API_URL}/api/profile/update`, {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            authorization: registerResult.token,
+          },
+          body: JSON.stringify({
+            age: calculateAge(),
+            height: Number(data.height),
+            weight: Number(data.weight),
+            gender: data.gender,
+            goal: mapGoalToBackend(data.goal),
+            activity: data.activity,
+            workoutPlace: data.workoutPlace,
+            gymDays: Number(data.gymDays || 3),
+            bmi: Number(bmi),
+          }),
+        });
 
         const profileResult = await profileResponse.json();
 
@@ -173,8 +196,17 @@ const calculateBMI = () => {
           return;
         }
 
+        localStorage.setItem("user", JSON.stringify(profileResult.user));
+
         alert("Đăng ký và cập nhật hồ sơ thành công!");
         setLoading(false);
+
+        if (onFinish) {
+          onFinish();
+        } else {
+          window.location.reload();
+        }
+
         return;
       } catch (error) {
         console.log(error);
@@ -198,15 +230,13 @@ const calculateBMI = () => {
   const progress = ((step + 1) / 8) * 100;
 
   return (
-  <div
-    style={styles.page}
-    onKeyDown={(e) => {
-      if (e.key === "Enter") {
-        nextStep();
-      }
-    }}
-    tabIndex={0}
-  >
+    <div
+      style={styles.page}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") nextStep();
+      }}
+      tabIndex={0}
+    >
       <div style={styles.header}>
         <h1 style={styles.logo}>
           FITNESS<span style={styles.green}>UT</span>
@@ -223,7 +253,7 @@ const calculateBMI = () => {
             <h2>Welcome to Fitness AI</h2>
             <p style={styles.desc}>
               Fitness AI sẽ giúp bạn xây dựng kế hoạch tập luyện, dinh dưỡng và
-              theo dõi tiến trình cơ thể thông minh hơn!.
+              theo dõi tiến trình cơ thể thông minh hơn!
             </p>
 
             <div style={styles.previewGrid}>
@@ -240,15 +270,19 @@ const calculateBMI = () => {
             <p style={styles.desc}>Tụi mình sẽ cá nhân hóa trải nghiệm cho bạn.</p>
 
             <label style={styles.fieldLabel}>Tên của bạn</label>
-
             <input
-              style={{ ...styles.input, ...(errors.name ? styles.errorInput : {}) }}
+              style={{
+                ...styles.input,
+                ...(errors.name ? styles.errorInput : {}),
+              }}
               placeholder="Nhập tên của bạn"
               value={data.name}
               onChange={(e) => updateData("name", e.target.value)}
             />
 
-            {errors.name && <p style={styles.errorText}>Vui lòng nhập tên của bạn</p>}
+            {errors.name && (
+              <p style={styles.errorText}>Vui lòng nhập tên của bạn</p>
+            )}
           </div>
         )}
 
@@ -280,7 +314,9 @@ const calculateBMI = () => {
               ))}
             </div>
 
-            {errors.goal && <p style={styles.errorText}>Vui lòng chọn mục tiêu của bạn</p>}
+            {errors.goal && (
+              <p style={styles.errorText}>Vui lòng chọn mục tiêu của bạn</p>
+            )}
           </div>
         )}
 
@@ -294,7 +330,8 @@ const calculateBMI = () => {
             </p>
 
             <p style={styles.quote}>
-              “Không cần hoàn hảo ngay từ đầu. Chỉ cần bắt đầu và tiến bộ mỗi ngày.”
+              “Không cần hoàn hảo ngay từ đầu. Chỉ cần bắt đầu và tiến bộ mỗi
+              ngày.”
             </p>
           </div>
         )}
@@ -302,7 +339,6 @@ const calculateBMI = () => {
         {step === 4 && (
           <div style={styles.content}>
             <h2>Mức độ hoạt động hằng ngày của bạn?</h2>
-
             <p style={styles.desc}>Không tính các buổi tập gym riêng.</p>
 
             <div style={styles.optionList}>
@@ -324,27 +360,30 @@ const calculateBMI = () => {
               ))}
             </div>
 
-            {errors.activity && <p style={styles.errorText}>Vui lòng chọn mức độ hoạt động</p>}
+            {errors.activity && (
+              <p style={styles.errorText}>Vui lòng chọn mức độ hoạt động</p>
+            )}
           </div>
         )}
 
         {step === 5 && (
           <div style={styles.content}>
             <h2>Thông tin cơ thể của bạn</h2>
-
             <p style={styles.desc}>Fitness AI sẽ dùng thông tin này để tính BMI.</p>
 
             <label style={styles.fieldLabel}>Ngày sinh</label>
             <input
-                style={{
-                  ...styles.input,
-                  ...(errors.birthDate ? styles.errorInput : {}),
-                }}
-                type="date"
-                value={data.birthDate}
-                onChange={(e) => updateData("birthDate", e.target.value)}
-              />
-            {errors.birthDate && <p style={styles.errorText}>Vui lòng chọn ngày sinh</p>}
+              style={{
+                ...styles.input,
+                ...(errors.birthDate ? styles.errorInput : {}),
+              }}
+              type="date"
+              value={data.birthDate}
+              onChange={(e) => updateData("birthDate", e.target.value)}
+            />
+            {errors.birthDate && (
+              <p style={styles.errorText}>Vui lòng chọn ngày sinh</p>
+            )}
 
             <label style={styles.fieldLabel}>Giới tính</label>
             <select
@@ -358,9 +397,11 @@ const calculateBMI = () => {
               <option value="">Chọn giới tính</option>
               <option value="Nam">Nam</option>
               <option value="Nữ">Nữ</option>
-              <option value="Khác">Khác</option>  
+              <option value="Khác">Khác</option>
             </select>
-            {errors.gender && <p style={styles.errorText}>Vui lòng chọn giới tính</p>}
+            {errors.gender && (
+              <p style={styles.errorText}>Vui lòng chọn giới tính</p>
+            )}
 
             <label style={styles.fieldLabel}>Chiều cao</label>
             <input
@@ -373,7 +414,9 @@ const calculateBMI = () => {
               value={data.height}
               onChange={(e) => updateData("height", e.target.value)}
             />
-            {errors.height && <p style={styles.errorText}>Vui lòng nhập chiều cao</p>}
+            {errors.height && (
+              <p style={styles.errorText}>Vui lòng nhập chiều cao</p>
+            )}
 
             <label style={styles.fieldLabel}>Cân nặng</label>
             <input
@@ -386,7 +429,9 @@ const calculateBMI = () => {
               value={data.weight}
               onChange={(e) => updateData("weight", e.target.value)}
             />
-            {errors.weight && <p style={styles.errorText}>Vui lòng nhập cân nặng</p>}
+            {errors.weight && (
+              <p style={styles.errorText}>Vui lòng nhập cân nặng</p>
+            )}
 
             {bmi && (
               <div style={styles.bmiBox}>
@@ -399,7 +444,6 @@ const calculateBMI = () => {
         {step === 6 && (
           <div style={styles.content}>
             <h2>Bạn muốn tập ở đâu?</h2>
-
             <p style={styles.desc}>Chọn nơi tập để Fitness AI tạo lịch phù hợp.</p>
 
             <div style={styles.optionList}>
@@ -426,7 +470,9 @@ const calculateBMI = () => {
               </button>
             </div>
 
-            {errors.workoutPlace && <p style={styles.errorText}>Vui lòng chọn nơi tập</p>}
+            {errors.workoutPlace && (
+              <p style={styles.errorText}>Vui lòng chọn nơi tập</p>
+            )}
 
             {data.workoutPlace === "gym" && (
               <>
@@ -465,12 +511,14 @@ const calculateBMI = () => {
         {step === 7 && (
           <div style={styles.content}>
             <h2>Almost there! Create your account.</h2>
-
             <p style={styles.desc}>Tạo tài khoản để lưu kế hoạch cá nhân của bạn.</p>
 
             <label style={styles.fieldLabel}>Email</label>
             <input
-              style={{ ...styles.input, ...(errors.email ? styles.errorInput : {}) }}
+              style={{
+                ...styles.input,
+                ...(errors.email ? styles.errorInput : {}),
+              }}
               type="email"
               placeholder="Email address"
               value={data.email}
@@ -480,13 +528,18 @@ const calculateBMI = () => {
 
             <label style={styles.fieldLabel}>Số điện thoại</label>
             <input
-              style={{ ...styles.input, ...(errors.phone ? styles.errorInput : {}) }}
+              style={{
+                ...styles.input,
+                ...(errors.phone ? styles.errorInput : {}),
+              }}
               type="text"
               placeholder="Số điện thoại 10 chữ số"
               value={data.phone}
               onChange={(e) => updateData("phone", e.target.value)}
             />
-            {errors.phone && <p style={styles.errorText}>Số điện thoại phải đủ 10 số</p>}
+            {errors.phone && (
+              <p style={styles.errorText}>Số điện thoại phải đủ 10 số</p>
+            )}
 
             <label style={styles.fieldLabel}>Mật khẩu</label>
             <div
@@ -519,31 +572,29 @@ const calculateBMI = () => {
             <p style={styles.passwordNote}>Must be at least 8 characters.</p>
 
             <GoogleLogin
-  size="large"
-  width="380"
-  onSuccess={async (credentialResponse) => {
-    try {
-      const res = await axios.post(
-        "https://fitness-ai-app-71hw.onrender.com/api/auth/google",
-        {
-          credential: credentialResponse.credential,
-        }
-      );
+              size="large"
+              width="380"
+              onSuccess={async (credentialResponse) => {
+                try {
+                  const res = await axios.post(`${API_URL}/api/auth/google`, {
+                    credential: credentialResponse.credential,
+                  });
 
-     localStorage.setItem("token", res.data.token);
-localStorage.setItem("user", JSON.stringify(res.data.user));
-localStorage.setItem("isLoggedIn", "true");
+                  localStorage.setItem("token", res.data.token);
+                  localStorage.setItem("user", JSON.stringify(res.data.user));
+                  localStorage.setItem("isLoggedIn", "true");
 
-if (
-  !res.data.user.age ||
-  !res.data.user.height ||
-  !res.data.user.weight ||
-  !res.data.user.gender ||
-  !res.data.user.goal
-) {
-  localStorage.setItem("needProfile", "true");
-}
+                  if (
+                    !res.data.user.age ||
+                    !res.data.user.height ||
+                    !res.data.user.weight ||
+                    !res.data.user.gender ||
+                    !res.data.user.goal
+                  ) {
+                    localStorage.setItem("needProfile", "true");
+                  }
 
+ HEAD
 window.location.reload();
     } catch (error) {
   console.log("FULL ERROR:", error);
@@ -559,6 +610,19 @@ window.location.reload();
     alert("Đăng nhập Google thất bại");
   }}
 />
+=======
+                  window.location.reload();
+                } catch (error) {
+                  console.log("FULL ERROR:", error);
+                  console.log("RESPONSE:", error.response?.data);
+                  alert(error.message);
+                }
+              }}
+              onError={() => {
+                alert("Đăng nhập Google thất bại");
+              }}
+            />
+>>>>>>> bf97d0a (cập nhập data workout)
           </div>
         )}
 
@@ -767,26 +831,6 @@ const styles = {
     textAlign: "left",
     color: "#6b7280",
     marginBottom: "22px",
-  },
-
-  googleBtn: {
-    width: "100%",
-    padding: "16px",
-    border: "none",
-    borderRadius: "6px",
-    background: "#e5e7eb",
-    fontSize: "18px",
-    fontWeight: "bold",
-    cursor: "pointer",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    gap: "12px",
-  },
-
-  googleIcon: {
-    color: "#0b74f1",
-    fontWeight: "bold",
   },
 
   actions: {

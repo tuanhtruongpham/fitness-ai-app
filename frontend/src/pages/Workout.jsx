@@ -1,12 +1,37 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import workoutDatabase from "../data/workoutDatabase";
 
 function Workout({ onNavigate, onLogout }) {
   const [selectedGroup, setSelectedGroup] = useState("Chest");
   const [selectedLevel, setSelectedLevel] = useState("Beginner");
   const [selectedExercise, setSelectedExercise] = useState(null);
+  const [aiPlan, setAiPlan] = useState(null);
 
   const muscleGroups = Object.keys(workoutDatabase);
+  useEffect(() => {
+  fetchAIPlan();
+}, []);
+
+const fetchAIPlan = async () => {
+  try {
+    const token = localStorage.getItem("token");
+
+    const res = await fetch(
+      "https://fitness-ai-app-71hw.onrender.com/api/workouts/ai-plan",
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+
+    const data = await res.json();
+
+    setAiPlan(data.aiPlan);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
   const levelInfo = {
     Beginner: "< 6 tháng tập",
@@ -92,6 +117,48 @@ function Workout({ onNavigate, onLogout }) {
 
         <div style={styles.layout}>
           <div style={styles.exerciseSection}>
+            {aiPlan && (
+  <div style={styles.aiPlanBox}>
+    <h2 style={styles.aiPlanTitle}>
+      🤖 AI Personalized Workout Plan
+    </h2>
+
+    <p style={styles.aiPlanText}>
+      Level: {aiPlan.level} | Location: {aiPlan.location}
+    </p>
+
+    {aiPlan.plan.map((day) => (
+      <div key={day.day} style={styles.aiDayBox}>
+        <h3>{day.day}</h3>
+
+        <div style={styles.aiExerciseGrid}>
+          {day.exercises.map((exercise) => (
+            <div
+              key={exercise.name}
+              style={styles.aiExerciseCard}
+            >
+              <h4>{exercise.name}</h4>
+
+              <p>{exercise.target}</p>
+
+              <p>
+                {exercise.sets
+                  ? `${exercise.sets} sets`
+                  : ""}
+                {exercise.reps
+                  ? ` x ${exercise.reps}`
+                  : ""}
+                {exercise.duration
+                  ? ` - ${exercise.duration}`
+                  : ""}
+              </p>
+            </div>
+          ))}
+        </div>
+      </div>
+    ))}
+  </div>
+)}
             <h2 style={styles.sectionTitle}>{selectedGroup} Workout</h2>
 
             <div style={styles.levelBox}>
@@ -257,6 +324,40 @@ const styles = {
   videoDetailBox: { height: "320px", borderRadius: "18px", background: "#1f2937", display: "flex", justifyContent: "center", alignItems: "center", color: "#94a3b8", marginBottom: "20px", overflow: "hidden" },
   infoGrid: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px", color: "#cbd5e1" },
   modalDesc: { color: "#cbd5e1", lineHeight: "1.7", marginTop: "20px" },
+  aiPlanBox: {
+  background: "#0f172a",
+  borderRadius: "22px",
+  padding: "25px",
+  marginBottom: "30px",
+  border: "1px solid rgba(132,204,22,0.3)",
+},
+
+aiPlanTitle: {
+  color: "#84cc16",
+  marginBottom: "10px",
+},
+
+aiPlanText: {
+  color: "#cbd5e1",
+  marginBottom: "25px",
+},
+
+aiDayBox: {
+  marginBottom: "30px",
+},
+
+aiExerciseGrid: {
+  display: "grid",
+  gridTemplateColumns: "repeat(2,1fr)",
+  gap: "16px",
+},
+
+aiExerciseCard: {
+  background: "#111827",
+  padding: "18px",
+  borderRadius: "18px",
+  border: "1px solid #1f2937",
+},
 };
 
 export default Workout;
