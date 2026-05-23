@@ -103,6 +103,7 @@ const weeklySchedule = {
 };
 
 router.get("/", authMiddleware, async (req, res) => {
+  console.log("Dashboard route running");
   try {
     const userId = req.user.id;
 
@@ -116,8 +117,19 @@ router.get("/", authMiddleware, async (req, res) => {
     const realtimeBMI = calculateBMI(user?.weight, user?.height);
     const latestWeight = latestProgress?.weight || user?.weight || null;
 
-    const today = new Date().getDay();
-    const todayWorkout = weeklySchedule[today];
+   const vietnamTime = new Date(
+  new Date().toLocaleString("en-US", {
+    timeZone: "Asia/Ho_Chi_Minh",
+  })
+);
+
+const today = vietnamTime.getDay();
+
+const todayWorkout = weeklySchedule[today];
+
+console.log("VN Time:", vietnamTime);
+console.log("Today:", today);
+console.log("Workout:", todayWorkout);
 
     res.json({
       message: "Lấy dữ liệu dashboard thành công",
