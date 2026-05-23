@@ -139,31 +139,35 @@ function Login({ onLoginSuccess, onBack }) {
           </div>
 
           <div style={styles.googleBtn}>
-  <GoogleLogin
-          size="large"
-          width="380"
-    onSuccess={async (credentialResponse) => {
-      try {
-        console.log("GOOGLE SUCCESS", credentialResponse);
+ <GoogleLogin
+  size="large"
+  width="380"
+  onSuccess={async (credentialResponse) => {
+    try {
+      console.log("GOOGLE SUCCESS", credentialResponse);
 
-        const res = await axios.post("https://fitness-ai-app-71hw.onrender.com/api/auth/google", {
+      const res = await axios.post(
+        "https://fitness-ai-app-71hw.onrender.com/api/auth/google",
+        {
           credential: credentialResponse.credential,
-        });
+        }
+      );
 
-        localStorage.setItem("token", res.data.token);
-        localStorage.setItem("user", JSON.stringify(res.data.user));
-        onFinish();
-        window.location.reload();
-      } catch (error) {
-        console.log(error);
-        alert("Đăng nhập Google thất bại");
-      }
-    }}
-    onError={() => {
-      console.log("GOOGLE ERROR");
+      localStorage.setItem("token", res.data.token);
+      localStorage.setItem("user", JSON.stringify(res.data.user));
+
+      onLoginSuccess();
+
+    } catch (error) {
+      console.log(error);
       alert("Đăng nhập Google thất bại");
-    }}
-  />
+    }
+  }}
+  onError={() => {
+    console.log("GOOGLE ERROR");
+    alert("Đăng nhập Google thất bại");
+  }}
+/>
 </div>
 
           <button style={styles.backBtn} onClick={onBack}>
