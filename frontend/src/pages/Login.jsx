@@ -159,9 +159,13 @@ function Login({ onLoginSuccess, onBack }) {
       onLoginSuccess();
 
     } catch (error) {
-      console.log(error);
-      alert("Đăng nhập Google thất bại");
-    }
+  console.log(error);
+
+  alert(
+    error.response?.data?.message ||
+    "Đăng nhập Google thất bại"
+  );
+}
   }}
   onError={() => {
     console.log("GOOGLE ERROR");
