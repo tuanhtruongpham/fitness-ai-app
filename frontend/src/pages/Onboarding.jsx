@@ -547,7 +547,7 @@ if (
 window.location.reload();
     } catch (error) {
   console.log("FULL ERROR:", error);
-  console.log("RESPONSE:", error.response?.data);
+  console.log("RESPONSE:", JSON.stringify(error.response?.data, null, 2));
 
   alert(
     error.response?.data?.message ||
