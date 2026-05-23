@@ -111,7 +111,6 @@ router.post("/login", async (req, res) => {
   }
 });
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
-
 router.post("/google", async (req, res) => {
   try {
     const { credential } = req.body;
@@ -127,12 +126,56 @@ router.post("/google", async (req, res) => {
 
     let user = await User.findOne({ email });
 
+    if (user) {
+      return res.status(400).json({
+        message: "Gmail này đã được sử dụng",
+      });
+    }
+
+    user = await User.create({
+      fullName: name,
+      email,
+      avatar: picture,
+      password: "google-login",
+      phone: "",
+    });
+
+    const token = jwt.sign(
+      { id: user._id },
+      process.env.JWT_SECRET,
+      { expiresIn: "7d" }
+    );
+
+    res.json({
+      message: "Đăng ký Google thành công",
+      token,
+      user,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Google register failed",
+      error: error.message,
+    });
+  }
+});
+router.post("/google-login", async (req, res) => {
+  try {
+    const { credential } = req.body;
+
+    const ticket = await googleClient.verifyIdToken({
+      idToken: credential,
+      audience: process.env.GOOGLE_CLIENT_ID,
+    });
+
+    const payload = ticket.getPayload();
+
+    const { email } = payload;
+
+    let user = await User.findOne({ email });
+
     if (!user) {
-      user = await User.create({
-        fullName: name,
-        email,
-        avatar: picture,
-        password: "google-login",
+      return res.status(404).json({
+        message: "Tài khoản Google này chưa được đăng ký",
       });
     }
 

@@ -147,7 +147,7 @@ function Login({ onLoginSuccess, onBack }) {
       console.log("GOOGLE SUCCESS", credentialResponse);
 
       const res = await axios.post(
-        "https://fitness-ai-app-71hw.onrender.com/api/auth/google",
+        "https://fitness-ai-app-71hw.onrender.com/api/auth/google-login",
         {
           credential: credentialResponse.credential,
         }
