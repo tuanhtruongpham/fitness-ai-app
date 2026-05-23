@@ -546,10 +546,14 @@ if (
 
 window.location.reload();
     } catch (error) {
-      console.log("FULL ERROR:", error);
-      console.log("RESPONSE:", error.response?.data);
-      alert(error.message);
-    }
+  console.log("FULL ERROR:", error);
+  console.log("RESPONSE:", error.response?.data);
+
+  alert(
+    error.response?.data?.message ||
+    "Đăng ký Google thất bại"
+  );
+}
   }}
   onError={() => {
     alert("Đăng nhập Google thất bại");
