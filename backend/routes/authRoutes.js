@@ -113,7 +113,7 @@ router.post("/login", async (req, res) => {
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 router.post("/google", async (req, res) => {
   try {
-    const { credential } = req.body;
+    const { credential, age, height, weight, gender, goal } = req.body;
 
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
@@ -138,6 +138,11 @@ router.post("/google", async (req, res) => {
       avatar: picture,
       password: "google-login",
       phone: "",
+      age,
+      height,
+      weight,
+      gender,
+      goal,
     });
 
     const token = jwt.sign(
