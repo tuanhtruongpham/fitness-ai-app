@@ -203,14 +203,21 @@ const styles = {
   },
 
   sidebar: {
-    width: "260px",
-    background: "#111827",
-    padding: "30px",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    borderRight: "1px solid #1f2937",
-  },
+  width: "260px",
+  height: "100vh",
+  position: "fixed",
+  top: 0,
+  left: 0,
+
+  background: "#111827",
+  padding: "30px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  borderRight: "1px solid #1f2937",
+
+  overflowY: "auto",
+},
 
   logo: {
     fontSize: "30px",
@@ -253,9 +260,10 @@ const styles = {
   },
 
   main: {
-    flex: 1,
-    padding: "40px",
-  },
+  flex: 1,
+  padding: "40px",
+  marginLeft: "260px",
+},
 
   header: {
     display: "flex",

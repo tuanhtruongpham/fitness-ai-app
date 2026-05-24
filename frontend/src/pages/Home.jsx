@@ -297,14 +297,32 @@ function Home({ onNavigate, onLogout }) {
 
 const styles = {
   page: { display: "flex", minHeight: "100vh", background: "#0f172a", color: "white", fontFamily: "Arial" },
-  sidebar: { width: "260px", background: "#111827", padding: "30px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderRight: "1px solid #1f2937" },
-  logo: { fontSize: "30px", marginBottom: "40px" },
+sidebar: {
+  width: "260px",
+  height: "100vh",
+  position: "fixed",
+  top: 0,
+  left: 0,
+
+  background: "#111827",
+  padding: "30px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  borderRight: "1px solid #1f2937",
+
+  overflowY: "auto",
+},  logo: { fontSize: "30px", marginBottom: "40px" },
   green: { color: "#84cc16" },
   menu: { display: "flex", flexDirection: "column", gap: "16px" },
   menuItem: { padding: "16px", borderRadius: "14px", background: "#1f2937", cursor: "pointer", transition: "0.3s" },
   activeMenu: { padding: "16px", borderRadius: "14px", background: "linear-gradient(90deg,#84cc16,#65a30d)", color: "#0f172a", fontWeight: "bold", cursor: "pointer" },
   logout: { padding: "16px", borderRadius: "14px", background: "#1f2937", textAlign: "center", cursor: "pointer" },
-  main: { flex: 1, padding: "40px" },
+main: {
+  flex: 1,
+  padding: "40px",
+  marginLeft: "320px",
+},
   header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "35px" },
   title: { margin: 0, fontSize: "38px" },
   subtitle: { color: "#94a3b8", marginTop: "10px" },
