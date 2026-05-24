@@ -52,7 +52,10 @@ function App() {
       )}
 
       {page === "onboarding" && (
-        <Onboarding onFinish={() => setPage("home")} />
+        <Onboarding
+          onFinish={() => setPage("home")}
+          onBack={() => setPage("landing")}
+        />
       )}
 
       {page === "login" && (
