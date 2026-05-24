@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 function Progress({ onNavigate, onLogout }) {
-  const [selectedWeek, setSelectedWeek] = useState("");
+  const [selectedDate, setSelectedDate] = useState("");
   const [progressData, setProgressData] = useState([]);
 
   useEffect(() => {
@@ -13,24 +13,28 @@ function Progress({ onNavigate, onLogout }) {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("https://fitness-ai-app-71hw.onrender.com/api/progress", {
-        headers: {
-          authorization: token,
-        },
-      });
+      const res = await axios.get(
+        "https://fitness-ai-app-71hw.onrender.com/api/progress",
+        {
+          headers: {
+            authorization: token,
+          },
+        }
+      );
 
-      const formatted = res.data.progressList.map((item, index) => ({
-        week: `Week ${index + 1}`,
+      const formatted = res.data.progressList.map((item) => ({
+        id: item._id,
+        date: new Date(item.createdAt).toLocaleDateString("vi-VN"),
         weight: item.weight,
         bmi: item.bmi,
-        bodyFat: item.bodyFat,
+        bodyFat: item.bodyFat || 0,
         note: item.note,
       }));
 
       setProgressData(formatted);
 
       if (formatted.length > 0) {
-        setSelectedWeek(formatted[formatted.length - 1].week);
+        setSelectedDate(formatted[formatted.length - 1].date);
       }
     } catch (error) {
       console.log(error);
@@ -38,9 +42,9 @@ function Progress({ onNavigate, onLogout }) {
   };
 
   const current =
-    progressData.find((item) => item.week === selectedWeek) ||
+    progressData.find((item) => item.date === selectedDate) ||
     progressData[progressData.length - 1] || {
-      week: "No Data",
+      date: "No Data",
       weight: 0,
       bmi: 0,
       bodyFat: 0,
@@ -52,13 +56,22 @@ function Progress({ onNavigate, onLogout }) {
 
   const progressPercent =
     startWeight && goalWeight && startWeight !== goalWeight
-      ? Math.min(
-          Math.round(
-            ((startWeight - current.weight) / (startWeight - goalWeight)) * 100
-          ),
-          100
+      ? Math.max(
+          0,
+          Math.min(
+            Math.round(
+              ((startWeight - current.weight) / (startWeight - goalWeight)) *
+                100
+            ),
+            100
+          )
         )
       : 0;
+
+  const maxWeight =
+    progressData.length > 0
+      ? Math.max(...progressData.map((item) => item.weight))
+      : 1;
 
   return (
     <div style={styles.page}>
@@ -69,23 +82,45 @@ function Progress({ onNavigate, onLogout }) {
           </h1>
 
           <div style={styles.menu}>
-            <div style={styles.menuItem} onClick={() => onNavigate("home")}>🏠 Dashboard</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("workout")}>💪 Workout</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("meal")}>🍽 Meal Plan</div>
+            <div style={styles.menuItem} onClick={() => onNavigate("home")}>
+              🏠 Dashboard
+            </div>
+
+            <div style={styles.menuItem} onClick={() => onNavigate("workout")}>
+              💪 Workout
+            </div>
+
+            <div style={styles.menuItem} onClick={() => onNavigate("meal")}>
+              🍽 Meal Plan
+            </div>
+
             <div style={styles.activeMenu}>📈 Progress</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("ai-coach")}>🤖 AI Coach</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("profile")}>👤 Profile</div>
+
+            <div
+              style={styles.menuItem}
+              onClick={() => onNavigate("ai-coach")}
+            >
+              🤖 AI Coach
+            </div>
+
+            <div style={styles.menuItem} onClick={() => onNavigate("profile")}>
+              👤 Profile
+            </div>
           </div>
         </div>
 
-        <div style={styles.logout} onClick={onLogout}>🚪 Logout</div>
+        <div style={styles.logout} onClick={onLogout}>
+          🚪 Logout
+        </div>
       </div>
 
       <div style={styles.main}>
         <div style={styles.header}>
           <div>
             <h1 style={styles.title}>Progress Tracking 📈</h1>
-            <p style={styles.subtitle}>Monitor your transformation journey.</p>
+            <p style={styles.subtitle}>
+              Monitor your weight changes by update date.
+            </p>
           </div>
 
           <div style={styles.profile}>🔔 👤</div>
@@ -101,13 +136,13 @@ function Progress({ onNavigate, onLogout }) {
           <div style={styles.card}>
             <h3>📊 BMI</h3>
             <h1>{current.bmi}</h1>
-            <p style={styles.healthy}>Healthy Range</p>
+            <p style={styles.healthy}>Updated BMI</p>
           </div>
 
           <div style={styles.card}>
-            <h3>🔥 Body Fat</h3>
-            <h1>{current.bodyFat}%</h1>
-            <p style={styles.cardText}>Lean physique improving</p>
+            <h3>📅 Last Update</h3>
+            <h1 style={styles.smallTitle}>{current.date}</h1>
+            <p style={styles.cardText}>Latest weight record</p>
           </div>
 
           <div style={styles.card}>
@@ -124,13 +159,15 @@ function Progress({ onNavigate, onLogout }) {
 
               <select
                 style={styles.select}
-                value={selectedWeek}
-                onChange={(e) => setSelectedWeek(e.target.value)}
+                value={selectedDate}
+                onChange={(e) => setSelectedDate(e.target.value)}
               >
                 {progressData.length === 0 && <option>No Data</option>}
 
                 {progressData.map((item) => (
-                  <option key={item.week}>{item.week}</option>
+                  <option key={item.id} value={item.date}>
+                    {item.date} - {item.weight}kg
+                  </option>
                 ))}
               </select>
             </div>
@@ -140,16 +177,19 @@ function Progress({ onNavigate, onLogout }) {
                 <p style={styles.cardText}>Chưa có dữ liệu progress.</p>
               ) : (
                 progressData.map((item) => (
-                  <div key={item.week} style={styles.chartItem}>
+                  <div key={item.id} style={styles.chartItem}>
                     <div
                       style={{
                         ...styles.chartBar,
-                        height: `${item.weight * 3}px`,
+                        height: `${Math.max(
+                          (item.weight / maxWeight) * 260,
+                          40
+                        )}px`,
                       }}
                     ></div>
 
                     <span style={styles.chartLabel}>{item.weight}kg</span>
-                    <span style={styles.chartWeek}>{item.week}</span>
+                    <span style={styles.chartWeek}>{item.date}</span>
                   </div>
                 ))
               )}
@@ -158,6 +198,7 @@ function Progress({ onNavigate, onLogout }) {
 
           <div style={styles.goalBox}>
             <h2 style={styles.sectionTitle}>🎯 Goal Progress</h2>
+
             <h1 style={styles.goalPercent}>{progressPercent}%</h1>
 
             <div style={styles.progressBg}>
@@ -173,14 +214,23 @@ function Progress({ onNavigate, onLogout }) {
               {current.weight}kg → {goalWeight}kg
             </p>
 
-            <div style={styles.photoBox}>
-              <h3 style={styles.photoTitle}>📸 Progress Photos</h3>
+            <div style={styles.changeBox}>
+              <h3 style={styles.photoTitle}>⚖ Weight Change</h3>
 
-              <div style={styles.photoGrid}>
-                <div style={styles.photoCard}>Front</div>
-                <div style={styles.photoCard}>Side</div>
-                <div style={styles.photoCard}>Back</div>
-              </div>
+              <p style={styles.changeText}>
+                Start weight: <strong>{startWeight}kg</strong>
+              </p>
+
+              <p style={styles.changeText}>
+                Current weight: <strong>{current.weight}kg</strong>
+              </p>
+
+              <p style={styles.changeText}>
+                Changed:{" "}
+                <strong>
+                  {(current.weight - startWeight).toFixed(1)}kg
+                </strong>
+              </p>
             </div>
           </div>
         </div>
@@ -194,22 +244,29 @@ function Progress({ onNavigate, onLogout }) {
             <ul style={styles.tipList}>
               <li>Current weight: {current.weight} KG</li>
               <li>Current BMI: {current.bmi}</li>
-              <li>Body fat: {current.bodyFat}%</li>
-              <li>{current.note || "Hãy cập nhật progress để AI phân tích tốt hơn."}</li>
+              <li>Updated date: {current.date}</li>
+              <li>
+                {current.note ||
+                  "Hãy cập nhật cân nặng ở Profile để xem phân tích."}
+              </li>
             </ul>
 
             <div style={styles.aiCircle}>AI</div>
           </div>
 
           <div style={styles.noteBox}>
-            <h2 style={styles.sectionTitle}>📝 Weekly Notes</h2>
+            <h2 style={styles.sectionTitle}>📝 Weight Update History</h2>
 
             {progressData.length === 0 ? (
-              <p style={styles.cardText}>Chưa có ghi chú.</p>
+              <p style={styles.cardText}>Chưa có lịch sử cập nhật.</p>
             ) : (
               progressData.map((item) => (
-                <div style={styles.noteCard} key={item.week}>
-                  <h3>{item.week}</h3>
+                <div style={styles.noteCard} key={item.id}>
+                  <h3>{item.date}</h3>
+                  <p>
+                    Weight: <strong>{item.weight}kg</strong> | BMI:{" "}
+                    <strong>{item.bmi}</strong>
+                  </p>
                   <p>{item.note || "Không có ghi chú"}</p>
                 </div>
               ))
@@ -222,50 +279,288 @@ function Progress({ onNavigate, onLogout }) {
 }
 
 const styles = {
-  page: { display: "flex", minHeight: "100vh", background: "#0f172a", color: "white", fontFamily: "Arial" },
-  sidebar: { width: "260px", background: "#111827", padding: "30px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderRight: "1px solid #1f2937" },
-  logo: { fontSize: "30px", marginBottom: "40px" },
-  green: { color: "#84cc16" },
-  menu: { display: "flex", flexDirection: "column", gap: "16px" },
-  menuItem: { padding: "16px", borderRadius: "14px", background: "#1f2937", cursor: "pointer" },
-  activeMenu: { padding: "16px", borderRadius: "14px", background: "linear-gradient(90deg,#84cc16,#65a30d)", color: "#0f172a", fontWeight: "bold" },
-  logout: { padding: "16px", borderRadius: "14px", background: "#1f2937", textAlign: "center", cursor: "pointer" },
-  main: { flex: 1, padding: "40px" },
-  header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "35px" },
-  title: { margin: 0, fontSize: "38px" },
-  subtitle: { color: "#94a3b8", marginTop: "10px" },
-  profile: { fontSize: "28px" },
-  topGrid: { display: "grid", gridTemplateColumns: "repeat(4,1fr)", gap: "20px", marginBottom: "25px" },
-  card: { background: "#111827", padding: "25px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.2)" },
-  cardText: { color: "#94a3b8" },
-  healthy: { color: "#84cc16", fontWeight: "bold" },
-  middleGrid: { display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "25px", marginBottom: "25px" },
-  chartBox: { background: "#111827", padding: "30px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.2)" },
-  chartHeader: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "30px" },
-  sectionTitle: { color: "#84cc16" },
-  select: { padding: "12px", borderRadius: "12px", background: "#1f2937", color: "white", border: "none" },
-  chartArea: { height: "320px", display: "flex", alignItems: "end", gap: "25px" },
-  chartItem: { flex: 1, display: "flex", flexDirection: "column", alignItems: "center", justifyContent: "end" },
-  chartBar: { width: "60px", background: "#84cc16", borderRadius: "16px 16px 0 0", boxShadow: "0 0 20px rgba(132,204,22,0.5)" },
-  chartLabel: { marginTop: "10px", fontWeight: "bold" },
-  chartWeek: { color: "#94a3b8", marginTop: "5px" },
-  goalBox: { background: "#111827", padding: "30px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.2)" },
-  goalPercent: { fontSize: "64px", color: "#84cc16", marginBottom: "20px" },
-  progressBg: { width: "100%", height: "16px", background: "#1f2937", borderRadius: "999px", marginBottom: "15px" },
-  progressFill: { height: "100%", background: "#84cc16", borderRadius: "999px" },
-  goalText: { color: "#94a3b8", marginBottom: "35px" },
-  photoBox: { marginTop: "20px" },
-  photoTitle: { color: "#84cc16", marginBottom: "18px" },
-  photoGrid: { display: "grid", gridTemplateColumns: "1fr 1fr 1fr", gap: "12px" },
-  photoCard: { height: "110px", borderRadius: "18px", background: "#1f2937", display: "flex", justifyContent: "center", alignItems: "center", color: "#94a3b8" },
-  bottomGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "25px" },
-  aiBox: { background: "linear-gradient(180deg,#111827,#1e293b)", padding: "30px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.3)" },
-  aiTitle: { color: "#84cc16" },
-  aiText: { color: "#cbd5e1", lineHeight: "1.7" },
-  tipList: { color: "#cbd5e1", lineHeight: "2" },
-  aiCircle: { width: "120px", height: "120px", borderRadius: "50%", background: "#84cc16", color: "#0f172a", display: "flex", justifyContent: "center", alignItems: "center", fontSize: "34px", fontWeight: "bold", marginTop: "35px", boxShadow: "0 0 40px rgba(132,204,22,0.5)" },
-  noteBox: { background: "#111827", padding: "30px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.2)" },
-  noteCard: { background: "#0f172a", padding: "18px", borderRadius: "18px", marginBottom: "16px", border: "1px solid #1f2937" },
+  page: {
+    display: "flex",
+    minHeight: "100vh",
+    background: "#0f172a",
+    color: "white",
+    fontFamily: "Arial",
+  },
+
+  sidebar: {
+    width: "260px",
+    background: "#111827",
+    padding: "30px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    borderRight: "1px solid #1f2937",
+  },
+
+  logo: {
+    fontSize: "30px",
+    marginBottom: "40px",
+  },
+
+  green: {
+    color: "#84cc16",
+  },
+
+  menu: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+  },
+
+  menuItem: {
+    padding: "16px",
+    borderRadius: "14px",
+    background: "#1f2937",
+    cursor: "pointer",
+  },
+
+  activeMenu: {
+    padding: "16px",
+    borderRadius: "14px",
+    background: "linear-gradient(90deg,#84cc16,#65a30d)",
+    color: "#0f172a",
+    fontWeight: "bold",
+  },
+
+  logout: {
+    padding: "16px",
+    borderRadius: "14px",
+    background: "#1f2937",
+    textAlign: "center",
+    cursor: "pointer",
+  },
+
+  main: {
+    flex: 1,
+    padding: "40px",
+  },
+
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "35px",
+  },
+
+  title: {
+    margin: 0,
+    fontSize: "38px",
+  },
+
+  subtitle: {
+    color: "#94a3b8",
+    marginTop: "10px",
+  },
+
+  profile: {
+    fontSize: "28px",
+  },
+
+  topGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(4,1fr)",
+    gap: "20px",
+    marginBottom: "25px",
+  },
+
+  card: {
+    background: "#111827",
+    padding: "25px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.2)",
+  },
+
+  cardText: {
+    color: "#94a3b8",
+  },
+
+  healthy: {
+    color: "#84cc16",
+    fontWeight: "bold",
+  },
+
+  smallTitle: {
+    fontSize: "28px",
+  },
+
+  middleGrid: {
+    display: "grid",
+    gridTemplateColumns: "1.5fr 1fr",
+    gap: "25px",
+    marginBottom: "25px",
+  },
+
+  chartBox: {
+    background: "#111827",
+    padding: "30px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.2)",
+  },
+
+  chartHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "30px",
+  },
+
+  sectionTitle: {
+    color: "#84cc16",
+  },
+
+  select: {
+    padding: "12px",
+    borderRadius: "12px",
+    background: "#1f2937",
+    color: "white",
+    border: "none",
+  },
+
+  chartArea: {
+    height: "320px",
+    display: "flex",
+    alignItems: "end",
+    gap: "25px",
+    overflowX: "auto",
+  },
+
+  chartItem: {
+    minWidth: "80px",
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
+    justifyContent: "end",
+  },
+
+  chartBar: {
+    width: "55px",
+    background: "#84cc16",
+    borderRadius: "16px 16px 0 0",
+    boxShadow: "0 0 20px rgba(132,204,22,0.5)",
+  },
+
+  chartLabel: {
+    marginTop: "10px",
+    fontWeight: "bold",
+  },
+
+  chartWeek: {
+    color: "#94a3b8",
+    marginTop: "5px",
+    fontSize: "13px",
+  },
+
+  goalBox: {
+    background: "#111827",
+    padding: "30px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.2)",
+  },
+
+  goalPercent: {
+    fontSize: "64px",
+    color: "#84cc16",
+    marginBottom: "20px",
+  },
+
+  progressBg: {
+    width: "100%",
+    height: "16px",
+    background: "#1f2937",
+    borderRadius: "999px",
+    marginBottom: "15px",
+  },
+
+  progressFill: {
+    height: "100%",
+    background: "#84cc16",
+    borderRadius: "999px",
+  },
+
+  goalText: {
+    color: "#94a3b8",
+    marginBottom: "35px",
+  },
+
+  changeBox: {
+    marginTop: "20px",
+    background: "#0f172a",
+    padding: "20px",
+    borderRadius: "18px",
+    border: "1px solid #1f2937",
+  },
+
+  photoTitle: {
+    color: "#84cc16",
+    marginBottom: "18px",
+  },
+
+  changeText: {
+    color: "#cbd5e1",
+    lineHeight: "1.8",
+  },
+
+  bottomGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "25px",
+  },
+
+  aiBox: {
+    background: "linear-gradient(180deg,#111827,#1e293b)",
+    padding: "30px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.3)",
+  },
+
+  aiTitle: {
+    color: "#84cc16",
+  },
+
+  aiText: {
+    color: "#cbd5e1",
+    lineHeight: "1.7",
+  },
+
+  tipList: {
+    color: "#cbd5e1",
+    lineHeight: "2",
+  },
+
+  aiCircle: {
+    width: "120px",
+    height: "120px",
+    borderRadius: "50%",
+    background: "#84cc16",
+    color: "#0f172a",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: "34px",
+    fontWeight: "bold",
+    marginTop: "35px",
+    boxShadow: "0 0 40px rgba(132,204,22,0.5)",
+  },
+
+  noteBox: {
+    background: "#111827",
+    padding: "30px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.2)",
+  },
+
+  noteCard: {
+    background: "#0f172a",
+    padding: "18px",
+    borderRadius: "18px",
+    marginBottom: "16px",
+    border: "1px solid #1f2937",
+  },
 };
 
 export default Progress;

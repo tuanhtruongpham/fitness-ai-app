@@ -1,8 +1,10 @@
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
+const bcrypt = require("bcryptjs");
 
 const User = require("../models/User");
+const Progress = require("../models/Progress");
 const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
@@ -26,7 +28,6 @@ const calculateBMI = (weight, height) => {
 
   if (!h || !w) return 0;
 
-  // nếu nhập 170 -> đổi thành 1.70m
   if (h > 3) {
     h = h / 100;
   }
@@ -37,10 +38,10 @@ const calculateBMI = (weight, height) => {
 // ===== UPDATE PROFILE =====
 router.put("/update", authMiddleware, async (req, res) => {
   try {
-    console.log("TOKEN USER:", req.user);
-    console.log("BODY:", req.body);
-
     const {
+      fullName,
+      avatar,
+      password,
       age,
       height,
       weight,
@@ -52,26 +53,44 @@ router.put("/update", authMiddleware, async (req, res) => {
       bmi,
     } = req.body;
 
-    // BMI ưu tiên tính tự động
-    const finalBMI = bmi
-      ? Number(bmi)
-      : calculateBMI(weight, height);
+    const finalBMI = bmi ? Number(bmi) : calculateBMI(weight, height);
+
+    const updateData = {
+      fullName,
+      avatar,
+      age,
+      height,
+      weight,
+      gender,
+      goal,
+      activity,
+      workoutPlace,
+      gymDays: Number(gymDays || 3),
+      bmi: finalBMI,
+    };
+
+    if (password && password.trim() !== "") {
+      const hashedPassword = await bcrypt.hash(password, 10);
+      updateData.password = hashedPassword;
+    }
+
 
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
-      {
-        age,
-        height,
-        weight,
-        gender,
-        goal,
-        activity,
-        workoutPlace,
-        gymDays: Number(gymDays || 3),
-        bmi: finalBMI,
-      },
+      updateData,
       { new: true }
     ).select("-password");
+
+    // Nếu có cập nhật cân nặng thì lưu thêm vào Progress
+    if (weight) {
+  await Progress.create({
+    userId: req.user.id,
+    weight: Number(weight),
+    bmi: finalBMI,
+    bodyFat: 0,
+    note: `Updated weight to ${weight}kg`,
+  });
+}
 
     res.json({
       message: "Cập nhật hồ sơ thành công",

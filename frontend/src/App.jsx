@@ -9,6 +9,7 @@ import Workout from "./pages/Workout";
 import Meal from "./pages/Meal";
 import Progress from "./pages/Progress";
 import AICoach from "./pages/AICoach";
+import Profile from "./pages/Profile";
 
 function App() {
   const [page, setPage] = useState("landing");
@@ -92,7 +93,12 @@ function App() {
           onLogout={logout}
         />
       )}
-
+{page === "profile" && (
+  <Profile
+    onNavigate={(targetPage) => setPage(targetPage)}
+    onLogout={logout}
+  />
+)}
       {page === "ai-coach" && (
         <AICoach
           onNavigate={(targetPage) => setPage(targetPage)}
