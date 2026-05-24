@@ -12,11 +12,11 @@ function Home({ onNavigate, onLogout }) {
     try {
       const token = localStorage.getItem("token");
 
-      const res = await axios.get("https://fitness-ai-app-71hw.onrender.com/api/dashboard", {
-        headers: {
-          authorization: token,
-        },
-      });
+      const res = await axios.get("https://fitness-ai-app-71hw.onrender.com/api/workouts/ai-plan", {
+  headers: {
+    authorization: token,
+  },
+});
 
       setDashboard(res.data.dashboard);
     } catch (error) {
@@ -206,18 +206,24 @@ function Home({ onNavigate, onLogout }) {
 
   {dashboard?.todayWorkout?.exercises?.length > 0 ? (
     <div style={styles.exerciseGrid}>
-      {dashboard.todayWorkout.exercises.map((exercise) => (
-        <div
-  key={exercise}
-  style={styles.exerciseItem}
-  onClick={() => {
-    localStorage.setItem("selectedExercise", exercise);
-    localStorage.setItem("selectedWorkout", dashboard?.todayWorkout?.name);
-    onNavigate("workout");
-  }}
->
-  💪 {exercise}
-</div>
+{dashboard.todayWorkout.exercises.map((exercise) => (
+  <div
+    key={exercise.name}
+    style={styles.exerciseItem}
+    onClick={() => {
+      localStorage.setItem("selectedExercise", exercise.name);
+      localStorage.setItem("selectedWorkout", dashboard?.todayWorkout?.name);
+      onNavigate("workout");
+    }}
+  >
+    💪 {exercise.name}
+    <p style={styles.cardText}>
+      {exercise.sets ? `${exercise.sets} sets` : ""}
+      {exercise.reps ? ` x ${exercise.reps}` : ""}
+      {exercise.duration ? ` - ${exercise.duration}` : ""}
+    </p>
+  </div>
+   
       ))}
     </div>
   ) : (
@@ -254,41 +260,22 @@ function Home({ onNavigate, onLogout }) {
             </div>
           </div>
 
-          <div style={styles.bigCard}>
-            <h2 style={styles.sectionTitle}>🍽 User Profile</h2>
+        <div style={styles.bigCard}>
+  <h2 style={styles.sectionTitle}>📅 Weekly Workout Schedule</h2>
 
-            <div style={styles.workoutItem}>
-              <span>Full Name</span>
+  {dashboard?.weeklySchedule?.map((item) => (
+    <div key={item.day} style={styles.workoutItem}>
+      <span>{item.day}</span>
 
-              <span>
-                {dashboard?.user?.fullName || "Chưa có"}
-              </span>
-            </div>
-
-            <div style={styles.workoutItem}>
-              <span>Email</span>
-
-              <span>
-                {dashboard?.user?.email || "Chưa có"}
-              </span>
-            </div>
-
-            <div style={styles.workoutItem}>
-              <span>Phone</span>
-
-              <span>
-                {dashboard?.user?.phone || "Chưa có"}
-              </span>
-            </div>
-
-            <div style={styles.workoutItem}>
-              <span>Goal</span>
-
-              <span>
-                {dashboard?.user?.goal || "Chưa cập nhật"}
-              </span>
-            </div>
-          </div>
+      <span>
+        {item.name}
+        {item.exercises?.length > 0
+          ? ` (${item.exercises.length} bài)`
+          : ""}
+      </span>
+    </div>
+  ))}
+</div>
         </div>
       </div>
     </div>

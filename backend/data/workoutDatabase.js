@@ -1130,4 +1130,4 @@ const workoutDatabase = {
   },
 };
 
-export default workoutDatabase;
+module.exports = workoutDatabase;

@@ -11,6 +11,8 @@ const {
   generateAIRecommendation,
 } = require("../utils/workoutEngine");
 
+const generateAIWorkoutPlan = require("../utils/aiWorkoutPlanner");
+
 function normalizeHeight(height) {
   const h = Number(height);
   if (!h) return 0;
@@ -25,86 +27,6 @@ function calculateBMI(weight, height) {
 
   return Number((w / (heightM * heightM)).toFixed(1));
 }
-
-const weeklySchedule = {
-  1: {
-    day: "Thứ 2",
-    name: "Push Day",
-    exercises: [
-      "Bench Press",
-      "Incline Dumbbell Press",
-      "Shoulder Press",
-      "Lateral Raise",
-      "Tricep Pushdown",
-      "Overhead Extension",
-    ],
-  },
-  2: {
-    day: "Thứ 3",
-    name: "Pull Day",
-    exercises: [
-      "Pull Up",
-      "Barbell Row",
-      "Lat Pulldown",
-      "Seated Row",
-      "Barbell Curl",
-      "Hammer Curl",
-      "Face Pull",
-    ],
-  },
-  3: {
-    day: "Thứ 4",
-    name: "Leg Day",
-    exercises: [
-      "Squat",
-      "Romanian Deadlift",
-      "Leg Press",
-      "Leg Curl",
-      "Calf Raise",
-    ],
-  },
-  4: {
-    day: "Thứ 5",
-    name: "Push Day",
-    exercises: [
-      "Bench Press",
-      "Incline Dumbbell Press",
-      "Shoulder Press",
-      "Lateral Raise",
-      "Tricep Pushdown",
-      "Overhead Extension",
-    ],
-  },
-  5: {
-    day: "Thứ 6",
-    name: "Pull Day",
-    exercises: [
-      "Pull Up",
-      "Barbell Row",
-      "Lat Pulldown",
-      "Seated Row",
-      "Barbell Curl",
-      "Hammer Curl",
-      "Face Pull",
-    ],
-  },
-  6: {
-    day: "Thứ 7",
-    name: "Leg Day",
-    exercises: [
-      "Squat",
-      "Romanian Deadlift",
-      "Leg Press",
-      "Leg Curl",
-      "Calf Raise",
-    ],
-  },
-  0: {
-    day: "Chủ nhật",
-    name: "Rest Day",
-    exercises: [],
-  },
-};
 
 router.get("/", authMiddleware, async (req, res) => {
   try {
@@ -122,23 +44,19 @@ router.get("/", authMiddleware, async (req, res) => {
     const latestWeight = latestProgress?.weight || user?.weight || null;
     const realtimeBMI = calculateBMI(latestWeight, user?.height);
 
-    const gymDays = Number(user?.gymDays || 3);
-
     const aiRecommendation = generateAIRecommendation({
       goal: user?.goal || "maintenance",
       bmi: realtimeBMI || user?.bmi || 22,
-      gymDays,
+      gymDays: Number(user?.gymDays || 3),
       workoutPlace: user?.workoutPlace || "gym",
     });
 
-    const vietnamTime = new Date(
-      new Date().toLocaleString("en-US", {
-        timeZone: "Asia/Ho_Chi_Minh",
-      })
-    );
+    const aiPlan = generateAIWorkoutPlan({
+      ...user.toObject(),
+      bmi: realtimeBMI || user?.bmi || 22,
+    });
 
-    const today = vietnamTime.getDay();
-    const todayWorkout = weeklySchedule[today];
+    const todayWorkout = aiPlan.todayWorkout;
 
     res.json({
       message: "Lấy dữ liệu dashboard thành công",
@@ -146,7 +64,7 @@ router.get("/", authMiddleware, async (req, res) => {
         user,
 
         totalWorkouts: workouts.length,
-        totalExercises: todayWorkout.exercises.length,
+        totalExercises: todayWorkout?.exercises?.length || 0,
         completedExercises: 0,
         totalMealPlans: mealPlans.length,
 
@@ -155,9 +73,11 @@ router.get("/", authMiddleware, async (req, res) => {
         latestProgress,
 
         todayWorkout,
-        todayWorkoutName: todayWorkout.name,
-        todayExercises: todayWorkout.exercises.length,
+        todayWorkoutName: todayWorkout?.name || "Rest Day",
+        todayExercises: todayWorkout?.exercises?.length || 0,
 
+        weeklySchedule: aiPlan.weeklySchedule,
+        aiPlan,
         aiRecommendation,
       },
     });

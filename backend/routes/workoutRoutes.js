@@ -5,8 +5,7 @@ const Workout = require("../models/Workout");
 const User = require("../models/User");
 const authMiddleware = require("../middleware/authMiddleware");
 
-const generateWorkoutPlan = require("../utils/generateWorkoutPlan");
-
+const generateAIWorkoutPlan = require("../utils/aiWorkoutPlanner");
 // ===== CREATE WORKOUT MANUALLY =====
 router.post("/", authMiddleware, async (req, res) => {
   try {
@@ -44,12 +43,7 @@ router.get("/ai-plan", authMiddleware, async (req, res) => {
       });
     }
 
-    const aiPlan = generateWorkoutPlan({
-      goal: user.goal || "maintenance",
-      bmi: user.bmi || 22,
-      gymDays: Number(user.gymDays || 3),
-      workoutPlace: user.workoutPlace || "gym",
-    });
+  const aiPlan = generateAIWorkoutPlan(user);
 
     res.json({
       message: "Tạo AI workout plan thành công",
