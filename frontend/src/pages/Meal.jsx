@@ -2,16 +2,77 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 function Meal({ onNavigate, onLogout }) {
-  const [water, setWater] = useState(5);
+  const today = new Date().toLocaleDateString();
+
+  const [water, setWater] = useState(() => {
+    const saved = JSON.parse(localStorage.getItem("waterData"));
+
+    if (!saved || saved.date !== today) {
+      return 0;
+    }
+
+    return saved.amount;
+  });
+
   const [selectedMeal, setSelectedMeal] = useState(null);
   const [mealPlans, setMealPlans] = useState([]);
   const [currentPlan, setCurrentPlan] = useState(null);
+
+  const [eatenCalories, setEatenCalories] = useState(() => {
+    const saved = JSON.parse(localStorage.getItem("eatenCaloriesData"));
+
+    if (!saved || saved.date !== today) {
+      return 0;
+    }
+
+    return saved.amount;
+  });
+
+  const [eatenMeals, setEatenMeals] = useState(() => {
+    const saved = JSON.parse(localStorage.getItem("eatenMealsData"));
+
+    if (!saved || saved.date !== today) {
+      return [];
+    }
+
+    return saved.meals || [];
+  });
 
   const API_URL = "https://fitness-ai-app-71hw.onrender.com/api/meal";
 
   useEffect(() => {
     fetchMeals();
   }, []);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "waterData",
+      JSON.stringify({
+        date: today,
+        amount: water,
+      })
+    );
+  }, [water, today]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "eatenCaloriesData",
+      JSON.stringify({
+        date: today,
+        amount: eatenCalories,
+      })
+    );
+  }, [eatenCalories, today]);
+
+  useEffect(() => {
+    localStorage.setItem(
+      "eatenMealsData",
+      JSON.stringify({
+        date: today,
+        meals: eatenMeals,
+      })
+    );
+  }, [eatenMeals, today]);
 
   const getAuthHeader = () => {
     const token = localStorage.getItem("token");
@@ -40,8 +101,6 @@ function Meal({ onNavigate, onLogout }) {
     }
   };
 
- 
-  
   const generateMealPlan = async () => {
     try {
       await axios.post(`${API_URL}/save-today`, {}, getAuthHeader());
@@ -52,9 +111,35 @@ function Meal({ onNavigate, onLogout }) {
     }
   };
 
+  const getMealKey = (meal) => {
+    return meal._id || meal.label || meal.time;
+  };
+
+  const toggleMealEaten = (meal) => {
+    const mealKey = getMealKey(meal);
+    const calories = Number(meal.targetCalories) || 0;
+    const isEaten = eatenMeals.includes(mealKey);
+
+    let updatedMeals;
+    let updatedCalories;
+
+    if (isEaten) {
+      updatedMeals = eatenMeals.filter((m) => m !== mealKey);
+      updatedCalories = Math.max(eatenCalories - calories, 0);
+    } else {
+      updatedMeals = [...eatenMeals, mealKey];
+      updatedCalories = eatenCalories + calories;
+    }
+
+    setEatenMeals(updatedMeals);
+    setEatenCalories(updatedCalories);
+  };
+
   const dailyTarget = currentPlan?.dailyTarget;
 
-  const caloriePercent = dailyTarget?.calories ? 100 : 0;
+  const caloriePercent = dailyTarget?.calories
+    ? Math.min((eatenCalories / dailyTarget.calories) * 100, 100)
+    : 0;
 
   return (
     <div style={styles.page}>
@@ -68,18 +153,23 @@ function Meal({ onNavigate, onLogout }) {
             <div style={styles.menuItem} onClick={() => onNavigate("home")}>
               🏠 Dashboard
             </div>
+
             <div style={styles.menuItem} onClick={() => onNavigate("workout")}>
               💪 Workout
             </div>
+
             <div style={styles.activeMenu} onClick={() => onNavigate("meal")}>
               🍽 Meal Plan
             </div>
+
             <div style={styles.menuItem} onClick={() => onNavigate("progress")}>
               📈 Progress
             </div>
+
             <div style={styles.menuItem} onClick={() => onNavigate("ai-coach")}>
               🤖 AI Coach
             </div>
+
             <div style={styles.menuItem} onClick={() => onNavigate("profile")}>
               👤 Profile
             </div>
@@ -119,9 +209,13 @@ function Meal({ onNavigate, onLogout }) {
             <div style={styles.topGrid}>
               <div style={styles.calorieCard}>
                 <div>
-                  <h3>🔥 Hôm nay nên ăn</h3>
-                  <h1>{dailyTarget?.calories || 0} kcal</h1>
-                  <p style={styles.cardText}>{caloriePercent}% daily target</p>
+                  <h3>🔥 Hôm nay đã ăn</h3>
+                  <h1>
+                    {eatenCalories} / {dailyTarget?.calories || 0} kcal
+                  </h1>
+                  <p style={styles.cardText}>
+                    {Math.round(caloriePercent)}% daily target
+                  </p>
                 </div>
 
                 <div style={styles.progressBg}>
@@ -195,7 +289,11 @@ function Meal({ onNavigate, onLogout }) {
                             ? styles.activeGoalBtn
                             : styles.goalBtn
                         }
-                        onClick={() => setCurrentPlan(plan)}
+                        onClick={() => {
+                          setCurrentPlan(plan);
+                          setEatenCalories(0);
+                          setEatenMeals([]);
+                        }}
                       >
                         Plan {index + 1}
                       </button>
@@ -212,9 +310,7 @@ function Meal({ onNavigate, onLogout }) {
                   {Array.from({ length: 8 }).map((_, index) => (
                     <div
                       key={index}
-                      style={
-                        index < water ? styles.activeWaterDot : styles.waterDot
-                      }
+                      style={index < water ? styles.activeWaterDot : styles.waterDot}
                     ></div>
                   ))}
                 </div>
@@ -226,6 +322,7 @@ function Meal({ onNavigate, onLogout }) {
                   >
                     -
                   </button>
+
                   <button
                     style={styles.smallBtn}
                     onClick={() => setWater(Math.min(water + 1, 8))}
@@ -241,45 +338,59 @@ function Meal({ onNavigate, onLogout }) {
                 <h2 style={styles.sectionTitle}>📅 Gợi ý bữa ăn hôm nay</h2>
 
                 <div style={styles.mealGrid}>
-                  {currentPlan.meals?.map((meal) => (
-                    <div key={meal._id || meal.time} style={styles.mealCard}>
-                      <div style={styles.mealHeader}>
-                        <div>
-                          <h2>🍽 {meal.label || meal.time}</h2>
-                          <p style={styles.cardText}>
-                            Target: {meal.targetCalories} kcal •{" "}
-                            {meal.targetProteinG}g protein •{" "}
-                            {meal.targetCarbsG}g carbs • {meal.targetFatG}g fat
-                          </p>
+                  {currentPlan.meals?.map((meal) => {
+                    const mealKey = getMealKey(meal);
+                    const isEaten = eatenMeals.includes(mealKey);
+
+                    return (
+                      <div key={mealKey} style={styles.mealCard}>
+                        <div style={styles.mealHeader}>
+                          <div>
+                            <h2>🍽 {meal.label || meal.time}</h2>
+                            <p style={styles.cardText}>
+                              Target: {meal.targetCalories} kcal •{" "}
+                              {meal.targetProteinG}g protein •{" "}
+                              {meal.targetCarbsG}g carbs • {meal.targetFatG}g fat
+                            </p>
+                          </div>
+
+                          <div style={styles.mealActions}>
+                            <button
+                              style={isEaten ? styles.eatenBtn : styles.detailBtn}
+                              onClick={() => toggleMealEaten(meal)}
+                            >
+                              {isEaten ? "✓ Eaten" : "Mark Eaten"}
+                            </button>
+
+                            <button
+                              style={styles.detailBtn}
+                              onClick={() => setSelectedMeal(meal)}
+                            >
+                              View
+                            </button>
+                          </div>
                         </div>
 
-                        <button
-                          style={styles.detailBtn}
-                          onClick={() => setSelectedMeal(meal)}
-                        >
-                          View
-                        </button>
-                      </div>
+                        <div style={styles.foodList}>
+                          {meal.items?.map((item) => (
+                            <div key={item._id || item.id} style={styles.foodItem}>
+                              <strong>{item.name}</strong>
+                              <p style={styles.cardText}>
+                                {item.quantity} • {item.grams}g
+                              </p>
 
-                      <div style={styles.foodList}>
-                        {meal.items?.map((item) => (
-                          <div key={item._id || item.id} style={styles.foodItem}>
-                            <strong>{item.name}</strong>
-                            <p style={styles.cardText}>
-                              {item.quantity} • {item.grams}g
-                            </p>
-
-                            <div style={styles.miniMacroGrid}>
-                              <span>🔥 {item.calories} kcal</span>
-                              <span>💪 {item.proteinG}g</span>
-                              <span>🍚 {item.carbsG}g</span>
-                              <span>🥑 {item.fatG}g</span>
+                              <div style={styles.miniMacroGrid}>
+                                <span>🔥 {item.calories} kcal</span>
+                                <span>💪 {item.proteinG}g</span>
+                                <span>🍚 {item.carbsG}g</span>
+                                <span>🥑 {item.fatG}g</span>
+                              </div>
                             </div>
-                          </div>
-                        ))}
+                          ))}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
 
@@ -302,7 +413,12 @@ function Meal({ onNavigate, onLogout }) {
                   Meal plan sẽ thay đổi theo mục tiêu, cân nặng hiện tại và cân nặng mong muốn.
                 </p>
 
-                <div style={styles.aiCircle}>AI</div>
+                <div
+                  style={styles.aiCircle}
+                  onClick={() => onNavigate("ai-coach")}
+                >
+                  AI
+                </div>
               </div>
             </div>
           </>
@@ -327,6 +443,25 @@ function Meal({ onNavigate, onLogout }) {
                 {selectedMeal.targetProteinG}g protein •{" "}
                 {selectedMeal.targetCarbsG}g carbs • {selectedMeal.targetFatG}g fat
               </p>
+
+              <div style={styles.modalEatBox}>
+                <button
+                  style={
+                    eatenMeals.includes(getMealKey(selectedMeal))
+                      ? styles.eatenBtn
+                      : styles.detailBtn
+                  }
+                  onClick={() => toggleMealEaten(selectedMeal)}
+                >
+                  {eatenMeals.includes(getMealKey(selectedMeal))
+                    ? "✓ Đã ăn"
+                    : "Tick đã ăn"}
+                </button>
+
+                <span style={styles.cardText}>
+                  +{selectedMeal.targetCalories || 0} kcal vào hôm nay
+                </span>
+              </div>
 
               <div style={styles.foodImageBox}>Meal image will be added later</div>
 
@@ -614,6 +749,13 @@ const styles = {
     alignItems: "start",
   },
 
+  mealActions: {
+    display: "flex",
+    gap: "10px",
+    flexWrap: "wrap",
+    justifyContent: "flex-end",
+  },
+
   foodList: {
     marginTop: "18px",
     display: "flex",
@@ -648,6 +790,16 @@ const styles = {
     cursor: "pointer",
   },
 
+  eatenBtn: {
+    padding: "10px 16px",
+    border: "none",
+    borderRadius: "12px",
+    background: "#22c55e",
+    color: "white",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+
   aiBox: {
     background: "linear-gradient(180deg,#111827,#1e293b)",
     padding: "30px",
@@ -674,6 +826,7 @@ const styles = {
     fontWeight: "bold",
     marginTop: "40px",
     boxShadow: "0 0 40px rgba(132,204,22,0.5)",
+    cursor: "pointer",
   },
 
   modalOverlay: {
@@ -712,6 +865,14 @@ const styles = {
   },
 
   modalTitle: { color: "#84cc16", marginBottom: "20px" },
+
+  modalEatBox: {
+    display: "flex",
+    alignItems: "center",
+    gap: "14px",
+    margin: "18px 0",
+    flexWrap: "wrap",
+  },
 
   foodImageBox: {
     height: "220px",

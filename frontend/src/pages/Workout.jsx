@@ -12,6 +12,33 @@ function Workout({ onNavigate, onLogout }) {
   fetchAIPlan();
 }, []);
 
+useEffect(() => {
+  const exerciseName = localStorage.getItem("selectedExercise");
+
+  if (!exerciseName) return;
+
+  for (const group of Object.keys(workoutDatabase)) {
+    for (const level of Object.keys(workoutDatabase[group])) {
+      const homeExercises = workoutDatabase[group][level].home || [];
+      const gymExercises = workoutDatabase[group][level].gym || [];
+
+      const foundExercise = [...homeExercises, ...gymExercises].find(
+        (exercise) => exercise.name === exerciseName
+      );
+
+      if (foundExercise) {
+        setSelectedGroup(group);
+        setSelectedLevel(level);
+        setSelectedExercise(foundExercise);
+
+        localStorage.removeItem("selectedExercise");
+        localStorage.removeItem("selectedWorkout");
+        return;
+      }
+    }
+  }
+}, []);
+
 const fetchAIPlan = async () => {
   try {
     const token = localStorage.getItem("token");
