@@ -20,7 +20,7 @@ const workoutDatabase = {
           reps: "10-12",
           equipment: "Chair / Bench",
           description: "Chống đẩy với tay đặt cao, giảm áp lực và dễ điều chỉnh độ khó theo độ cao bề mặt.",
-          video: "",
+          video: "https://www.youtube.com/embed/kgvCYOU94tQ",
         },
       ],
       gym: [
@@ -32,7 +32,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Machine",
           description: "Đẩy ngực bằng máy, đường đi ổn định nên phù hợp cho người mới.",
-          video: "",
+          video: "https://www.youtube.com/embed/mF57RHszJp8",
         },
         {
           name: "Incline Chest Press",
@@ -42,7 +42,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Dumbbell / Machine",
           description: "Biến thể đẩy ngực trên với mức tạ vừa phải, dễ kiểm soát hơn bench press nặng.",
-          video: "",
+          video: "https://www.youtube.com/embed/7ZM7SklGWjs",
         },
       ],
     },
@@ -57,7 +57,7 @@ const workoutDatabase = {
           reps: "10-15",
           equipment: "Bodyweight",
           description: "Chống đẩy tiêu chuẩn, là progression tự nhiên sau knee push-up và incline push-up.",
-          video: "",
+          video: "https://www.youtube.com/embed/1Xsu5xSbLlI",
         },
         {
           name: "Standing Band Chest Press",
@@ -67,7 +67,7 @@ const workoutDatabase = {
           reps: "10-15",
           equipment: "Resistance Band",
           description: "Đẩy ngực bằng dây kháng lực, phù hợp home workout có band.",
-          video: "",
+          video: "https://www.youtube.com/embed/ha2yO9viDC4",
         },
       ],
       gym: [
@@ -79,7 +79,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Bench + Dumbbells",
           description: "Bài compound trung cấp giúp phát triển ngực và tăng khả năng kiểm soát hai bên cơ thể.",
-          video: "",
+          video: "https://www.youtube.com/embed/r5CgGCMNvmQ",
         },
         {
           name: "Lying Chest Fly",
@@ -89,7 +89,7 @@ const workoutDatabase = {
           reps: "10-15",
           equipment: "Bench + Dumbbells",
           description: "Bài mở ngực giúp tăng cảm nhận cơ và bổ sung cho các bài pressing.",
-          video: "",
+          video: "https://www.youtube.com/embed/L-NF4xMzoqs",
         },
       ],
     },
@@ -104,7 +104,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Stability Ball",
           description: "Chống đẩy trên bóng để tăng yêu cầu ổn định vai và core.",
-          video: "",
+          video: "https://www.youtube.com/embed/cKOf-A-MF7k",
         },
         {
           name: "TRX Chest Press",
@@ -114,7 +114,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "TRX / Suspension Trainer",
           description: "Đẩy ngực với dây treo, tăng độ khó nhờ góc nghiêng và sự ổn định thân người.",
-          video: "",
+          video: "https://www.youtube.com/embed/LtySQ6qX7GA",
         },
       ],
       gym: [
