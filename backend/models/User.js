@@ -24,15 +24,21 @@ const userSchema = new mongoose.Schema({
 
   age: Number,
 
-  height: Number,
+  height: Number, // cm
 
-  weight: Number,
+  weight: Number, // kg hiện tại
 
+<<<<<<< HEAD
   targetWeight: Number,
 
   goalStartWeight: Number,
 
   gender: String,
+=======
+  targetWeight: Number, // kg mong muốn
+
+  gender: String, // male | female
+>>>>>>> c1b8695 (meal plan update)
 
   // fat_loss | muscle_gain | maintenance | weight_gain
   goal: String,
@@ -54,39 +60,59 @@ const userSchema = new mongoose.Schema({
 
   avatar: String,
 
-  // ===== NEW AI FIELDS =====
+  // ===== MEAL PLAN FIELDS =====
 
-  // focus ưu tiên
+  // normal | vegetarian | low_carb | high_protein
+  dietType: {
+    type: String,
+    default: "normal",
+  },
+
+  // ví dụ: ["milk", "peanut", "seafood"]
+  allergies: {
+    type: [String],
+    default: [],
+  },
+
+  // general | muscle | endurance
+  trainingFocus: {
+    type: String,
+    default: "general",
+  },
+
+  // số tuần muốn đạt target
+  timeHorizonWeeks: {
+    type: Number,
+    default: 12,
+  },
+
+  // ===== AI WORKOUT FIELDS =====
+
   preferenceFocus: {
     type: String,
     default: "balanced",
   },
 
-  // thiết bị ở nhà
   homeEquipment: {
     type: [String],
     default: [],
   },
 
-  // beginner < 6 tháng...
   trainingMonths: {
     type: Number,
     default: 0,
   },
 
-  // user có đau/chấn thương không
   injuries: {
     type: [String],
     default: [],
   },
 
-  // cardio preference
   cardioPreference: {
     type: String,
     default: "walking",
   },
 
-  // lưu streak / adherence sau này
   completionRate: {
     type: Number,
     default: 0,

@@ -1,31 +1,80 @@
-
-
 const express = require("express");
 const router = express.Router();
 
 const Meal = require("../models/Meal");
+const User = require("../models/User");
 const authMiddleware = require("../middleware/authMiddleware");
+const generateMealPlan = require("../utils/generateMealPlan");
 
-
-// CREATE MEAL
-router.post("/", authMiddleware, async (req, res) => {
+// GENERATE MEAL PLAN THEO USER LOGIN
+router.get("/today", authMiddleware, async (req, res) => {
   try {
-    const { goal, totalCalories, protein, carbs, fat, meals } = req.body;
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Không tìm thấy user",
+      });
+    }
+
+    const mealPlan = generateMealPlan(user);
+
+    res.json({
+      message: "Tạo meal plan hôm nay thành công",
+      mealPlan,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi server khi tạo meal plan",
+      error: error.message,
+    });
+  }
+});
+
+// SAVE TODAY MEAL PLAN
+router.post("/save-today", authMiddleware, async (req, res) => {
+  try {
+    const user = await User.findById(req.user.id);
+
+    if (!user) {
+      return res.status(404).json({
+        message: "Không tìm thấy user",
+      });
+    }
+
+    const generatedPlan = generateMealPlan(user);
 
     const mealPlan = new Meal({
       userId: req.user.id,
-      goal,
-      totalCalories,
-      protein,
-      carbs,
-      fat,
-      meals,
+      ...generatedPlan,
     });
 
     await mealPlan.save();
 
     res.status(201).json({
-      message: "Tạo thực đơn thành công",
+      message: "Lưu meal plan hôm nay thành công",
+      mealPlan,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: "Lỗi server khi lưu meal plan",
+      error: error.message,
+    });
+  }
+});
+
+// SAVE MEAL PLAN TỪ FRONTEND NẾU CẦN
+router.post("/", authMiddleware, async (req, res) => {
+  try {
+    const mealPlan = new Meal({
+      userId: req.user.id,
+      ...req.body,
+    });
+
+    await mealPlan.save();
+
+    res.status(201).json({
+      message: "Lưu thực đơn thành công",
       mealPlan,
     });
   } catch (error) {
@@ -36,7 +85,7 @@ router.post("/", authMiddleware, async (req, res) => {
   }
 });
 
-// GET MEALS
+// GET MEAL HISTORY
 router.get("/", authMiddleware, async (req, res) => {
   try {
     const mealPlans = await Meal.find({
@@ -54,7 +103,5 @@ router.get("/", authMiddleware, async (req, res) => {
     });
   }
 });
-
-
 
 module.exports = router;

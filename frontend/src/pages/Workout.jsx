@@ -47,7 +47,15 @@ const fetchAIPlan = async () => {
 
   const ExerciseCard = ({ exercise }) => (
     <div style={styles.exerciseCard}>
-      <div style={styles.videoBox}>Video will be added later</div>
+      <div style={styles.videoBox}>
+  <img
+    src={`https://img.youtube.com/vi/${
+      exercise.video.split("/embed/")[1]
+    }/hqdefault.jpg`}
+    alt={exercise.name}
+    style={styles.thumbnail}
+  />
+</div>
 
       <h3>{exercise.name}</h3>
       <p style={styles.level}>{exercise.target}</p>
@@ -298,17 +306,37 @@ const styles = {
   title: { margin: 0, fontSize: "38px" },
   subtitle: { color: "#94a3b8", marginTop: "10px" },
   profile: { fontSize: "28px" },
-  layout: { display: "grid", gridTemplateColumns: "1fr 300px", gap: "28px", alignItems: "start" },
-  exerciseSection: { background: "#111827", borderRadius: "24px", padding: "30px", border: "1px solid rgba(132,204,22,0.2)" },
+layout: {
+  display: "grid",
+  gridTemplateColumns: "minmax(0, 1fr) 300px",
+  gap: "28px",
+  alignItems: "start",
+},  exerciseSection: { background: "#111827", borderRadius: "24px", padding: "30px", border: "1px solid rgba(132,204,22,0.2)" },
   sectionTitle: { color: "#84cc16", marginBottom: "25px" },
   levelBox: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginBottom: "32px" },
   levelBtn: { padding: "18px", borderRadius: "18px", border: "1px solid #1f2937", background: "#0f172a", color: "white", cursor: "pointer", display: "flex", flexDirection: "column", gap: "8px", textAlign: "left", fontSize: "16px" },
   activeLevelBtn: { padding: "18px", borderRadius: "18px", border: "none", background: "#84cc16", color: "#0f172a", cursor: "pointer", display: "flex", flexDirection: "column", gap: "8px", textAlign: "left", fontSize: "16px", fontWeight: "bold" },
   workoutPlaceTitle: { color: "#84cc16", marginTop: "28px", marginBottom: "18px" },
-  exerciseGrid: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "22px" },
+exerciseGrid: {
+  display: "grid",
+  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+  gap: "22px",
+},
   exerciseCard: { background: "#0f172a", padding: "22px", borderRadius: "20px", border: "1px solid #1f2937" },
-  videoBox: { height: "150px", borderRadius: "16px", background: "#1f2937", display: "flex", justifyContent: "center", alignItems: "center", color: "#94a3b8", marginBottom: "18px" },
-  level: { color: "#84cc16", fontWeight: "bold" },
+videoBox: {
+  width: "100%",
+  aspectRatio: "16 / 9",
+  overflow: "hidden",
+  borderRadius: "16px",
+  background: "#1e293b",
+},
+thumbnail: {
+  width: "100%",
+  height: "100%",
+  objectFit: "cover",
+  display: "block",
+},
+level: { color: "#84cc16", fontWeight: "bold" },
   sets: { color: "#cbd5e1" },
   desc: { color: "#94a3b8", lineHeight: "1.6" },
   detailBtn: { marginTop: "12px", padding: "12px 18px", border: "none", borderRadius: "12px", background: "#84cc16", color: "#0f172a", fontWeight: "bold", cursor: "pointer" },

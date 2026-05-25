@@ -1,9 +1,31 @@
 const mongoose = require("mongoose");
 
 const mealItemSchema = new mongoose.Schema({
-  food: String,
+  id: String,
+  name: String,
   quantity: String,
+  grams: Number,
+
   calories: Number,
+  proteinG: Number,
+  carbsG: Number,
+  fatG: Number,
+  fiberG: Number,
+  sugarG: Number,
+  sodiumMg: Number,
+
+  ingredients: [String],
+  reason: String,
+});
+
+const mealBlockSchema = new mongoose.Schema({
+  time: String, // Breakfast | Lunch | Dinner | Snack
+  label: String, // Bữa sáng | Bữa trưa...
+  targetCalories: Number,
+  targetProteinG: Number,
+  targetCarbsG: Number,
+  targetFatG: Number,
+  items: [mealItemSchema],
 });
 
 const mealSchema = new mongoose.Schema(
@@ -15,22 +37,22 @@ const mealSchema = new mongoose.Schema(
     },
 
     goal: String,
+    goalLabel: String,
 
-    totalCalories: Number,
+    currentWeight: Number,
+    targetWeight: Number,
+    height: Number,
+    bmi: Number,
+    bmiCategory: String,
 
-    protein: String,
+    dailyTarget: {
+      calories: Number,
+      proteinG: Number,
+      carbsG: Number,
+      fatG: Number,
+    },
 
-    carbs: String,
-
-    fat: String,
-
-    meals: [
-      {
-        time: String,
-
-        items: [mealItemSchema],
-      },
-    ],
+    meals: [mealBlockSchema],
   },
   {
     timestamps: true,

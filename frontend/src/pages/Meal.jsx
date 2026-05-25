@@ -7,33 +7,38 @@ function Meal({ onNavigate, onLogout }) {
   const [mealPlans, setMealPlans] = useState([]);
   const [currentPlan, setCurrentPlan] = useState(null);
 
+  const API_URL = "https://fitness-ai-app-71hw.onrender.com/api/meal";
+
   useEffect(() => {
     fetchMeals();
   }, []);
 
+  const getAuthHeader = () => {
+    const token = localStorage.getItem("token");
+
+    return {
+      headers: {
+        authorization: token,
+      },
+    };
+  };
+
   const fetchMeals = async () => {
     try {
-      const token = localStorage.getItem("token");
+      const res = await axios.get(API_URL, getAuthHeader());
 
-      const res = await axios.get("https://fitness-ai-app-71hw.onrender.com/api/meal",
-         {
-        headers: {
-          authorization: token,
-        },
-      });
+      setMealPlans(res.data.mealPlans || []);
 
-      setMealPlans(res.data.mealPlans);
-
-      if (res.data.mealPlans.length > 0) {
+      if (res.data.mealPlans && res.data.mealPlans.length > 0) {
         setCurrentPlan(res.data.mealPlans[0]);
+      } else {
+        const todayRes = await axios.get(`${API_URL}/today`, getAuthHeader());
+        setCurrentPlan(todayRes.data.mealPlan);
       }
     } catch (error) {
       console.log(error);
     }
   };
-const generateMealPlan = async () => {
-  try {
-    const token = localStorage.getItem("token");
 
     await axios.post(
   "https://fitness-ai-app-71hw.onrender.com/api/ai/smart-plan",
@@ -61,6 +66,19 @@ const generateMealPlan = async () => {
   const caloriePercent = currentPlan
     ? Math.min(Math.round((Number(currentPlan.totalCalories) / Number(currentPlan.totalCalories)) * 100), 100)
     : 0;
+  const generateMealPlan = async () => {
+    try {
+      await axios.post(`${API_URL}/save-today`, {}, getAuthHeader());
+      await fetchMeals();
+    } catch (error) {
+      console.log(error);
+      alert("Hãy cập nhật đầy đủ Profile trước khi tạo meal plan");
+    }
+  };
+
+  const dailyTarget = currentPlan?.dailyTarget;
+
+  const caloriePercent = dailyTarget?.calories ? 100 : 0;
 
   return (
     <div style={styles.page}>
@@ -71,89 +89,143 @@ const generateMealPlan = async () => {
           </h1>
 
           <div style={styles.menu}>
-            <div style={styles.menuItem} onClick={() => onNavigate("home")}>🏠 Dashboard</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("workout")}>💪 Workout</div>
-            <div style={styles.activeMenu} onClick={() => onNavigate("meal")}>🍽 Meal Plan</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("progress")}>📈 Progress</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("ai-coach")}>🤖 AI Coach</div>
-            <div style={styles.menuItem} onClick={() => onNavigate("profile")}>👤 Profile</div>
-            
+            <div style={styles.menuItem} onClick={() => onNavigate("home")}>
+              🏠 Dashboard
+            </div>
+            <div style={styles.menuItem} onClick={() => onNavigate("workout")}>
+              💪 Workout
+            </div>
+            <div style={styles.activeMenu} onClick={() => onNavigate("meal")}>
+              🍽 Meal Plan
+            </div>
+            <div style={styles.menuItem} onClick={() => onNavigate("progress")}>
+              📈 Progress
+            </div>
+            <div style={styles.menuItem} onClick={() => onNavigate("ai-coach")}>
+              🤖 AI Coach
+            </div>
+            <div style={styles.menuItem} onClick={() => onNavigate("profile")}>
+              👤 Profile
+            </div>
           </div>
         </div>
 
-        <div style={styles.logout} onClick={onLogout}>🚪 Logout</div>
+        <div style={styles.logout} onClick={onLogout}>
+          🚪 Logout
+        </div>
       </div>
 
       <div style={styles.main}>
         <div style={styles.header}>
           <div>
             <h1 style={styles.title}>Meal Plan 🍽</h1>
-            <p style={styles.subtitle}>Meal plan riêng theo tài khoản đang đăng nhập.</p>
+            <p style={styles.subtitle}>
+              Gợi ý bữa ăn cá nhân hóa theo cân nặng, target weight, BMI và mục tiêu.
+            </p>
           </div>
 
           <div style={styles.profile}>🔔 👤</div>
         </div>
 
         {!currentPlan ? (
-  <div style={styles.emptyBox}>
-    <h2>Chưa có meal plan</h2>
-    <p style={styles.cardText}>
-      User này chưa có meal plan. Bấm nút dưới để AI tự tạo meal plan theo profile.
-    </p>
+          <div style={styles.emptyBox}>
+            <h2>Chưa có meal plan</h2>
+            <p style={styles.cardText}>
+              User này chưa có meal plan. Bấm nút dưới để tạo meal plan theo profile.
+            </p>
 
-    <button style={styles.detailBtn} onClick={generateMealPlan}>
-      Generate Meal Plan
-    </button>
-  </div>
-) : (
+            <button style={styles.detailBtn} onClick={generateMealPlan}>
+              Generate Meal Plan
+            </button>
+          </div>
+        ) : (
           <>
             <div style={styles.topGrid}>
               <div style={styles.calorieCard}>
                 <div>
-                  <h3>🔥 Calories Target</h3>
-                  <h1>{currentPlan.totalCalories}</h1>
+                  <h3>🔥 Hôm nay nên ăn</h3>
+                  <h1>{dailyTarget?.calories || 0} kcal</h1>
                   <p style={styles.cardText}>{caloriePercent}% daily target</p>
                 </div>
 
                 <div style={styles.progressBg}>
-                  <div style={{ ...styles.progressFill, width: `${caloriePercent}%` }}></div>
+                  <div
+                    style={{
+                      ...styles.progressFill,
+                      width: `${caloriePercent}%`,
+                    }}
+                  ></div>
                 </div>
               </div>
 
               <div style={styles.macroCard}>
                 <h3>💪 Protein</h3>
-                <h1>{currentPlan.protein}</h1>
-                <p style={styles.cardText}>Muscle recovery</p>
+                <h1>{dailyTarget?.proteinG || 0}g</h1>
+                <p style={styles.cardText}>Hỗ trợ phục hồi và tăng cơ</p>
               </div>
 
               <div style={styles.macroCard}>
                 <h3>🍚 Carbs</h3>
-                <h1>{currentPlan.carbs}</h1>
-                <p style={styles.cardText}>Training energy</p>
+                <h1>{dailyTarget?.carbsG || 0}g</h1>
+                <p style={styles.cardText}>Năng lượng tập luyện</p>
               </div>
 
               <div style={styles.macroCard}>
                 <h3>🥑 Fat</h3>
-                <h1>{currentPlan.fat}</h1>
-                <p style={styles.cardText}>Hormone support</p>
+                <h1>{dailyTarget?.fatG || 0}g</h1>
+                <p style={styles.cardText}>Chất béo tốt cần thiết</p>
               </div>
             </div>
 
             <div style={styles.middleGrid}>
               <div style={styles.goalBox}>
-                <h2 style={styles.sectionTitle}>🎯 Nutrition Goal</h2>
+                <h2 style={styles.sectionTitle}>🎯 Mục tiêu dinh dưỡng</h2>
 
-                <div style={styles.goalButtons}>
-                  {mealPlans.map((plan) => (
-                    <button
-                      key={plan._id}
-                      style={currentPlan._id === plan._id ? styles.activeGoalBtn : styles.goalBtn}
-                      onClick={() => setCurrentPlan(plan)}
-                    >
-                      {plan.goal}
-                    </button>
-                  ))}
+                <div style={styles.infoGrid}>
+                  <div style={styles.infoItem}>
+                    <span>Goal</span>
+                    <strong>{currentPlan.goalLabel || currentPlan.goal}</strong>
+                  </div>
+
+                  <div style={styles.infoItem}>
+                    <span>Current Weight</span>
+                    <strong>{currentPlan.currentWeight || "-"} kg</strong>
+                  </div>
+
+                  <div style={styles.infoItem}>
+                    <span>Target Weight</span>
+                    <strong>{currentPlan.targetWeight || "-"} kg</strong>
+                  </div>
+
+                  <div style={styles.infoItem}>
+                    <span>BMI</span>
+                    <strong>
+                      {currentPlan.bmi || "-"} / {currentPlan.bmiCategory || "-"}
+                    </strong>
+                  </div>
                 </div>
+
+                <button style={styles.detailBtn} onClick={generateMealPlan}>
+                  Generate New Plan
+                </button>
+
+                {mealPlans.length > 0 && (
+                  <div style={styles.goalButtons}>
+                    {mealPlans.map((plan, index) => (
+                      <button
+                        key={plan._id || index}
+                        style={
+                          currentPlan._id === plan._id
+                            ? styles.activeGoalBtn
+                            : styles.goalBtn
+                        }
+                        onClick={() => setCurrentPlan(plan)}
+                      >
+                        Plan {index + 1}
+                      </button>
+                    ))}
+                  </div>
+                )}
               </div>
 
               <div style={styles.waterBox}>
@@ -164,42 +236,69 @@ const generateMealPlan = async () => {
                   {Array.from({ length: 8 }).map((_, index) => (
                     <div
                       key={index}
-                      style={index < water ? styles.activeWaterDot : styles.waterDot}
+                      style={
+                        index < water ? styles.activeWaterDot : styles.waterDot
+                      }
                     ></div>
                   ))}
                 </div>
 
                 <div style={styles.waterActions}>
-                  <button style={styles.smallBtn} onClick={() => setWater(Math.max(water - 1, 0))}>-</button>
-                  <button style={styles.smallBtn} onClick={() => setWater(Math.min(water + 1, 8))}>+</button>
+                  <button
+                    style={styles.smallBtn}
+                    onClick={() => setWater(Math.max(water - 1, 0))}
+                  >
+                    -
+                  </button>
+                  <button
+                    style={styles.smallBtn}
+                    onClick={() => setWater(Math.min(water + 1, 8))}
+                  >
+                    +
+                  </button>
                 </div>
               </div>
             </div>
 
             <div style={styles.contentGrid}>
               <div style={styles.mealSection}>
-                <h2 style={styles.sectionTitle}>📅 Today's Meal Schedule</h2>
+                <h2 style={styles.sectionTitle}>📅 Gợi ý bữa ăn hôm nay</h2>
 
                 <div style={styles.mealGrid}>
                   {currentPlan.meals?.map((meal) => (
                     <div key={meal._id || meal.time} style={styles.mealCard}>
                       <div style={styles.mealHeader}>
                         <div>
-                          <h2>🍽 {meal.time}</h2>
-                          <p style={styles.cardText}>Meal items</p>
+                          <h2>🍽 {meal.label || meal.time}</h2>
+                          <p style={styles.cardText}>
+                            Target: {meal.targetCalories} kcal •{" "}
+                            {meal.targetProteinG}g protein •{" "}
+                            {meal.targetCarbsG}g carbs • {meal.targetFatG}g fat
+                          </p>
                         </div>
 
-                        <button style={styles.detailBtn} onClick={() => setSelectedMeal(meal)}>
+                        <button
+                          style={styles.detailBtn}
+                          onClick={() => setSelectedMeal(meal)}
+                        >
                           View
                         </button>
                       </div>
 
                       <div style={styles.foodList}>
                         {meal.items?.map((item) => (
-                          <div key={item._id || item.food} style={styles.foodItem}>
-                            <span>
-                              • {item.food} - {item.quantity} - {item.calories} cal
-                            </span>
+                          <div key={item._id || item.id} style={styles.foodItem}>
+                            <strong>{item.name}</strong>
+                            <p style={styles.cardText}>
+                              {item.quantity} • {item.grams}g
+                            </p>
+
+                            <div style={styles.miniMacroGrid}>
+                              <span>🔥 {item.calories} kcal</span>
+                              <span>💪 {item.proteinG}g</span>
+                              <span>🍚 {item.carbsG}g</span>
+                              <span>🥑 {item.fatG}g</span>
+                            </div>
                           </div>
                         ))}
                       </div>
@@ -211,14 +310,21 @@ const generateMealPlan = async () => {
               <div style={styles.aiBox}>
                 <h2 style={styles.aiTitle}>🤖 AI Nutrition Tips</h2>
 
-                <p style={styles.aiText}>Based on your current goal:</p>
+                <p style={styles.aiText}>Dựa trên profile hiện tại của bạn:</p>
 
                 <ul style={styles.tipList}>
-                  <li>Goal: {currentPlan.goal}</li>
-                  <li>Total Calories: {currentPlan.totalCalories}</li>
-                  <li>Protein: {currentPlan.protein}</li>
-                  <li>Uống đủ nước và theo dõi cân nặng mỗi tuần.</li>
+                  <li>Goal: {currentPlan.goalLabel || currentPlan.goal}</li>
+                  <li>Calories: {dailyTarget?.calories || 0} kcal</li>
+                  <li>Protein: {dailyTarget?.proteinG || 0}g</li>
+                  <li>Carbs: {dailyTarget?.carbsG || 0}g</li>
+                  <li>Fat: {dailyTarget?.fatG || 0}g</li>
+                  <li>BMI: {currentPlan.bmi || "-"}</li>
+                  <li>Target Weight: {currentPlan.targetWeight || "-"} kg</li>
                 </ul>
+
+                <p style={styles.aiText}>
+                  Meal plan sẽ thay đổi theo mục tiêu, cân nặng hiện tại và cân nặng mong muốn.
+                </p>
 
                 <div style={styles.aiCircle}>AI</div>
               </div>
@@ -229,21 +335,55 @@ const generateMealPlan = async () => {
         {selectedMeal && (
           <div style={styles.modalOverlay}>
             <div style={styles.modalBox}>
-              <button style={styles.closeBtn} onClick={() => setSelectedMeal(null)}>✕</button>
+              <button
+                style={styles.closeBtn}
+                onClick={() => setSelectedMeal(null)}
+              >
+                ✕
+              </button>
 
-              <h2 style={styles.modalTitle}>🍽 {selectedMeal.time}</h2>
+              <h2 style={styles.modalTitle}>
+                🍽 {selectedMeal.label || selectedMeal.time}
+              </h2>
+
+              <p style={styles.cardText}>
+                Target: {selectedMeal.targetCalories} kcal •{" "}
+                {selectedMeal.targetProteinG}g protein •{" "}
+                {selectedMeal.targetCarbsG}g carbs • {selectedMeal.targetFatG}g fat
+              </p>
 
               <div style={styles.foodImageBox}>Meal image will be added later</div>
 
-              <h3 style={styles.sectionTitle}>Foods</h3>
+              <h3 style={styles.sectionTitle}>Chi tiết món ăn</h3>
 
-              <ul style={styles.tipList}>
-                {selectedMeal.items?.map((item) => (
-                  <li key={item._id || item.food}>
-                    {item.food} - {item.quantity} - {item.calories} cal
-                  </li>
-                ))}
-              </ul>
+              {selectedMeal.items?.map((item) => (
+                <div key={item._id || item.id} style={styles.detailFoodBox}>
+                  <h3>{item.name}</h3>
+
+                  <p>🍽 Khẩu phần: {item.quantity}</p>
+                  <p>⚖️ Khối lượng: {item.grams}g</p>
+
+                  <div style={styles.detailMacroGrid}>
+                    <div>🔥 Calories: {item.calories} kcal</div>
+                    <div>💪 Protein: {item.proteinG}g</div>
+                    <div>🍚 Carbs: {item.carbsG}g</div>
+                    <div>🥑 Fat: {item.fatG}g</div>
+                    <div>🌾 Fiber: {item.fiberG}g</div>
+                    <div>🍬 Sugar: {item.sugarG}g</div>
+                    <div>🧂 Sodium: {item.sodiumMg}mg</div>
+                  </div>
+
+                  <h4>🧾 Nguyên liệu</h4>
+
+                  <ul style={styles.tipList}>
+                    {item.ingredients?.map((ing) => (
+                      <li key={ing}>{ing}</li>
+                    ))}
+                  </ul>
+
+                  <p style={styles.reasonText}>🤖 {item.reason}</p>
+                </div>
+              ))}
             </div>
           </div>
         )}
@@ -253,57 +393,383 @@ const generateMealPlan = async () => {
 }
 
 const styles = {
-  page: { display: "flex", minHeight: "100vh", background: "#0f172a", color: "white", fontFamily: "Arial" },
-  sidebar: { width: "260px", background: "#111827", padding: "30px", display: "flex", flexDirection: "column", justifyContent: "space-between", borderRight: "1px solid #1f2937" },
+  page: {
+    display: "flex",
+    minHeight: "100vh",
+    background: "#0f172a",
+    color: "white",
+    fontFamily: "Arial",
+  },
+
+  sidebar: {
+    width: "260px",
+    minHeight: "100vh",
+    background: "#111827",
+    padding: "30px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    borderRight: "1px solid #1f2937",
+    boxSizing: "border-box",
+  },
+
   logo: { fontSize: "30px", marginBottom: "40px" },
   green: { color: "#84cc16" },
+
   menu: { display: "flex", flexDirection: "column", gap: "16px" },
-  menuItem: { padding: "16px", borderRadius: "14px", background: "#1f2937", cursor: "pointer" },
-  activeMenu: { padding: "16px", borderRadius: "14px", background: "linear-gradient(90deg,#84cc16,#65a30d)", color: "#0f172a", fontWeight: "bold", cursor: "pointer" },
-  logout: { padding: "16px", borderRadius: "14px", background: "#1f2937", textAlign: "center", cursor: "pointer" },
-  main: { flex: 1, padding: "40px" },
-  header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "35px" },
+
+  menuItem: {
+    padding: "16px",
+    borderRadius: "14px",
+    background: "#1f2937",
+    cursor: "pointer",
+  },
+
+  activeMenu: {
+    padding: "16px",
+    borderRadius: "14px",
+    background: "linear-gradient(90deg,#84cc16,#65a30d)",
+    color: "#0f172a",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+
+  logout: {
+    padding: "16px",
+    borderRadius: "14px",
+    background: "#1f2937",
+    textAlign: "center",
+    cursor: "pointer",
+  },
+
+  main: {
+    flex: 1,
+    padding: "40px",
+    overflowX: "hidden",
+  },
+
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "35px",
+  },
+
   title: { margin: 0, fontSize: "38px" },
   subtitle: { color: "#94a3b8", marginTop: "10px" },
   profile: { fontSize: "28px" },
-  emptyBox: { background: "#111827", padding: "40px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.2)" },
-  topGrid: { display: "grid", gridTemplateColumns: "2fr 1fr 1fr 1fr", gap: "20px", marginBottom: "25px" },
-  calorieCard: { background: "#111827", padding: "25px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.2)" },
-  macroCard: { background: "#111827", padding: "25px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.2)" },
-  cardText: { color: "#94a3b8" },
-  progressBg: { width: "100%", height: "12px", background: "#1f2937", borderRadius: "999px", marginTop: "24px" },
-  progressFill: { height: "100%", background: "#84cc16", borderRadius: "999px" },
-  middleGrid: { display: "grid", gridTemplateColumns: "1.5fr 1fr", gap: "25px", marginBottom: "25px" },
-  goalBox: { background: "#111827", padding: "28px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.2)" },
-  waterBox: { background: "#111827", padding: "28px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.2)" },
+
+  emptyBox: {
+    background: "#111827",
+    padding: "40px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.2)",
+  },
+
+  topGrid: {
+    display: "grid",
+    gridTemplateColumns: "2fr 1fr 1fr 1fr",
+    gap: "20px",
+    marginBottom: "25px",
+  },
+
+  calorieCard: {
+    background: "#111827",
+    padding: "25px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.2)",
+  },
+
+  macroCard: {
+    background: "#111827",
+    padding: "25px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.2)",
+  },
+
+  cardText: { color: "#94a3b8", lineHeight: "1.6" },
+
+  progressBg: {
+    width: "100%",
+    height: "12px",
+    background: "#1f2937",
+    borderRadius: "999px",
+    marginTop: "24px",
+  },
+
+  progressFill: {
+    height: "100%",
+    background: "#84cc16",
+    borderRadius: "999px",
+  },
+
+  middleGrid: {
+    display: "grid",
+    gridTemplateColumns: "1.5fr 1fr",
+    gap: "25px",
+    marginBottom: "25px",
+  },
+
+  goalBox: {
+    background: "#111827",
+    padding: "28px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.2)",
+  },
+
+  waterBox: {
+    background: "#111827",
+    padding: "28px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.2)",
+  },
+
   sectionTitle: { color: "#84cc16", marginBottom: "20px" },
-  goalButtons: { display: "flex", gap: "15px", flexWrap: "wrap" },
-  goalBtn: { padding: "16px 22px", borderRadius: "16px", border: "none", background: "#1f2937", color: "white", fontWeight: "bold", cursor: "pointer" },
-  activeGoalBtn: { padding: "16px 22px", borderRadius: "16px", border: "none", background: "#84cc16", color: "#0f172a", fontWeight: "bold", cursor: "pointer" },
+
+  infoGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "14px",
+    marginBottom: "20px",
+  },
+
+  infoItem: {
+    background: "#0f172a",
+    padding: "16px",
+    borderRadius: "16px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+    border: "1px solid #1f2937",
+  },
+
+  goalButtons: {
+    display: "flex",
+    gap: "15px",
+    flexWrap: "wrap",
+    marginTop: "20px",
+  },
+
+  goalBtn: {
+    padding: "12px 18px",
+    borderRadius: "14px",
+    border: "none",
+    background: "#1f2937",
+    color: "white",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+
+  activeGoalBtn: {
+    padding: "12px 18px",
+    borderRadius: "14px",
+    border: "none",
+    background: "#84cc16",
+    color: "#0f172a",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+
   waterNumber: { margin: "0 0 18px" },
-  waterDots: { display: "grid", gridTemplateColumns: "repeat(8, 1fr)", gap: "8px", marginBottom: "20px" },
-  waterDot: { height: "18px", borderRadius: "999px", background: "#1f2937" },
-  activeWaterDot: { height: "18px", borderRadius: "999px", background: "#84cc16" },
+
+  waterDots: {
+    display: "grid",
+    gridTemplateColumns: "repeat(8, 1fr)",
+    gap: "8px",
+    marginBottom: "20px",
+  },
+
+  waterDot: {
+    height: "18px",
+    borderRadius: "999px",
+    background: "#1f2937",
+  },
+
+  activeWaterDot: {
+    height: "18px",
+    borderRadius: "999px",
+    background: "#84cc16",
+  },
+
   waterActions: { display: "flex", gap: "12px" },
-  smallBtn: { width: "48px", height: "40px", borderRadius: "12px", border: "none", background: "#84cc16", color: "#0f172a", fontSize: "22px", fontWeight: "bold", cursor: "pointer" },
-  contentGrid: { display: "grid", gridTemplateColumns: "1.4fr 0.8fr", gap: "25px" },
-  mealSection: { background: "#111827", padding: "30px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.2)" },
-  mealGrid: { display: "grid", gridTemplateColumns: "1fr 1fr", gap: "20px" },
-  mealCard: { background: "#0f172a", padding: "22px", borderRadius: "20px", border: "1px solid #1f2937" },
-  mealHeader: { display: "flex", justifyContent: "space-between", gap: "12px", alignItems: "start" },
-  foodList: { marginTop: "18px", display: "flex", flexDirection: "column", gap: "10px", color: "#cbd5e1" },
-  foodItem: { paddingBottom: "8px", borderBottom: "1px solid #1f2937" },
-  detailBtn: { padding: "10px 16px", border: "none", borderRadius: "12px", background: "#84cc16", color: "#0f172a", fontWeight: "bold", cursor: "pointer" },
-  aiBox: { background: "linear-gradient(180deg,#111827,#1e293b)", padding: "30px", borderRadius: "24px", border: "1px solid rgba(132,204,22,0.3)", position: "relative", overflow: "hidden" },
+
+  smallBtn: {
+    width: "48px",
+    height: "40px",
+    borderRadius: "12px",
+    border: "none",
+    background: "#84cc16",
+    color: "#0f172a",
+    fontSize: "22px",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+
+  contentGrid: {
+    display: "grid",
+    gridTemplateColumns: "1.4fr 0.8fr",
+    gap: "25px",
+  },
+
+  mealSection: {
+    background: "#111827",
+    padding: "30px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.2)",
+  },
+
+  mealGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "20px",
+  },
+
+  mealCard: {
+    background: "#0f172a",
+    padding: "22px",
+    borderRadius: "20px",
+    border: "1px solid #1f2937",
+  },
+
+  mealHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    gap: "12px",
+    alignItems: "start",
+  },
+
+  foodList: {
+    marginTop: "18px",
+    display: "flex",
+    flexDirection: "column",
+    gap: "12px",
+    color: "#cbd5e1",
+  },
+
+  foodItem: {
+    padding: "14px",
+    borderRadius: "14px",
+    background: "#111827",
+    border: "1px solid #1f2937",
+  },
+
+  miniMacroGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "8px",
+    marginTop: "10px",
+    color: "#cbd5e1",
+    fontSize: "14px",
+  },
+
+  detailBtn: {
+    padding: "10px 16px",
+    border: "none",
+    borderRadius: "12px",
+    background: "#84cc16",
+    color: "#0f172a",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+
+  aiBox: {
+    background: "linear-gradient(180deg,#111827,#1e293b)",
+    padding: "30px",
+    borderRadius: "24px",
+    border: "1px solid rgba(132,204,22,0.3)",
+    position: "relative",
+    overflow: "hidden",
+  },
+
   aiTitle: { color: "#84cc16" },
   aiText: { color: "#cbd5e1", lineHeight: "1.7" },
   tipList: { color: "#cbd5e1", lineHeight: "2" },
-  aiCircle: { width: "120px", height: "120px", borderRadius: "50%", background: "#84cc16", color: "#0f172a", display: "flex", justifyContent: "center", alignItems: "center", fontSize: "34px", fontWeight: "bold", marginTop: "40px", boxShadow: "0 0 40px rgba(132,204,22,0.5)" },
-  modalOverlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 999 },
-  modalBox: { width: "620px", background: "#111827", borderRadius: "24px", padding: "30px", border: "1px solid rgba(132,204,22,0.4)", position: "relative" },
-  closeBtn: { position: "absolute", top: "20px", right: "20px", border: "none", background: "#1f2937", color: "white", width: "40px", height: "40px", borderRadius: "50%", cursor: "pointer", fontSize: "18px" },
+
+  aiCircle: {
+    width: "120px",
+    height: "120px",
+    borderRadius: "50%",
+    background: "#84cc16",
+    color: "#0f172a",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: "34px",
+    fontWeight: "bold",
+    marginTop: "40px",
+    boxShadow: "0 0 40px rgba(132,204,22,0.5)",
+  },
+
+  modalOverlay: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.7)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
+  },
+
+  modalBox: {
+    width: "700px",
+    maxHeight: "88vh",
+    overflowY: "auto",
+    background: "#111827",
+    borderRadius: "24px",
+    padding: "30px",
+    border: "1px solid rgba(132,204,22,0.4)",
+    position: "relative",
+  },
+
+  closeBtn: {
+    position: "absolute",
+    top: "20px",
+    right: "20px",
+    border: "none",
+    background: "#1f2937",
+    color: "white",
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
+    cursor: "pointer",
+    fontSize: "18px",
+  },
+
   modalTitle: { color: "#84cc16", marginBottom: "20px" },
-  foodImageBox: { height: "260px", background: "#1f2937", borderRadius: "18px", display: "flex", justifyContent: "center", alignItems: "center", color: "#94a3b8", marginBottom: "20px" },
+
+  foodImageBox: {
+    height: "220px",
+    background: "#1f2937",
+    borderRadius: "18px",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    color: "#94a3b8",
+    marginBottom: "20px",
+  },
+
+  detailFoodBox: {
+    background: "#0f172a",
+    padding: "20px",
+    borderRadius: "18px",
+    marginBottom: "18px",
+    border: "1px solid #1f2937",
+  },
+
+  detailMacroGrid: {
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "10px",
+    marginTop: "16px",
+    marginBottom: "16px",
+    color: "#cbd5e1",
+  },
+
+  reasonText: {
+    marginTop: "12px",
+    color: "#84cc16",
+    lineHeight: "1.6",
+  },
 };
 
 export default Meal;

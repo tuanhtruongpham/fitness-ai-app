@@ -10,7 +10,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Bodyweight",
           description: "Chống đẩy bằng gối, phù hợp để người mới học kỹ thuật push-up an toàn.",
-          video: "",
+          video: "https://www.youtube.com/embed/9x0JXlkOgpo",
         },
         {
           name: "Incline Push-up",
