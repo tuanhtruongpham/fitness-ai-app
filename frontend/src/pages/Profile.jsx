@@ -269,132 +269,161 @@ function Profile({ onNavigate, onLogout }) {
         <div style={styles.formCard}>
           <h2 style={styles.sectionTitle}>⚙ Edit Profile</h2>
 
-          <div style={styles.formGrid}>
+              <div style={styles.formGrid}>
+        <div style={styles.field}>
+          <label style={styles.label}>Full Name</label>
+          <input
+            style={styles.input}
+            name="fullName"
+            value={form.fullName}
+            onChange={handleChange}
+          />
+        </div>
+
+        <div style={styles.field}>
+          <label style={styles.label}>Avatar</label>
+
+          <label style={styles.fileUploadBox}>
+            📁 Choose Avatar
             <input
-              style={styles.input}
-              name="fullName"
-              placeholder="Full Name"
-              value={form.fullName}
-              onChange={handleChange}
+              type="file"
+              accept="image/*"
+              onChange={handleAvatarUpload}
+              style={{ display: "none" }}
             />
+          </label>
+        </div>
 
-            <label style={styles.fileUploadBox}>
-              📁 Choose Avatar
-              <input
-                type="file"
-                accept="image/*"
-                onChange={handleAvatarUpload}
-                style={{ display: "none" }}
-              />
-            </label>
+        <div style={styles.field}>
+          <label style={styles.label}>New Password</label>
+          <input
+            style={styles.input}
+            name="password"
+            type="password"
+            value={form.password}
+            onChange={handleChange}
+          />
+        </div>
 
-            <input
-              style={styles.input}
-              name="password"
-              type="password"
-              placeholder="New Password"
-              value={form.password}
-              onChange={handleChange}
-            />
+        <div style={styles.field}>
+          <label style={styles.label}>Age</label>
+          <input
+            style={styles.input}
+            name="age"
+            type="number"
+            value={form.age}
+            onChange={handleChange}
+          />
+        </div>
 
-            <input
-              style={styles.input}
-              name="age"
-              type="number"
-              placeholder="Age"
-              value={form.age}
-              onChange={handleChange}
-            />
+        <div style={styles.field}>
+          <label style={styles.label}>Gender</label>
+          <select
+            style={styles.input}
+            name="gender"
+            value={form.gender}
+            onChange={handleChange}
+          >
+            <option value="">Select Gender</option>
+            <option value="male">Male</option>
+            <option value="female">Female</option>
+          </select>
+        </div>
 
-            <select
-              style={styles.input}
-              name="gender"
-              value={form.gender}
-              onChange={handleChange}
-            >
-              <option value="">Gender</option>
-              <option value="male">Male</option>
-              <option value="female">Female</option>
-            </select>
+        <div style={styles.field}>
+          <label style={styles.label}>Current Weight (KG)</label>
+          <input
+            style={styles.input}
+            name="weight"
+            type="number"
+            value={form.weight}
+            onChange={handleChange}
+          />
+        </div>
 
-            <input
-              style={styles.input}
-              name="weight"
-              type="number"
-              placeholder="Current Weight"
-              value={form.weight}
-              onChange={handleChange}
-            />
+        <div style={styles.field}>
+          <label style={styles.label}>Target Weight (KG)</label>
+          <input
+            style={styles.input}
+            name="targetWeight"
+            type="number"
+            value={form.targetWeight}
+            onChange={handleChange}
+          />
+        </div>
 
-            <input
-              style={styles.input}
-              name="targetWeight"
-              type="number"
-              placeholder="Target Weight"
-              value={form.targetWeight}
-              onChange={handleChange}
-            />
+        <div style={styles.field}>
+          <label style={styles.label}>Height (CM)</label>
+          <input
+            style={styles.input}
+            name="height"
+            type="number"
+            value={form.height}
+            onChange={handleChange}
+          />
+        </div>
 
-            <input
-              style={styles.input}
-              name="height"
-              type="number"
-              placeholder="Height"
-              value={form.height}
-              onChange={handleChange}
-            />
+        <div style={styles.field}>
+          <label style={styles.label}>Activity Level</label>
+          <select
+            style={styles.input}
+            name="activity"
+            value={form.activity}
+            onChange={handleChange}
+          >
+            <option value="">Select Activity</option>
+            <option value="sedentary">Sedentary</option>
+            <option value="light">Light</option>
+            <option value="moderate">Moderate</option>
+            <option value="active">Active</option>
+          </select>
+        </div>
 
-            <select
-              style={styles.input}
-              name="activity"
-              value={form.activity}
-              onChange={handleChange}
-            >
-              <option value="">Activity Level</option>
-              <option value="sedentary">Sedentary</option>
-              <option value="light">Light</option>
-              <option value="moderate">Moderate</option>
-              <option value="active">Active</option>
-            </select>
+        <div style={styles.field}>
+          <label style={styles.label}>Fitness Goal</label>
+          <select
+            style={styles.input}
+            name="goal"
+            value={form.goal}
+            onChange={handleChange}
+          >
+            <option value="">Select Goal</option>
+            <option value="fat_loss">Fat Loss</option>
+            <option value="muscle_gain">Muscle Gain</option>
+            <option value="maintenance">Maintenance</option>
+            <option value="weight_gain">Weight Gain</option>
+          </select>
+        </div>
 
-            <select
-              style={styles.input}
-              name="goal"
-              value={form.goal}
-              onChange={handleChange}
-            >
-              <option value="">Select Goal</option>
-              <option value="fat_loss">Fat Loss</option>
-              <option value="muscle_gain">Muscle Gain</option>
-              <option value="maintenance">Maintenance</option>
-              <option value="weight_gain">Weight Gain</option>
-            </select>
+        <div style={styles.field}>
+          <label style={styles.label}>Training Focus</label>
+          <select
+            style={styles.input}
+            name="trainingFocus"
+            value={form.trainingFocus}
+            onChange={handleChange}
+          >
+            <option value="general">General Fitness</option>
+            <option value="muscle">Muscle Building</option>
+            <option value="endurance">Endurance</option>
+          </select>
+        </div>
 
-            <select
-              style={styles.input}
-              name="trainingFocus"
-              value={form.trainingFocus}
-              onChange={handleChange}
-            >
-              <option value="">Training Focus</option>
-              <option value="general">General Fitness</option>
-              <option value="muscle">Muscle Building</option>
-              <option value="endurance">Endurance</option>
-            </select>
-
-            <select
-              style={styles.input}
-              name="dietType"
-              value={form.dietType}
-              onChange={handleChange}
-            >
-              <option value="">Diet Type</option>
-              <option value="normal">Normal</option>
-              <option value="high_protein">High Protein</option>
-              <option value="low_carb">Low Carb</option>
-              <option value="vegetarian">Vegetarian</option>
-            </select>
-          </div>
+        <div style={styles.field}>
+          <label style={styles.label}>Diet Type</label>
+          <select
+            style={styles.input}
+            name="dietType"
+            value={form.dietType}
+            onChange={handleChange}
+          >
+            <option value="normal">Normal</option>
+            <option value="high_protein">High Protein</option>
+            <option value="low_carb">Low Carb</option>
+            <option value="vegetarian">Vegetarian</option>
+          </select>
+        </div>
+      </div>
 
           <button style={styles.saveBtn} onClick={handleSave}>
             Save Changes
@@ -608,6 +637,18 @@ const styles = {
     cursor: "pointer",
     fontSize: "15px",
   },
+  field: {
+  display: "flex",
+  flexDirection: "column",
+  gap: "8px",
+},
+
+label: {
+  color: "#84cc16",
+  fontSize: "14px",
+  fontWeight: "600",
+  marginLeft: "4px",
+},
 };
 
 export default Profile;
