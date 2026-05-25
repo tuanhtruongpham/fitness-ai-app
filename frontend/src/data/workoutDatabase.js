@@ -1008,7 +1008,7 @@ const workoutDatabase = {
           duration: "10-20 min",
           equipment: "Bodyweight",
           description: "Cardio low-impact phù hợp cho người mới.",
-          video: "",
+          video: "https://www.youtube.com/embed/syBst7XYtMA",
         },
         {
           name: "Run in Place",
@@ -1017,7 +1017,7 @@ const workoutDatabase = {
           duration: "10-20 min",
           equipment: "Bodyweight",
           description: "Phiên bản cardio động hơn marching.",
-          video: "",
+          video: "https://www.youtube.com/embed/-uoSe_MLSMU",
         },
       ],
       gym: [
@@ -1028,7 +1028,7 @@ const workoutDatabase = {
           duration: "15-25 min",
           equipment: "Treadmill",
           description: "Đi bộ dốc giúp tăng nhịp tim mà vẫn low-impact.",
-          video: "",
+          video: "https://www.youtube.com/embed/xCaxzgIRW1k",
         },
         {
           name: "Stationary Bike Easy Ride",
@@ -1051,7 +1051,7 @@ const workoutDatabase = {
           duration: "15-20 min",
           equipment: "Bodyweight",
           description: "Bài cardio toàn thân giúp tăng work capacity.",
-          video: "",
+          video: "https://www.youtube.com/embed/8EHMqbWgmD0",
         },
         {
           name: "Mountain Climbers",
@@ -1060,7 +1060,7 @@ const workoutDatabase = {
           duration: "10-15 min",
           equipment: "Bodyweight",
           description: "Kết hợp cardio với core endurance.",
-          video: "",
+          video: "https://www.youtube.com/embed/qBXZhVUA_IA",
         },
       ],
       gym: [
@@ -1071,7 +1071,7 @@ const workoutDatabase = {
           duration: "15-20 min",
           equipment: "Rowing Machine",
           description: "Interval cardio toàn thân với máy chèo.",
-          video: "",
+          video: "https://www.youtube.com/embed/PYstmIjxfgU",
         },
         {
           name: "Elliptical Intervals",
@@ -1080,7 +1080,7 @@ const workoutDatabase = {
           duration: "15-25 min",
           equipment: "Elliptical",
           description: "Cardio low-impact phù hợp người muốn giảm stress khớp.",
-          video: "",
+          video: "https://www.youtube.com/embed/Ao8Fi49dBQQ",
         },
       ],
     },
@@ -1094,7 +1094,7 @@ const workoutDatabase = {
           duration: "15-25 min",
           equipment: "Jump Rope",
           description: "Cardio cường độ cao giúp cải thiện tốc độ và sức bền.",
-          video: "",
+          video: "https://www.youtube.com/embed/DkWK2Bm-BOY",
         },
         {
           name: "Burpees",
@@ -1103,7 +1103,7 @@ const workoutDatabase = {
           duration: "10-15 min",
           equipment: "Bodyweight",
           description: "Bài cardio toàn thân cường độ cao.",
-          video: "",
+          video: "https://www.youtube.com/embed/mW_p042lFu8",
         },
       ],
       gym: [
@@ -1114,7 +1114,7 @@ const workoutDatabase = {
           duration: "15-20 min",
           equipment: "Treadmill",
           description: "Sprint intervals giúp tăng anaerobic capacity.",
-          video: "",
+          video: "https://www.youtube.com/embed/LZ2BMp7Dh7k",
         },
         {
           name: "Air Bike HIIT",
@@ -1123,7 +1123,7 @@ const workoutDatabase = {
           duration: "10-15 min",
           equipment: "Air Bike",
           description: "HIIT cực nặng cho advanced cardio training.",
-          video: "",
+          video: "https://www.youtube.com/embed/kT1ewXOdZcs",
         },
       ],
     },
