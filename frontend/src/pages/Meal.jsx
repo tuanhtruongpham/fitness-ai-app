@@ -38,7 +38,7 @@ function Meal({ onNavigate, onLogout }) {
     return saved.meals || [];
   });
 
-  const API_URL = "http://localhost:5000/api/meal";
+ const API_URL = "https://fitness-ai-app-71hw.onrender.com/api/meal";
 
  useEffect(() => {
   generateTodayPlan();
