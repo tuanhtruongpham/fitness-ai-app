@@ -5,16 +5,23 @@ function Profile({ onNavigate, onLogout }) {
   const [user, setUser] = useState(null);
 
   const [form, setForm] = useState({
-  fullName: "",
-  avatar: "",
-  password: "",
-  weight: "",
-  targetWeight: "",
-  height: "",
-  age: "",
-  gender: "",
-  goal: "",
-});
+    fullName: "",
+    avatar: "",
+    password: "",
+
+    age: "",
+    gender: "",
+
+    weight: "",
+    targetWeight: "",
+    height: "",
+
+    activity: "",
+    goal: "",
+
+    trainingFocus: "",
+    dietType: "",
+  });
 
   useEffect(() => {
     fetchProfile();
@@ -38,16 +45,23 @@ function Profile({ onNavigate, onLogout }) {
       setUser(data);
 
       setForm({
-  fullName: data.fullName || "",
-  avatar: data.avatar || "",
-  password: "",
-  weight: data.weight || "",
-  targetWeight: data.targetWeight || "",
-  height: data.height || "",
-  age: data.age || "",
-  gender: data.gender || "",
-  goal: data.goal || "",
-});
+        fullName: data.fullName || "",
+        avatar: data.avatar || "",
+        password: "",
+
+        age: data.age || "",
+        gender: data.gender || "",
+
+        weight: data.weight || "",
+        targetWeight: data.targetWeight || "",
+        height: data.height || "",
+
+        activity: data.activity || "",
+        goal: data.goal || "",
+
+        trainingFocus: data.trainingFocus || "",
+        dietType: data.dietType || "normal",
+      });
     } catch (error) {
       console.log(error);
     }
@@ -56,9 +70,8 @@ function Profile({ onNavigate, onLogout }) {
   const calculateBMI = () => {
     if (!form.weight || !form.height) return 0;
 
-    const h = form.height / 100;
-
-    return (form.weight / (h * h)).toFixed(1);
+    const h = Number(form.height) / 100;
+    return (Number(form.weight) / (h * h)).toFixed(1);
   };
 
   const handleChange = (e) => {
@@ -69,34 +82,37 @@ function Profile({ onNavigate, onLogout }) {
   };
 
   const handleSave = async () => {
-  try {
-    const token = localStorage.getItem("token");
+    try {
+      const token = localStorage.getItem("token");
 
-    console.log("PROFILE SAVE:", form);
-
-    const res = await axios.put(
-      "http://localhost:5000/api/profile/update",
-      {
+      const payload = {
         ...form,
+        age: form.age ? Number(form.age) : undefined,
+        weight: form.weight ? Number(form.weight) : undefined,
+        targetWeight: form.targetWeight ? Number(form.targetWeight) : undefined,
+        height: form.height ? Number(form.height) : undefined,
         bmi: calculateBMI(),
-      },
-      {
-        headers: {
-          authorization: token,
-        },
-      }
-    );
+      };
 
-    alert("Profile updated!");
+      const res = await axios.put(
+        "https://fitness-ai-app-71hw.onrender.com/api/profile/update",
+        payload,
+        {
+          headers: {
+            authorization: token,
+          },
+        }
+      );
 
-    setUser(res.data.user);
+      alert("Profile updated!");
 
-    fetchProfile();
-  } catch (error) {
-    console.log(error);
-    alert("Update failed");
-  }
-};
+      setUser(res.data.user);
+      fetchProfile();
+    } catch (error) {
+      console.log(error);
+      alert(error.response?.data?.message || "Update failed");
+    }
+  };
 
   return (
     <div style={styles.page}>
@@ -107,44 +123,27 @@ function Profile({ onNavigate, onLogout }) {
           </h1>
 
           <div style={styles.menu}>
-            <div
-              style={styles.menuItem}
-              onClick={() => onNavigate("home")}
-            >
+            <div style={styles.menuItem} onClick={() => onNavigate("home")}>
               🏠 Dashboard
             </div>
 
-            <div
-              style={styles.menuItem}
-              onClick={() => onNavigate("workout")}
-            >
+            <div style={styles.menuItem} onClick={() => onNavigate("workout")}>
               💪 Workout
             </div>
 
-            <div
-              style={styles.menuItem}
-              onClick={() => onNavigate("meal")}
-            >
+            <div style={styles.menuItem} onClick={() => onNavigate("meal")}>
               🍽 Meal Plan
             </div>
 
-            <div
-              style={styles.menuItem}
-              onClick={() => onNavigate("progress")}
-            >
+            <div style={styles.menuItem} onClick={() => onNavigate("progress")}>
               📈 Progress
             </div>
 
-            <div
-              style={styles.menuItem}
-              onClick={() => onNavigate("ai-coach")}
-            >
+            <div style={styles.menuItem} onClick={() => onNavigate("ai-coach")}>
               🤖 AI Coach
             </div>
 
-            <div style={styles.activeMenu}>
-              👤 Profile
-            </div>
+            <div style={styles.activeMenu}>👤 Profile</div>
           </div>
         </div>
 
@@ -158,7 +157,7 @@ function Profile({ onNavigate, onLogout }) {
           <div>
             <h1 style={styles.title}>Profile</h1>
             <p style={styles.subtitle}>
-              Manage your personal information
+              Manage your personal information and nutrition settings
             </p>
           </div>
         </div>
@@ -176,33 +175,37 @@ function Profile({ onNavigate, onLogout }) {
 
             <h2>{user?.fullName}</h2>
 
-            <p style={styles.email}>
-              {user?.email}
-            </p>
+            <p style={styles.email}>{user?.email}</p>
 
-            <div style={styles.goalTag}>
-              {form.goal || "No Goal"}
-            </div>
+            <div style={styles.goalTag}>{form.goal || "No Goal"}</div>
           </div>
 
           <div style={styles.infoCard}>
-            <h2 style={styles.sectionTitle}>
-              📊 Fitness Information
-            </h2>
+            <h2 style={styles.sectionTitle}>📊 Fitness Information</h2>
 
             <div style={styles.infoRow}>
-              <span>Weight</span>
-              <strong>{form.weight} KG</strong>
+              <span>Age</span>
+              <strong>{form.age || "-"} years</strong>
+            </div>
+
+            <div style={styles.infoRow}>
+              <span>Gender</span>
+              <strong>{form.gender || "-"}</strong>
+            </div>
+
+            <div style={styles.infoRow}>
+              <span>Current Weight</span>
+              <strong>{form.weight || "-"} KG</strong>
             </div>
 
             <div style={styles.infoRow}>
               <span>Target Weight</span>
-              <strong>{form.targetWeight || "Chưa có"} KG</strong>
+              <strong>{form.targetWeight || "-"} KG</strong>
             </div>
 
             <div style={styles.infoRow}>
               <span>Height</span>
-              <strong>{form.height} CM</strong>
+              <strong>{form.height || "-"} CM</strong>
             </div>
 
             <div style={styles.infoRow}>
@@ -211,16 +214,24 @@ function Profile({ onNavigate, onLogout }) {
             </div>
 
             <div style={styles.infoRow}>
+              <span>Activity</span>
+              <strong>{form.activity || "-"}</strong>
+            </div>
+
+            <div style={styles.infoRow}>
               <span>Goal</span>
-              <strong>{form.goal}</strong>
+              <strong>{form.goal || "-"}</strong>
+            </div>
+
+            <div style={styles.infoRow}>
+              <span>Diet Type</span>
+              <strong>{form.dietType || "-"}</strong>
             </div>
           </div>
         </div>
 
         <div style={styles.formCard}>
-          <h2 style={styles.sectionTitle}>
-            ⚙ Edit Profile
-          </h2>
+          <h2 style={styles.sectionTitle}>⚙ Edit Profile</h2>
 
           <div style={styles.formGrid}>
             <input
@@ -250,32 +261,6 @@ function Profile({ onNavigate, onLogout }) {
 
             <input
               style={styles.input}
-              name="targetWeight"
-              type="number"
-              placeholder="Target Weight"
-              value={form.targetWeight}
-              onChange={handleChange}
-            />
-
-            <input
-              style={styles.input}
-              name="weight"
-              type="number"
-              placeholder="Weight"
-              value={form.weight}
-              onChange={handleChange}
-            />
-
-            <input
-              style={styles.input}
-              name="height"
-              type="number"
-              placeholder="Height"
-              value={form.height}
-              onChange={handleChange}
-            />
-            <input
-              style={styles.input}
               name="age"
               type="number"
               placeholder="Age"
@@ -289,10 +274,51 @@ function Profile({ onNavigate, onLogout }) {
               value={form.gender}
               onChange={handleChange}
             >
-              <option value="">Select Gender</option>
+              <option value="">Gender</option>
               <option value="male">Male</option>
               <option value="female">Female</option>
             </select>
+
+            <input
+              style={styles.input}
+              name="weight"
+              type="number"
+              placeholder="Current Weight"
+              value={form.weight}
+              onChange={handleChange}
+            />
+
+            <input
+              style={styles.input}
+              name="targetWeight"
+              type="number"
+              placeholder="Target Weight"
+              value={form.targetWeight}
+              onChange={handleChange}
+            />
+
+            <input
+              style={styles.input}
+              name="height"
+              type="number"
+              placeholder="Height"
+              value={form.height}
+              onChange={handleChange}
+            />
+
+            <select
+              style={styles.input}
+              name="activity"
+              value={form.activity}
+              onChange={handleChange}
+            >
+              <option value="">Activity Level</option>
+              <option value="sedentary">Sedentary</option>
+              <option value="light">Light</option>
+              <option value="moderate">Moderate</option>
+              <option value="active">Active</option>
+            </select>
+
             <select
               style={styles.input}
               name="goal"
@@ -304,6 +330,31 @@ function Profile({ onNavigate, onLogout }) {
               <option value="muscle_gain">Muscle Gain</option>
               <option value="maintenance">Maintenance</option>
               <option value="weight_gain">Weight Gain</option>
+            </select>
+
+            <select
+              style={styles.input}
+              name="trainingFocus"
+              value={form.trainingFocus}
+              onChange={handleChange}
+            >
+              <option value="">Training Focus</option>
+              <option value="general">General Fitness</option>
+              <option value="muscle">Muscle Building</option>
+              <option value="endurance">Endurance</option>
+            </select>
+
+            <select
+              style={styles.input}
+              name="dietType"
+              value={form.dietType}
+              onChange={handleChange}
+            >
+              <option value="">Diet Type</option>
+              <option value="normal">Normal</option>
+              <option value="high_protein">High Protein</option>
+              <option value="low_carb">Low Carb</option>
+              <option value="vegetarian">Vegetarian</option>
             </select>
           </div>
 

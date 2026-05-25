@@ -39,20 +39,22 @@ const calculateBMI = (weight, height) => {
 router.put("/update", authMiddleware, async (req, res) => {
   try {
     const {
-      fullName,
-      avatar,
-      password,
-      age,
-      height,
-      weight,
-      targetWeight,
-      gender,
-      goal,
-      activity,
-      workoutPlace,
-      gymDays,
-      bmi,
-    } = req.body;
+  fullName,
+  avatar,
+  password,
+  age,
+  height,
+  weight,
+  targetWeight,
+  gender,
+  goal,
+  activity,
+  workoutPlace,
+  gymDays,
+  bmi,
+  trainingFocus,
+  dietType,
+} = req.body;
 
     const finalBMI = bmi ? Number(bmi) : calculateBMI(weight, height);
 

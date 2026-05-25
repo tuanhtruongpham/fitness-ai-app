@@ -28,17 +28,11 @@ const userSchema = new mongoose.Schema({
 
   weight: Number, // kg hiện tại
 
-<<<<<<< HEAD
-  targetWeight: Number,
+  targetWeight: Number, // kg mong muốn
 
   goalStartWeight: Number,
 
-  gender: String,
-=======
-  targetWeight: Number, // kg mong muốn
-
   gender: String, // male | female
->>>>>>> c1b8695 (meal plan update)
 
   // fat_loss | muscle_gain | maintenance | weight_gain
   goal: String,

@@ -40,32 +40,8 @@ function Meal({ onNavigate, onLogout }) {
     }
   };
 
-    await axios.post(
-  "https://fitness-ai-app-71hw.onrender.com/api/ai/smart-plan",
-      {
-        daysPerWeek: 5,
-        activityLevel: 1.55,
-      },
-      {
-        headers: {
-          authorization: token,
-        },
-      }
-    );
-
-    await fetchMeals();
-  } catch (error) {
-  console.log(error);
-
-  alert(
-    error.response?.data?.message ||
-    "Lỗi tạo meal plan"
-  );
-}
-};
-  const caloriePercent = currentPlan
-    ? Math.min(Math.round((Number(currentPlan.totalCalories) / Number(currentPlan.totalCalories)) * 100), 100)
-    : 0;
+ 
+  
   const generateMealPlan = async () => {
     try {
       await axios.post(`${API_URL}/save-today`, {}, getAuthHeader());
