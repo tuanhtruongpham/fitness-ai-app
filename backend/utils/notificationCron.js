@@ -1,3 +1,4 @@
+console.log("✅ NOTIFICATION CRON VERSION: REAL SCHEDULE");
 const cron = require("node-cron");
 
 const User = require("../models/User");
