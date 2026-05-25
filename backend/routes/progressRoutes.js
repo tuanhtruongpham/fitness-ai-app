@@ -1,6 +1,6 @@
 const express = require("express");
 const router = express.Router();
-
+const User = require("../models/User");
 const Progress = require("../models/Progress");
 const authMiddleware = require("../middleware/authMiddleware");
 
@@ -36,9 +36,12 @@ router.get("/", authMiddleware, async (req, res) => {
       userId: req.user.id,
     }).sort({ createdAt: 1 });
 
+    const user = await User.findById(req.user.id).select("-password");
+
     res.json({
       message: "Lấy tiến trình thành công",
       progressList,
+      user,
     });
   } catch (error) {
     res.status(500).json({

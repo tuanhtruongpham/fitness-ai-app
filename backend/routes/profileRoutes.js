@@ -45,6 +45,7 @@ router.put("/update", authMiddleware, async (req, res) => {
       age,
       height,
       weight,
+      targetWeight,
       gender,
       goal,
       activity,
@@ -61,6 +62,8 @@ router.put("/update", authMiddleware, async (req, res) => {
       age,
       height,
       weight,
+      targetWeight,
+      goalStartWeight: Number(weight),
       gender,
       goal,
       activity,
@@ -74,7 +77,7 @@ router.put("/update", authMiddleware, async (req, res) => {
       updateData.password = hashedPassword;
     }
 
-
+console.log("UPDATE DATA:", updateData);
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
       updateData,
@@ -88,7 +91,7 @@ router.put("/update", authMiddleware, async (req, res) => {
     weight: Number(weight),
     bmi: finalBMI,
     bodyFat: 0,
-    note: `Updated weight to ${weight}kg`,
+    note: `Updated profile: weight ${weight}kg, target ${targetWeight}kg`,
   });
 }
 

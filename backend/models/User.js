@@ -28,6 +28,10 @@ const userSchema = new mongoose.Schema({
 
   weight: Number,
 
+  targetWeight: Number,
+
+  goalStartWeight: Number,
+
   gender: String,
 
   // fat_loss | muscle_gain | maintenance | weight_gain

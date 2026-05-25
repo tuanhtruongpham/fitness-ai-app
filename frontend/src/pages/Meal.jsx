@@ -36,7 +36,7 @@ const generateMealPlan = async () => {
     const token = localStorage.getItem("token");
 
     await axios.post(
-      "https://fitness-ai-app-71hw.onrender.com/api/ai/smart-plan",
+  "https://fitness-ai-app-71hw.onrender.com/api/ai/smart-plan",
       {
         daysPerWeek: 5,
         activityLevel: 1.55,
@@ -50,9 +50,13 @@ const generateMealPlan = async () => {
 
     await fetchMeals();
   } catch (error) {
-    console.log(error);
-    alert("Hãy cập nhật đầy đủ Profile trước khi tạo meal plan");
-  }
+  console.log(error);
+
+  alert(
+    error.response?.data?.message ||
+    "Lỗi tạo meal plan"
+  );
+}
 };
   const caloriePercent = currentPlan
     ? Math.min(Math.round((Number(currentPlan.totalCalories) / Number(currentPlan.totalCalories)) * 100), 100)

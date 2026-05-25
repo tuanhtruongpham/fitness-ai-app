@@ -4,7 +4,7 @@ import axios from "axios";
 function Progress({ onNavigate, onLogout }) {
   const [selectedDate, setSelectedDate] = useState("");
   const [progressData, setProgressData] = useState([]);
-
+  const [user, setUser] = useState(null);
   useEffect(() => {
     fetchProgress();
   }, []);
@@ -14,14 +14,14 @@ function Progress({ onNavigate, onLogout }) {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        "https://fitness-ai-app-71hw.onrender.com/api/progress",
+        "http://localhost:5000/api/progress",
         {
           headers: {
             authorization: token,
           },
         }
       );
-
+console.log("PROGRESS API:", res.data);
       const formatted = res.data.progressList.map((item) => ({
         id: item._id,
         date: new Date(item.createdAt).toLocaleDateString("vi-VN"),
@@ -30,8 +30,9 @@ function Progress({ onNavigate, onLogout }) {
         bodyFat: item.bodyFat || 0,
         note: item.note,
       }));
-
+     
       setProgressData(formatted);
+      setUser(res.data.user);
 
       if (formatted.length > 0) {
         setSelectedDate(formatted[formatted.length - 1].date);
@@ -41,38 +42,65 @@ function Progress({ onNavigate, onLogout }) {
     }
   };
 
-  const current =
-    progressData.find((item) => item.date === selectedDate) ||
-    progressData[progressData.length - 1] || {
-      date: "No Data",
-      weight: 0,
-      bmi: 0,
-      bodyFat: 0,
-      note: "Chưa có dữ liệu tiến trình",
-    };
+  const latestProgress =
+  progressData[progressData.length - 1] || {
+    date: "No Data",
+    weight: 0,
+    bmi: 0,
+    bodyFat: 0,
+    note: "Chưa có dữ liệu tiến trình",
+  };
 
-  const goalWeight = 65;
-  const startWeight = progressData[0]?.weight || current.weight || 0;
+const current =
+  progressData.find((item) => item.date === selectedDate) ||
+  latestProgress;
 
-  const progressPercent =
-    startWeight && goalWeight && startWeight !== goalWeight
-      ? Math.max(
-          0,
-          Math.min(
-            Math.round(
-              ((startWeight - current.weight) / (startWeight - goalWeight)) *
-                100
-            ),
-            100
-          )
-        )
-      : 0;
+const startWeight = progressData[0]?.weight || current.weight || 0;
+const currentWeight = latestProgress.weight || 0;
+const targetWeight = user?.targetWeight || 0;
+
+let progress = 0;
+
+if (targetWeight > startWeight) {
+  progress =
+    ((currentWeight - startWeight) /
+      (targetWeight - startWeight)) *
+    100;
+} else if (targetWeight < startWeight) {
+  progress =
+    ((startWeight - currentWeight) /
+      (startWeight - targetWeight)) *
+    100;
+}
+
+progress = Math.max(0, Math.min(progress, 100));
 
   const maxWeight =
     progressData.length > 0
       ? Math.max(...progressData.map((item) => item.weight))
       : 1;
+const chartWidth = Math.max(progressData.length * 70, 700);
+const chartHeight = 260;
 
+const weights = progressData.map((p) => Number(p.weight));
+const minWeight = Math.min(...weights);
+const chartMaxWeight = Math.max(...weights);
+const range = Math.max(chartMaxWeight - minWeight, 5);
+
+const chartPoints = progressData.map((item, index) => {
+  const x =
+    progressData.length === 1
+      ? chartWidth / 2
+      : 40 + (index / (progressData.length - 1)) * (chartWidth - 80);
+
+  const y = 210 - ((Number(item.weight) - minWeight) / range) * 140;
+
+  return {
+    ...item,
+    x,
+    y,
+  };
+});
   return (
     <div style={styles.page}>
       <div style={styles.sidebar}>
@@ -129,25 +157,25 @@ function Progress({ onNavigate, onLogout }) {
         <div style={styles.topGrid}>
           <div style={styles.card}>
             <h3>⚖ Current Weight</h3>
-            <h1>{current.weight} KG</h1>
+            <h1>{latestProgress.weight} KG</h1>
             <p style={styles.cardText}>Start: {startWeight} KG</p>
           </div>
 
           <div style={styles.card}>
             <h3>📊 BMI</h3>
-            <h1>{current.bmi}</h1>
+            <h1>{latestProgress.bmi}</h1>
             <p style={styles.healthy}>Updated BMI</p>
           </div>
 
           <div style={styles.card}>
             <h3>📅 Last Update</h3>
-            <h1 style={styles.smallTitle}>{current.date}</h1>
+            <h1 style={styles.smallTitle}>{latestProgress.date}</h1>
             <p style={styles.cardText}>Latest weight record</p>
           </div>
 
           <div style={styles.card}>
             <h3>🎯 Goal</h3>
-            <h1>{goalWeight} KG</h1>
+            <h1>{targetWeight} KG</h1>
             <p style={styles.cardText}>Goal Progress</p>
           </div>
         </div>
@@ -172,46 +200,74 @@ function Progress({ onNavigate, onLogout }) {
               </select>
             </div>
 
-            <div style={styles.chartArea}>
-              {progressData.length === 0 ? (
-                <p style={styles.cardText}>Chưa có dữ liệu progress.</p>
-              ) : (
-                progressData.map((item) => (
-                  <div key={item.id} style={styles.chartItem}>
-                    <div
-                      style={{
-                        ...styles.chartBar,
-                        height: `${Math.max(
-                          (item.weight / maxWeight) * 260,
-                          40
-                        )}px`,
-                      }}
-                    ></div>
+            <div style={styles.lineChartBox}>
+  {progressData.length === 0 ? (
+    <p style={styles.cardText}>Chưa có dữ liệu progress.</p>
+  ) : (
+    <svg
+  width={`${Math.max(progressData.length * 90, 700)}px`}
+  height="260"
+viewBox={`0 0 ${Math.max(progressData.length * 90, 700)} 260`}
+>
+      <polyline
+  fill="none"
+  stroke="#84cc16"
+  strokeWidth="4"
+  strokeLinecap="round"
+  strokeLinejoin="round"
+  points={chartPoints
+    .map((p) => `${p.x},${p.y}`)
+    .join(" ")}
+/>
 
-                    <span style={styles.chartLabel}>{item.weight}kg</span>
-                    <span style={styles.chartWeek}>{item.date}</span>
-                  </div>
-                ))
-              )}
-            </div>
+     {chartPoints.map((item) => (
+  <g key={item.id}>
+    <circle cx={item.x} cy={item.y} r="5" fill="#84cc16" />
+
+    <text
+      x={item.x}
+      y={item.y - 10}
+      textAnchor="middle"
+      fill="white"
+      fontSize="12"
+    >
+      {item.weight}kg
+    </text>
+
+    <text
+      x={item.x}
+      y="245"
+      textAnchor="middle"
+      fill="#94a3b8"
+      fontSize="10"
+    >
+      {item.date}
+    </text>
+  </g>
+))}
+    </svg>
+  )}
+</div>
           </div>
 
           <div style={styles.goalBox}>
             <h2 style={styles.sectionTitle}>🎯 Goal Progress</h2>
 
-            <h1 style={styles.goalPercent}>{progressPercent}%</h1>
+            <h1 style={styles.goalPercent}>
+              {progress.toFixed(0)}%
+            </h1>
 
             <div style={styles.progressBg}>
               <div
                 style={{
                   ...styles.progressFill,
-                  width: `${progressPercent}%`,
+                  width: `${progress}%`,
                 }}
               ></div>
             </div>
 
             <p style={styles.goalText}>
-              {current.weight}kg → {goalWeight}kg
+              {currentWeight}kg → {targetWeight}kg
             </p>
 
             <div style={styles.changeBox}>
@@ -548,11 +604,13 @@ const styles = {
   },
 
   noteBox: {
-    background: "#111827",
-    padding: "30px",
-    borderRadius: "24px",
-    border: "1px solid rgba(132,204,22,0.2)",
-  },
+  background: "#111827",
+  padding: "30px",
+  borderRadius: "24px",
+  border: "1px solid rgba(132,204,22,0.2)",
+  maxHeight: "520px",
+  overflowY: "auto",
+},
 
   noteCard: {
     background: "#0f172a",
@@ -561,6 +619,11 @@ const styles = {
     marginBottom: "16px",
     border: "1px solid #1f2937",
   },
+  lineChartBox: {
+  height: "300px",
+  overflowX: "auto",
+  overflowY: "hidden",
+},
 };
 
 export default Progress;

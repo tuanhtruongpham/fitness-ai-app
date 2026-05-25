@@ -5,13 +5,16 @@ function Profile({ onNavigate, onLogout }) {
   const [user, setUser] = useState(null);
 
   const [form, setForm] = useState({
-    fullName: "",
-    avatar: "",
-    password: "",
-    weight: "",
-    height: "",
-    goal: "",
-  });
+  fullName: "",
+  avatar: "",
+  password: "",
+  weight: "",
+  targetWeight: "",
+  height: "",
+  age: "",
+  gender: "",
+  goal: "",
+});
 
   useEffect(() => {
     fetchProfile();
@@ -35,13 +38,16 @@ function Profile({ onNavigate, onLogout }) {
       setUser(data);
 
       setForm({
-        fullName: data.fullName || "",
-        avatar: data.avatar || "",
-        password: "",
-        weight: data.weight || "",
-        height: data.height || "",
-        goal: data.goal || "",
-      });
+  fullName: data.fullName || "",
+  avatar: data.avatar || "",
+  password: "",
+  weight: data.weight || "",
+  targetWeight: data.targetWeight || "",
+  height: data.height || "",
+  age: data.age || "",
+  gender: data.gender || "",
+  goal: data.goal || "",
+});
     } catch (error) {
       console.log(error);
     }
@@ -63,32 +69,34 @@ function Profile({ onNavigate, onLogout }) {
   };
 
   const handleSave = async () => {
-    try {
-      const token = localStorage.getItem("token");
+  try {
+    const token = localStorage.getItem("token");
 
-     const res = await axios.put(
-  "https://fitness-ai-app-71hw.onrender.com/api/profile/update",
-  {
-    ...form,
-    bmi: calculateBMI(),
-  },
-  {
-    headers: {
-      authorization: token,
-    },
+    console.log("PROFILE SAVE:", form);
+
+    const res = await axios.put(
+      "http://localhost:5000/api/profile/update",
+      {
+        ...form,
+        bmi: calculateBMI(),
+      },
+      {
+        headers: {
+          authorization: token,
+        },
+      }
+    );
+
+    alert("Profile updated!");
+
+    setUser(res.data.user);
+
+    fetchProfile();
+  } catch (error) {
+    console.log(error);
+    alert("Update failed");
   }
-);
-
-      alert("Profile updated!");
-
-      setUser(res.data.user);
-
-      fetchProfile();
-    } catch (error) {
-      console.log(error);
-      alert("Update failed");
-    }
-  };
+};
 
   return (
     <div style={styles.page}>
@@ -188,6 +196,11 @@ function Profile({ onNavigate, onLogout }) {
             </div>
 
             <div style={styles.infoRow}>
+              <span>Target Weight</span>
+              <strong>{form.targetWeight || "Chưa có"} KG</strong>
+            </div>
+
+            <div style={styles.infoRow}>
               <span>Height</span>
               <strong>{form.height} CM</strong>
             </div>
@@ -237,6 +250,15 @@ function Profile({ onNavigate, onLogout }) {
 
             <input
               style={styles.input}
+              name="targetWeight"
+              type="number"
+              placeholder="Target Weight"
+              value={form.targetWeight}
+              onChange={handleChange}
+            />
+
+            <input
+              style={styles.input}
               name="weight"
               type="number"
               placeholder="Weight"
@@ -252,7 +274,25 @@ function Profile({ onNavigate, onLogout }) {
               value={form.height}
               onChange={handleChange}
             />
+            <input
+              style={styles.input}
+              name="age"
+              type="number"
+              placeholder="Age"
+              value={form.age}
+              onChange={handleChange}
+            />
 
+            <select
+              style={styles.input}
+              name="gender"
+              value={form.gender}
+              onChange={handleChange}
+            >
+              <option value="">Select Gender</option>
+              <option value="male">Male</option>
+              <option value="female">Female</option>
+            </select>
             <select
               style={styles.input}
               name="goal"

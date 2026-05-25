@@ -58,11 +58,25 @@ router.post("/smart-plan", authMiddleware, async (req, res) => {
 
     const user = await User.findById(req.user.id);
 
-    if (!user || !user.age || !user.height || !user.weight || !user.goal) {
-      return res.status(400).json({
-        message: "Vui lòng cập nhật đầy đủ hồ sơ trước khi tạo kế hoạch.",
-      });
-    }
+    if (!user) {
+  return res.status(404).json({
+    message: "Không tìm thấy user",
+  });
+}
+
+if (
+  !user ||
+  !user.age ||
+  !user.height ||
+  !user.weight ||
+  !user.goal ||
+  !user.gender
+) {
+  return res.status(400).json({
+    message:
+      "Vui lòng cập nhật đầy đủ hồ sơ trước khi tạo kế hoạch.",
+  });
+}
 
     const weight = Number(user.weight);
     const height = Number(user.height);
