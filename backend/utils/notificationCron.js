@@ -5,6 +5,8 @@ const Workout = require("../models/Workout");
 const Meal = require("../models/Meal");
 const Notification = require("../models/Notification");
 
+const Progress = require("../models/Progress");
+const generateAIWorkoutPlan = require("../utils/aiWorkoutPlanner");
 // =====================================================
 // DAILY MORNING NOTIFICATION
 // 7:00 AM every day
@@ -31,17 +33,31 @@ cron.schedule("0 7 * * *", async () => {
         continue;
       }
 
-      const workout = await Workout.findOne({
-        userId: user._id,
-      }).sort({ createdAt: -1 });
+    const progressList = await Progress.find({
+  userId: user._id,
+}).sort({ createdAt: -1 });
 
-      const meal = await Meal.findOne({
-        userId: user._id,
-      }).sort({ createdAt: -1 });
+const latestProgress = progressList[0] || null;
 
-      const workoutName = workout
-        ? `${workout.day} (${workout.muscle})`
-        : "Rest Day";
+const latestWeight =
+    latestProgress?.weight || user?.weight || null;
+
+    const aiPlan = generateAIWorkoutPlan({
+    ...user.toObject(),
+    weight: latestWeight,
+    });
+
+const todayWorkout = aiPlan.todayWorkout;
+
+        const meal = await Meal.findOne({
+            userId: user._id,
+        }).sort({ createdAt: -1 });
+
+        const workoutName =
+        todayWorkout?.name || "Rest Day";
+
+        const exerciseCount =
+        todayWorkout?.exercises?.length || 0;
 
       const mealCalories = meal?.dailyTarget?.calories || 0;
 
@@ -49,8 +65,8 @@ cron.schedule("0 7 * * *", async () => {
         userId: user._id,
         title: "🌅 Good Morning!",
         message:
-          `Today's workout: ${workoutName}. ` +
-          `Meal target: ${mealCalories} kcal.`,
+        `Today's workout: ${workoutName} (${exerciseCount} exercises). ` +
+        `Meal target: ${mealCalories} kcal.`,
         type: "daily_plan",
       });
     }
