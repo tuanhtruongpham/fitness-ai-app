@@ -131,7 +131,7 @@ function Profile({ onNavigate, onLogout }) {
 
     try {
       const res = await axios.post(
-        "http://localhost:5000/api/profile/avatar",
+           "https://fitness-ai-app-71hw.onrender.com/api/profile/avatar",
         formData,
         {
           headers: {
@@ -200,14 +200,16 @@ function Profile({ onNavigate, onLogout }) {
         <div style={styles.topGrid}>
           <div style={styles.profileCard}>
             <img
-              src={
-                user?.avatar
-                  ? `http://localhost:5000/uploads/${user.avatar}`
-                  : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-              }
-              alt="avatar"
-              style={styles.avatar}
-            />
+            src={
+              user?.avatar
+                ? user.avatar.startsWith("http")
+                  ? user.avatar
+                  : `https://fitness-ai-app-71hw.onrender.com/uploads/${user.avatar}`
+                : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+            }
+            alt="avatar"
+            style={styles.avatar}
+          />
 
             <h2 style={styles.userName}>{user?.fullName || "User"}</h2>
 
