@@ -200,16 +200,20 @@ function Profile({ onNavigate, onLogout }) {
         <div style={styles.topGrid}>
           <div style={styles.profileCard}>
             <img
-            src={
-              user?.avatar
-                ? user.avatar.startsWith("http")
-                  ? user.avatar
-                  : `https://fitness-ai-app-71hw.onrender.com/uploads/${user.avatar}`
-                : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
-            }
-            alt="avatar"
-            style={styles.avatar}
-          />
+  src={
+    user?.avatar && user.avatar !== "avatar"
+      ? user.avatar.startsWith("http")
+        ? user.avatar
+        : `https://fitness-ai-app-71hw.onrender.com/uploads/${user.avatar}`
+      : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+  }
+  onError={(e) => {
+    e.currentTarget.src =
+      "https://cdn-icons-png.flaticon.com/512/149/149071.png";
+  }}
+  alt="avatar"
+  style={styles.avatar}
+/>
 
             <h2 style={styles.userName}>{user?.fullName || "User"}</h2>
 
