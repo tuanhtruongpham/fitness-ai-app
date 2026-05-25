@@ -61,7 +61,7 @@ const todayWorkout = aiPlan.todayWorkout;
         todayWorkout?.exercises?.length || 0;
 
       const mealCalories = meal?.dailyTarget?.calories || 0;
-
+console.log("CREATE DAILY NOTIFICATION", new Date());
       await Notification.create({
         userId: user._id,
         title: "🌅 Good Morning!",
@@ -112,7 +112,7 @@ cron.schedule("0 */2 * * *", async () => {
       if (waterExists) {
         continue;
       }
-
+console.log("CREATE DAILY NOTIFICATION", new Date());
       await Notification.create({
         userId: user._id,
         title: "💧 Drink Water",
