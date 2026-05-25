@@ -58,22 +58,24 @@ router.put("/update", authMiddleware, async (req, res) => {
 
     const finalBMI = bmi ? Number(bmi) : calculateBMI(weight, height);
 
-    const updateData = {
-      fullName,
-      avatar,
-      age,
-      height,
-      weight,
-      targetWeight,
-      goalStartWeight: Number(weight),
-      gender,
-      goal,
-      activity,
-      workoutPlace,
-      gymDays: Number(gymDays || 3),
-      bmi: finalBMI,
-    };
+   const currentUser = await User.findById(req.user.id);
 
+const updateData = {
+  fullName,
+  avatar,
+  age,
+  height,
+  weight,
+  targetWeight,
+  goalStartWeight:
+    currentUser.goalStartWeight || currentUser.weight || Number(weight),
+  gender,
+  goal,
+  activity,
+  workoutPlace,
+  gymDays: Number(gymDays || 3),
+  bmi: finalBMI,
+};
     if (password && password.trim() !== "") {
       const hashedPassword = await bcrypt.hash(password, 10);
       updateData.password = hashedPassword;

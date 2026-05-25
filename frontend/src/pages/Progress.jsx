@@ -14,22 +14,23 @@ function Progress({ onNavigate, onLogout }) {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        "https://fitness-ai-app-71hw.onrender.com/api/progress",
+        "http://localhost:5000/api/progress",
         {
           headers: {
             authorization: token,
           },
         }
       );
-console.log("PROGRESS API:", res.data);
-      const formatted = res.data.progressList.map((item) => ({
-        id: item._id,
-        date: new Date(item.createdAt).toLocaleDateString("vi-VN"),
-        weight: item.weight,
-        bmi: item.bmi,
-        bodyFat: item.bodyFat || 0,
-        note: item.note,
-      }));
+        console.log("PROGRESS API:", res.data);
+        const formatted = res.data.progressList.map((item) => ({
+  id: item._id,
+  rawDate: item.createdAt,
+  date: new Date(item.createdAt).toLocaleDateString("vi-VN"),
+  weight: item.weight,
+  bmi: item.bmi,
+  bodyFat: item.bodyFat || 0,
+  note: item.note,
+}));
      
       setProgressData(formatted);
       setUser(res.data.user);
@@ -42,7 +43,7 @@ console.log("PROGRESS API:", res.data);
     }
   };
 
-  const latestProgress =
+ const latestProgress =
   progressData[progressData.length - 1] || {
     date: "No Data",
     weight: 0,
@@ -55,25 +56,48 @@ const current =
   progressData.find((item) => item.date === selectedDate) ||
   latestProgress;
 
-const startWeight = progressData[0]?.weight || current.weight || 0;
-const currentWeight = latestProgress.weight || 0;
-const targetWeight = user?.targetWeight || 0;
+// ===== SORT PROGRESS BY DATE =====
+const sortedProgress = [...progressData].sort(
+  (a, b) => new Date(a.date) - new Date(b.date)
+);
 
+const firstProgress = sortedProgress[0];
+const lastProgress = sortedProgress[sortedProgress.length - 1];
+
+// ===== WEIGHT DATA =====
+const startWeight = Number(firstProgress?.weight) || 0;
+
+const currentWeight = Number(lastProgress?.weight) || 0;
+
+const latestWeight = currentWeight;
+
+const targetWeight = Number(user?.targetWeight) || 0;
+
+// ===== GOAL PROGRESS =====
 let progress = 0;
 
-if (targetWeight > startWeight) {
-  progress =
-    ((currentWeight - startWeight) /
-      (targetWeight - startWeight)) *
-    100;
-} else if (targetWeight < startWeight) {
-  progress =
-    ((startWeight - currentWeight) /
-      (startWeight - targetWeight)) *
-    100;
+if (
+  startWeight &&
+  currentWeight &&
+  targetWeight &&
+  targetWeight !== startWeight
+) {
+  if (targetWeight > startWeight) {
+    progress =
+      ((currentWeight - startWeight) /
+        (targetWeight - startWeight)) *
+      100;
+  } else {
+    progress =
+      ((startWeight - currentWeight) /
+        (startWeight - targetWeight)) *
+      100;
+  }
 }
 
-progress = Math.max(0, Math.min(progress, 100));
+progress = Number.isFinite(progress)
+  ? Math.max(0, Math.min(progress, 100))
+  : 0;
 
   const maxWeight =
     progressData.length > 0
@@ -278,13 +302,13 @@ viewBox={`0 0 ${Math.max(progressData.length * 90, 700)} 260`}
               </p>
 
               <p style={styles.changeText}>
-                Current weight: <strong>{current.weight}kg</strong>
+                Current weight: <strong>{latestWeight}kg</strong>
               </p>
 
               <p style={styles.changeText}>
                 Changed:{" "}
                 <strong>
-                  {(current.weight - startWeight).toFixed(1)}kg
+                  {(latestWeight - startWeight).toFixed(1)}kg
                 </strong>
               </p>
             </div>
