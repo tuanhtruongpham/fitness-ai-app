@@ -38,11 +38,11 @@ function Meal({ onNavigate, onLogout }) {
     return saved.meals || [];
   });
 
-  const API_URL = "https://fitness-ai-app-71hw.onrender.com/api/meal";
+  const API_URL = "http://localhost:5000/api/meal";
 
-  useEffect(() => {
-    fetchMeals();
-  }, []);
+ useEffect(() => {
+  generateTodayPlan();
+}, []);
 
   useEffect(() => {
     localStorage.setItem(
@@ -84,32 +84,28 @@ function Meal({ onNavigate, onLogout }) {
     };
   };
 
-  const fetchMeals = async () => {
-    try {
-      const res = await axios.get(API_URL, getAuthHeader());
+  const generateTodayPlan = async () => {
+  try {
+    const res = await axios.get(`${API_URL}/today`, getAuthHeader());
+    setCurrentPlan(res.data.mealPlan);
+  } catch (error) {
+    console.log(error);
+  }
+};
 
-      setMealPlans(res.data.mealPlans || []);
+ const generateMealPlan = async () => {
+  try {
+    const res = await axios.get(`${API_URL}/today`, getAuthHeader());
 
-      if (res.data.mealPlans && res.data.mealPlans.length > 0) {
-        setCurrentPlan(res.data.mealPlans[0]);
-      } else {
-        const todayRes = await axios.get(`${API_URL}/today`, getAuthHeader());
-        setCurrentPlan(todayRes.data.mealPlan);
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
-  const generateMealPlan = async () => {
-    try {
-      await axios.post(`${API_URL}/save-today`, {}, getAuthHeader());
-      await fetchMeals();
-    } catch (error) {
-      console.log(error);
-      alert("Hãy cập nhật đầy đủ Profile trước khi tạo meal plan");
-    }
-  };
+    setCurrentPlan(res.data.mealPlan);
+    setMealPlans([]);
+    setEatenCalories(0);
+    setEatenMeals([]);
+  } catch (error) {
+    console.log(error);
+    alert("Hãy cập nhật đầy đủ Profile trước khi tạo meal plan");
+  }
+};
 
   const getMealKey = (meal) => {
     return meal._id || meal.label || meal.time;

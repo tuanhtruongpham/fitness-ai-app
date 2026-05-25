@@ -263,7 +263,9 @@ const styles = {
   main: {
   flex: 1,
   padding: "40px",
-  marginLeft: "260px",
+  marginLeft: "320px",
+  width: "calc(100% - 320px)",
+  boxSizing: "border-box",
 },
 
   header: {

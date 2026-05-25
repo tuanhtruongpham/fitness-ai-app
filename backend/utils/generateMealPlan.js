@@ -115,20 +115,35 @@ function scoreFood(food, goal, bmiCategory, mealTime) {
   return score;
 }
 
-function chooseFood(mealTime, targetCalories, goal, bmiCategory) {
+function chooseFood(mealTime, targetCalories, goal, bmiCategory, usedFoodIds) {
   const candidates = foodDatabase
-    .filter((food) => food.mealTime.includes(mealTime))
+    .filter(
+      (food) =>
+        food.mealTime.includes(mealTime) &&
+        !usedFoodIds.includes(food.id)
+    )
     .map((food) => ({
       ...food,
       score: scoreFood(food, goal, bmiCategory, mealTime),
     }))
     .sort((a, b) => b.score - a.score);
 
-  const selected = candidates[0];
+  if (candidates.length === 0) {
+    return null;
+  }
+
+  const randomIndex = Math.floor(Math.random() * candidates.length);
+
+  const selected = candidates[randomIndex];
+
+  usedFoodIds.push(selected.id);
 
   const portionMultiplier = targetCalories / selected.calories;
 
-  const safeMultiplier = Math.min(Math.max(portionMultiplier, 0.75), 1.35);
+  const safeMultiplier = Math.min(
+    Math.max(portionMultiplier, 0.75),
+    1.35
+  );
 
   return {
     id: selected.id,
@@ -148,7 +163,6 @@ function chooseFood(mealTime, targetCalories, goal, bmiCategory) {
     reason: selected.reason,
   };
 }
-
 function generateMealPlan(user) {
   const goal = getGoal(user);
 
@@ -174,6 +188,8 @@ function generateMealPlan(user) {
     Snack: "Bữa phụ",
   };
 
+  const usedFoodIds = [];
+
   const meals = Object.keys(mealRatio).map((mealTime) => {
     const targetCalories = Math.round(dailyTarget.calories * mealRatio[mealTime]);
 
@@ -185,7 +201,13 @@ function generateMealPlan(user) {
       targetCarbsG: Math.round(dailyTarget.carbsG * mealRatio[mealTime]),
       targetFatG: Math.round(dailyTarget.fatG * mealRatio[mealTime]),
       items: [
-        chooseFood(mealTime, targetCalories, goal, bmiCategory),
+        chooseFood(
+  mealTime,
+  targetCalories,
+  goal,
+  bmiCategory,
+  usedFoodIds
+),
       ],
     };
   });
