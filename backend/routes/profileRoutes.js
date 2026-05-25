@@ -118,17 +118,26 @@ router.post(
   upload.single("avatar"),
   async (req, res) => {
     try {
-      const user = await User.findById(req.user.id);
+      console.log("AVATAR ROUTE HIT");
+      console.log("FILE:", req.file);
 
-      user.avatar = req.file.filename;
+      if (!req.file) {
+        return res.status(400).json({ message: "Không có file được upload" });
+      }
 
-      await user.save();
+      const updatedUser = await User.findByIdAndUpdate(
+        req.user.id,
+        { avatar: req.file.filename },
+        { new: true, runValidators: false }
+      ).select("-password");
 
       res.json({
         message: "Upload avatar thành công",
         avatar: req.file.filename,
+        user: updatedUser,
       });
     } catch (error) {
+      console.log("AVATAR ERROR:", error);
       res.status(500).json({
         message: "Lỗi server",
         error: error.message,

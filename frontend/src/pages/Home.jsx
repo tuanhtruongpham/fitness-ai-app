@@ -352,6 +352,7 @@ const styles = {
     background: "#1f2937",
     textAlign: "center",
     cursor: "pointer",
+    marginBottom: "120px",
   },
 
   main: {

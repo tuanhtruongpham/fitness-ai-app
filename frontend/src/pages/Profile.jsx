@@ -8,17 +8,13 @@ function Profile({ onNavigate, onLogout }) {
     fullName: "",
     avatar: "",
     password: "",
-
     age: "",
     gender: "",
-
     weight: "",
     targetWeight: "",
     height: "",
-
     activity: "",
     goal: "",
-
     trainingFocus: "",
     dietType: "",
   });
@@ -26,6 +22,22 @@ function Profile({ onNavigate, onLogout }) {
   useEffect(() => {
     fetchProfile();
   }, []);
+
+  const getGoalText = (goal) => {
+    if (goal === "fat_loss") return "Giảm mỡ";
+    if (goal === "muscle_gain") return "Tăng cơ";
+    if (goal === "maintenance") return "Duy trì";
+    if (goal === "weight_gain") return "Tăng cân";
+    return "Chưa có mục tiêu";
+  };
+
+  const getActivityText = (activity) => {
+    if (activity === "sedentary") return "Ít vận động";
+    if (activity === "light") return "Vận động nhẹ";
+    if (activity === "moderate") return "Vận động vừa";
+    if (activity === "active") return "Rất năng động";
+    return "Chưa cập nhật";
+  };
 
   const fetchProfile = async () => {
     try {
@@ -41,24 +53,19 @@ function Profile({ onNavigate, onLogout }) {
       );
 
       const data = res.data.dashboard.user;
-
       setUser(data);
 
       setForm({
         fullName: data.fullName || "",
         avatar: data.avatar || "",
         password: "",
-
         age: data.age || "",
         gender: data.gender || "",
-
         weight: data.weight || "",
         targetWeight: data.targetWeight || "",
         height: data.height || "",
-
         activity: data.activity || "",
         goal: data.goal || "",
-
         trainingFocus: data.trainingFocus || "",
         dietType: data.dietType || "normal",
       });
@@ -105,12 +112,42 @@ function Profile({ onNavigate, onLogout }) {
       );
 
       alert("Profile updated!");
-
       setUser(res.data.user);
       fetchProfile();
     } catch (error) {
       console.log(error);
       alert(error.response?.data?.message || "Update failed");
+    }
+  };
+
+  const handleAvatarUpload = async (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+
+    const formData = new FormData();
+    formData.append("avatar", file);
+
+    const token = localStorage.getItem("token");
+
+    try {
+      const res = await axios.post(
+        "http://localhost:5000/api/profile/avatar",
+        formData,
+        {
+          headers: {
+            authorization: token,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      setUser({
+        ...user,
+        avatar: res.data.avatar,
+      });
+    } catch (error) {
+      console.log(error);
+      alert("Upload avatar failed");
     }
   };
 
@@ -154,30 +191,29 @@ function Profile({ onNavigate, onLogout }) {
 
       <div style={styles.main}>
         <div style={styles.header}>
-          <div>
-            <h1 style={styles.title}>Profile</h1>
-            <p style={styles.subtitle}>
-              Manage your personal information and nutrition settings
-            </p>
-          </div>
+          <h1 style={styles.title}>Profile</h1>
+          <p style={styles.subtitle}>
+            Manage your personal information and nutrition settings
+          </p>
         </div>
 
         <div style={styles.topGrid}>
           <div style={styles.profileCard}>
             <img
               src={
-                form.avatar ||
-                "https://cdn-icons-png.flaticon.com/512/149/149071.png"
+                user?.avatar
+                  ? `http://localhost:5000/uploads/${user.avatar}`
+                  : "https://cdn-icons-png.flaticon.com/512/149/149071.png"
               }
               alt="avatar"
               style={styles.avatar}
             />
 
-            <h2>{user?.fullName}</h2>
+            <h2 style={styles.userName}>{user?.fullName || "User"}</h2>
 
             <p style={styles.email}>{user?.email}</p>
 
-            <div style={styles.goalTag}>{form.goal || "No Goal"}</div>
+            <div style={styles.goalTag}>{getGoalText(form.goal)}</div>
           </div>
 
           <div style={styles.infoCard}>
@@ -185,12 +221,12 @@ function Profile({ onNavigate, onLogout }) {
 
             <div style={styles.infoRow}>
               <span>Age</span>
-              <strong>{form.age || "-"} years</strong>
+              <strong>{form.age || "Not set"}</strong>
             </div>
 
             <div style={styles.infoRow}>
               <span>Gender</span>
-              <strong>{form.gender || "-"}</strong>
+              <strong>{form.gender || "Not set"}</strong>
             </div>
 
             <div style={styles.infoRow}>
@@ -215,12 +251,12 @@ function Profile({ onNavigate, onLogout }) {
 
             <div style={styles.infoRow}>
               <span>Activity</span>
-              <strong>{form.activity || "-"}</strong>
+              <strong>{getActivityText(form.activity)}</strong>
             </div>
 
             <div style={styles.infoRow}>
               <span>Goal</span>
-              <strong>{form.goal || "-"}</strong>
+              <strong>{getGoalText(form.goal)}</strong>
             </div>
 
             <div style={styles.infoRow}>
@@ -242,13 +278,15 @@ function Profile({ onNavigate, onLogout }) {
               onChange={handleChange}
             />
 
-            <input
-              style={styles.input}
-              name="avatar"
-              placeholder="Avatar URL"
-              value={form.avatar}
-              onChange={handleChange}
-            />
+            <label style={styles.fileUploadBox}>
+              📁 Choose Avatar
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                style={{ display: "none" }}
+              />
+            </label>
 
             <input
               style={styles.input}
@@ -384,6 +422,12 @@ const styles = {
     flexDirection: "column",
     justifyContent: "space-between",
     borderRight: "1px solid #1f2937",
+    position: "fixed",
+    left: 0,
+    top: 0,
+    height: "100vh",
+    flexShrink: 0,
+    zIndex: 1000,
   },
 
   logo: {
@@ -422,11 +466,13 @@ const styles = {
     background: "#1f2937",
     textAlign: "center",
     cursor: "pointer",
+    marginBottom: "120px",
   },
 
   main: {
     flex: 1,
     padding: "40px",
+    marginLeft: "320px",
   },
 
   header: {
@@ -455,6 +501,11 @@ const styles = {
     borderRadius: "24px",
     border: "1px solid rgba(132,204,22,0.2)",
     textAlign: "center",
+    minHeight: "250px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
   },
 
   avatar: {
@@ -464,6 +515,13 @@ const styles = {
     objectFit: "cover",
     border: "4px solid #84cc16",
     marginBottom: "20px",
+  },
+
+  userName: {
+    fontSize: "28px",
+    fontWeight: "bold",
+    marginTop: "10px",
+    marginBottom: "6px",
   },
 
   email: {
@@ -508,7 +566,7 @@ const styles = {
 
   formGrid: {
     display: "grid",
-    gridTemplateColumns: "repeat(2,1fr)",
+    gridTemplateColumns: "1fr 1fr",
     gap: "18px",
   },
 
@@ -521,15 +579,34 @@ const styles = {
     outline: "none",
   },
 
+  fileUploadBox: {
+    padding: "16px",
+    borderRadius: "14px",
+    border: "1px solid #334155",
+    background: "#0f172a",
+    color: "white",
+    cursor: "pointer",
+    fontWeight: "bold",
+    fontSize: "15px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    width: "100%",
+    height: "54px",
+    transition: "0.3s",
+    boxSizing: "border-box",
+  },
+
   saveBtn: {
-    marginTop: "25px",
-    padding: "16px 28px",
+    marginTop: "28px",
+    padding: "16px 32px",
     borderRadius: "14px",
     border: "none",
-    background: "#84cc16",
+    background: "linear-gradient(90deg,#84cc16,#65a30d)",
     color: "#0f172a",
     fontWeight: "bold",
     cursor: "pointer",
+    fontSize: "15px",
   },
 };
 

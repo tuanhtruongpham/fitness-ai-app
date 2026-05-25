@@ -331,7 +331,12 @@ viewBox={`0 0 ${Math.max(progressData.length * 90, 700)} 260`}
               </li>
             </ul>
 
-            <div style={styles.aiCircle}>AI</div>
+            <div
+            style={styles.aiCircle}
+            onClick={() => onNavigate("ai-coach")}
+          >
+            AI
+          </div>
           </div>
 
           <div style={styles.noteBox}>
@@ -367,15 +372,22 @@ const styles = {
     fontFamily: "Arial",
   },
 
-  sidebar: {
-    width: "260px",
-    background: "#111827",
-    padding: "30px",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    borderRight: "1px solid #1f2937",
-  },
+ sidebar: {
+  width: "260px",
+  background: "#111827",
+  padding: "30px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  borderRight: "1px solid #1f2937",
+
+  position: "fixed",
+  left: 0,
+  top: 0,
+  height: "100vh",
+  boxSizing: "border-box",
+  zIndex: 1000,
+},
 
   logo: {
     fontSize: "30px",
@@ -408,17 +420,20 @@ const styles = {
   },
 
   logout: {
-    padding: "16px",
-    borderRadius: "14px",
-    background: "#1f2937",
-    textAlign: "center",
-    cursor: "pointer",
-  },
+  padding: "16px",
+  borderRadius: "14px",
+  background: "#1f2937",
+  textAlign: "center",
+  cursor: "pointer",
+  marginBottom: "80px",
+},
 
-  main: {
-    flex: 1,
-    padding: "40px",
-  },
+
+ main: {
+  flex: 1,
+  padding: "40px",
+  marginLeft: "320px",
+},
 
   header: {
     display: "flex",
@@ -625,6 +640,8 @@ const styles = {
     fontWeight: "bold",
     marginTop: "35px",
     boxShadow: "0 0 40px rgba(132,204,22,0.5)",
+    cursor: "pointer",
+    transition: "0.3s",
   },
 
   noteBox: {

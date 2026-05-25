@@ -512,17 +512,22 @@ const styles = {
     fontFamily: "Arial",
   },
 
-  sidebar: {
-    width: "260px",
-    minHeight: "100vh",
-    background: "#111827",
-    padding: "30px",
-    display: "flex",
-    flexDirection: "column",
-    justifyContent: "space-between",
-    borderRight: "1px solid #1f2937",
-    boxSizing: "border-box",
-  },
+ sidebar: {
+  width: "260px",
+  background: "#111827",
+  padding: "30px",
+  display: "flex",
+  flexDirection: "column",
+  justifyContent: "space-between",
+  borderRight: "1px solid #1f2937",
+
+  position: "fixed",
+  left: 0,
+  top: 0,
+  height: "100vh",
+  boxSizing: "border-box",
+  zIndex: 1000,
+},
 
   logo: { fontSize: "30px", marginBottom: "40px" },
   green: { color: "#84cc16" },
@@ -546,18 +551,21 @@ const styles = {
   },
 
   logout: {
-    padding: "16px",
-    borderRadius: "14px",
-    background: "#1f2937",
-    textAlign: "center",
-    cursor: "pointer",
-  },
+  padding: "16px",
+  borderRadius: "14px",
+  background: "#1f2937",
+  textAlign: "center",
+  cursor: "pointer",
+  marginBottom: "80px",
+},
 
   main: {
-    flex: 1,
-    padding: "40px",
-    overflowX: "hidden",
-  },
+  flex: 1,
+  padding: "40px",
+  marginLeft: "320px",
+  width: "calc(100% - 320px)",
+  boxSizing: "border-box",
+},
 
   header: {
     display: "flex",
