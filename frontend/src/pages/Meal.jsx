@@ -38,7 +38,7 @@ function Meal({ onNavigate, onLogout }) {
     return saved.meals || [];
   });
 
-  const API_URL = "https://fitness-ai-app-71hw.onrender.com/api/meal";
+  const API_URL = "http://localhost:5000/api/meal";
 
  useEffect(() => {
   generateTodayPlan();
@@ -86,8 +86,26 @@ function Meal({ onNavigate, onLogout }) {
 
   const generateTodayPlan = async () => {
   try {
-    const res = await axios.get(`${API_URL}/today`, getAuthHeader());
-    setCurrentPlan(res.data.mealPlan);
+    const savedDate = localStorage.getItem("mealPlanDate");
+    const todayDate = new Date().toLocaleDateString();
+
+    if (savedDate === todayDate) {
+      const res = await axios.get(API_URL, getAuthHeader());
+
+      if (res.data.mealPlans?.length > 0) {
+        setCurrentPlan(res.data.mealPlans[0]);
+        return;
+      }
+    }
+
+    const newPlan = await axios.post(
+      `${API_URL}/save-today`,
+      {},
+      getAuthHeader()
+    );
+
+    localStorage.setItem("mealPlanDate", todayDate);
+    setCurrentPlan(newPlan.data.mealPlan);
   } catch (error) {
     console.log(error);
   }
@@ -95,10 +113,16 @@ function Meal({ onNavigate, onLogout }) {
 
  const generateMealPlan = async () => {
   try {
-    const res = await axios.get(`${API_URL}/today`, getAuthHeader());
+    const res = await axios.post(
+      `${API_URL}/save-today`,
+      {},
+      getAuthHeader()
+    );
+
+    localStorage.setItem("mealPlanDate", new Date().toLocaleDateString());
 
     setCurrentPlan(res.data.mealPlan);
-    setMealPlans([]);
+    setMealPlans((prev) => [res.data.mealPlan, ...prev]);
     setEatenCalories(0);
     setEatenMeals([]);
   } catch (error) {
