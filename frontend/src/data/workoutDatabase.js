@@ -126,7 +126,7 @@ const workoutDatabase = {
           reps: "5-8",
           equipment: "Barbell + Bench",
           description: "Bài compound chính cho ngực, phù hợp người đã kiểm soát kỹ thuật tốt.",
-          video: "",
+          video: "https://www.youtube.com/embed/r5CgGCMNvmQ",
         },
         {
           name: "Pec Deck Machine",
@@ -136,7 +136,7 @@ const workoutDatabase = {
           reps: "10-15",
           equipment: "Machine",
           description: "Bài cô lập ngực giúp giữ tension ổn định và tập trung vào hypertrophy.",
-          video: "",
+          video: "https://www.youtube.com/embed/Mi51dDodCWM",
         },
       ],
     },
@@ -146,14 +146,14 @@ const workoutDatabase = {
     Beginner: {
       home: [
         {
-          name: "Prone I/Y/T/W/O",
+          name: "Prone Y/T/W/",
           level: "Beginner",
           target: "Lower Traps + Scapular Control",
           sets: "2-3",
           reps: "8-10",
           equipment: "Bodyweight / Light Plates",
           description: "Nằm sấp nâng tay theo các chữ I/Y/T/W/O để học kiểm soát xương bả vai.",
-          video: "",
+          video: "https://www.youtube.com/embed/-rLyA_MxFQE",
         },
         {
           name: "Resistance Band Row",
@@ -163,7 +163,7 @@ const workoutDatabase = {
           reps: "10-15",
           equipment: "Resistance Band",
           description: "Kéo lưng bằng dây kháng lực, dễ setup tại nhà và dễ điều chỉnh độ nặng.",
-          video: "",
+          video: "https://www.youtube.com/embed/9f0DCKyhbhk",
         },
       ],
       gym: [
@@ -175,7 +175,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Lat Pulldown Machine",
           description: "Bài kéo dọc cơ bản giúp người mới học cảm nhận lưng xô.",
-          video: "",
+          video: "https://www.youtube.com/embed/xEz7g_mPiuw",
         },
         {
           name: "Seated Row",
@@ -185,7 +185,7 @@ const workoutDatabase = {
           reps: "10-12",
           equipment: "Cable / Machine",
           description: "Kéo ngang bằng máy, ổn định và phù hợp để học scapular retraction.",
-          video: "",
+          video: "https://www.youtube.com/embed/Jq7Z3zgLfE4",
         },
       ],
     },
@@ -200,7 +200,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Dumbbell + Chair",
           description: "Kéo tạ một tay, tăng kiểm soát thân người và cân bằng hai bên lưng.",
-          video: "",
+          video: "https://www.youtube.com/embed/zIlwaq0oC0o",
         },
         {
           name: "Superman",
@@ -210,7 +210,7 @@ const workoutDatabase = {
           reps: "12-15",
           equipment: "Bodyweight",
           description: "Bài duỗi lưng giúp tăng sức bền vùng lưng dưới và chuỗi sau.",
-          video: "",
+          video: "https://www.youtube.com/embed/g8zECMKoOhs",
         },
       ],
       gym: [
@@ -222,7 +222,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Cable / Machine",
           description: "Biến thể row nhấn vào upper back và hỗ trợ tư thế vai.",
-          video: "",
+          video: "https://www.youtube.com/embed/jVIRizNkmvI",
         },
         {
           name: "Incline Reverse Fly",
@@ -232,7 +232,7 @@ const workoutDatabase = {
           reps: "12-15",
           equipment: "Bench + Dumbbells",
           description: "Bài kéo/cô lập vai sau và lưng trên, giúp cân bằng nhóm cơ kéo.",
-          video: "",
+          video: "https://www.youtube.com/embed/me98rkZ1G_Q",
         },
       ],
     },
@@ -247,7 +247,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Low Bar / Suspension Setup",
           description: "Kéo người nằm nghiêng, hiệu quả cao nhưng cần setup chắc chắn.",
-          video: "",
+          video: "https://www.youtube.com/embed/eQc_uS6lQp8",
         },
         {
           name: "Chin-up",
@@ -257,7 +257,7 @@ const workoutDatabase = {
           reps: "5-10",
           equipment: "Pull-up Bar",
           description: "Bài kéo thân người nâng cao, nhấn thêm vào tay trước nhờ grip ngửa.",
-          video: "",
+          video: "https://www.youtube.com/embed/KJOE6Qgd_6s",
         },
       ],
       gym: [
@@ -269,7 +269,7 @@ const workoutDatabase = {
           reps: "5-8",
           equipment: "Barbell",
           description: "Bài row nặng cho lưng, cần kỹ thuật hinge và core ổn định.",
-          video: "",
+          video: "https://www.youtube.com/embed/HQsw3xUAuiM",
         },
         {
           name: "Weighted Pull-up",
@@ -279,7 +279,7 @@ const workoutDatabase = {
           reps: "4-8",
           equipment: "Pull-up Bar + Weight",
           description: "Pull-up thêm tải, phù hợp user đã kéo xà tốt với bodyweight.",
-          video: "",
+          video: "https://www.youtube.com/embed/0epsgGvIEmE",
         },
       ],
     },
@@ -296,7 +296,7 @@ const workoutDatabase = {
           reps: "10-15",
           equipment: "Dumbbells",
           description: "Bài nâng tạ trước giúp người mới làm quen với chuyển động vai.",
-          video: "",
+          video: "https://www.youtube.com/embed/O2ZOinXoiuA",
         },
         {
           name: "Contralateral Limb Raises",
@@ -306,7 +306,7 @@ const workoutDatabase = {
           reps: "10-12",
           equipment: "Bodyweight",
           description: "Bài cải thiện kiểm soát vai và sự ổn định toàn thân.",
-          video: "",
+          video: "https://www.youtube.com/embed/lEi26ZTjHXQ",
         },
       ],
       gym: [
@@ -318,7 +318,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Machine",
           description: "Đẩy vai bằng máy với quỹ đạo ổn định cho người mới.",
-          video: "",
+          video: "https://www.youtube.com/embed/SFOT8dieErs",
         },
         {
           name: "Incline Reverse Fly",
@@ -328,7 +328,7 @@ const workoutDatabase = {
           reps: "10-15",
           equipment: "Bench + Dumbbells",
           description: "Bài vai sau giúp cân bằng nhóm cơ vai ngay từ đầu.",
-          video: "",
+          video: "https://www.youtube.com/embed/iSw2yQWo7gw",
         },
       ],
     },
@@ -343,7 +343,7 @@ const workoutDatabase = {
           reps: "10-15",
           equipment: "Dumbbells",
           description: "Bài vai giữa kinh điển giúp tăng độ rộng vai.",
-          video: "",
+          video: "https://www.youtube.com/embed/P1NSvCXXpBA",
         },
         {
           name: "Shoulder Rainbows",
@@ -353,7 +353,7 @@ const workoutDatabase = {
           reps: "10-12",
           equipment: "Light Dumbbell",
           description: "Bài tăng khả năng kiểm soát và sức bền cho vai.",
-          video: "",
+          video: "https://www.youtube.com/embed/-3evFI39PUc",
         },
       ],
       gym: [
@@ -365,7 +365,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Dumbbells",
           description: "Đẩy vai với tạ đơn giúp hoạt động nhiều cơ ổn định hơn machine.",
-          video: "",
+          video: "https://www.youtube.com/embed/govvu6JLkzc",
         },
         {
           name: "Bent-Arm Lateral Raise",
@@ -375,7 +375,7 @@ const workoutDatabase = {
           reps: "12-15",
           equipment: "Dumbbells",
           description: "Biến thể lateral raise nhấn mạnh vai giữa.",
-          video: "",
+          video: "https://www.youtube.com/embed/y6ZwbthENoQ",
         },
       ],
     },
