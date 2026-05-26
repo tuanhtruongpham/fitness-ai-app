@@ -935,7 +935,7 @@ const workoutDatabase = {
           reps: "10-15",
           equipment: "Medicine Ball / Cable",
           description: "Bài xoay thân giúp tăng rotational strength.",
-          video: "",
+          video: "https://www.youtube.com/embed/KjF3uoiTEPo",
         },
         {
           name: "Seated Medicine Ball Trunk Rotations",
@@ -945,7 +945,7 @@ const workoutDatabase = {
           reps: "12-15",
           equipment: "Medicine Ball",
           description: "Core rotational exercise nâng cao hơn dead bug.",
-          video: "",
+          video: "https://www.youtube.com/embed/2Zq8FArlCA4",
         },
       ],
     },
@@ -960,7 +960,7 @@ const workoutDatabase = {
           reps: "15-20",
           equipment: "Bodyweight",
           description: "Biến thể crunch nâng cao với rotation liên tục.",
-          video: "",
+          video: "https://www.youtube.com/embed/jKZ045B84SI",
         },
         {
           name: "High Plank T-Spine Rotation",
@@ -970,7 +970,7 @@ const workoutDatabase = {
           reps: "10-12",
           equipment: "Bodyweight",
           description: "Plank xoay người giúp tăng mobility và stability.",
-          video: "",
+          video: "https://www.youtube.com/embed/n7R2e19wEm4",
         },
       ],
       gym: [
@@ -982,7 +982,7 @@ const workoutDatabase = {
           reps: "30-45 sec",
           equipment: "Stability Ball",
           description: "Bài stability nâng cao cho core và vai.",
-          video: "",
+          video: "https://www.youtube.com/embed/LbILOJmEjJY",
         },
         {
           name: "Hanging Knee Raise",
@@ -992,7 +992,7 @@ const workoutDatabase = {
           reps: "10-15",
           equipment: "Pull-up Bar / Captain Chair",
           description: "Bài nâng gối treo giúp tăng sức mạnh lower abs.",
-          video: "",
+          video: "https://www.youtube.com/embed/NQqoW187PBg",
         },
       ],
     },
