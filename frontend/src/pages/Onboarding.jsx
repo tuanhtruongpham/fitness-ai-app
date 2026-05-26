@@ -2,7 +2,7 @@ import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 
-function Onboarding({ onFinish, onBack }) {
+function Onboarding({ onFinish }) {
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -22,8 +22,8 @@ function Onboarding({ onFinish, onBack }) {
     phone: "",
     password: "",
   });
+const API_URL = "https://fitness-ai-app-71hw.onrender.com";
 
-  const API_URL = "https://fitness-ai-app-71hw.onrender.com";
   const goals = ["Giảm cân", "Giữ cân", "Tăng cân", "Tăng cơ"];
 
   const activities = [
@@ -577,11 +577,6 @@ function Onboarding({ onFinish, onBack }) {
                   try {
                     const res = await axios.post(`${API_URL}/api/auth/google`, {
                       credential: credentialResponse.credential,
-                      age: calculateAge(),
-                      height: Number(data.height),
-                      weight: Number(data.weight),
-                      gender: data.gender,
-                      goal: data.goal,
                     });
 
                     localStorage.setItem("token", res.data.token);
@@ -598,7 +593,7 @@ function Onboarding({ onFinish, onBack }) {
                       localStorage.setItem("needProfile", "true");
                     }
 
- 
+
                     window.location.reload();
                   } catch (error) {
                     console.log("FULL ERROR:", error);
@@ -616,21 +611,16 @@ function Onboarding({ onFinish, onBack }) {
 
         <div style={styles.actions}>
           <button
-  style={{
-    ...styles.backBtn,
-    ...(loading ? styles.disabledBtn : {}),
-  }}
-  onClick={() => {
-    if (step === 0) {
-      onBack();
-    } else {
-      prevStep();
-    }
-  }}
-  disabled={loading}
->
-  BACK
-</button>
+            style={{
+              ...styles.backBtn,
+              ...(step === 0 || loading ? styles.disabledBtn : {}),
+            }}
+            onClick={prevStep}
+            disabled={step === 0 || loading}
+          >
+            BACK
+          </button>
+
           <button
             style={{
               ...styles.nextBtn,
