@@ -390,7 +390,7 @@ const workoutDatabase = {
           reps: "6-10",
           equipment: "Dumbbell",
           description: "Đẩy vai một tay giúp tăng anti-rotation và stability.",
-          video: "",
+          video: "https://www.youtube.com/embed/LZCCo5IpA-Q",
         },
         {
           name: "High Plank T-Spine Rotation",
@@ -400,7 +400,7 @@ const workoutDatabase = {
           reps: "10-12",
           equipment: "Bodyweight",
           description: "Bài kết hợp plank và xoay thân giúp tăng kiểm soát vai.",
-          video: "",
+          video: "https://www.youtube.com/embed/19BU-0DWN5U",
         },
       ],
       gym: [
@@ -412,7 +412,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Bench + Dumbbells",
           description: "Bài kéo nghiêng nhấn mạnh vai sau và upper back.",
-          video: "",
+          video: "https://www.youtube.com/embed/_FUhJwPMQj4",
         },
         {
           name: "Seated Rear Lateral Raise",
@@ -422,7 +422,7 @@ const workoutDatabase = {
           reps: "12-15",
           equipment: "Dumbbells",
           description: "Bài cô lập vai sau để tránh lệch vai trước.",
-          video: "",
+          video: "https://www.youtube.com/embed/Vs0_Z5eqhWY",
         },
       ],
     },
@@ -439,7 +439,7 @@ const workoutDatabase = {
           reps: "10-15",
           equipment: "Resistance Band",
           description: "Curl bằng dây kháng lực, dễ điều chỉnh độ nặng.",
-          video: "",
+          video: "https://www.youtube.com/embed/NSRzjVUhafk",
         },
         {
           name: "Seated Dumbbell Curl",
@@ -449,7 +449,7 @@ const workoutDatabase = {
           reps: "10-12",
           equipment: "Dumbbells",
           description: "Curl ngồi giúp ổn định thân người hơn standing curl.",
-          video: "",
+          video: "https://www.youtube.com/embed/k8cr0QRQxKc",
         },
       ],
       gym: [
@@ -461,7 +461,7 @@ const workoutDatabase = {
           reps: "10-12",
           equipment: "Cable",
           description: "Curl với tension liên tục giúp dễ cảm nhận cơ.",
-          video: "",
+          video: "https://www.youtube.com/embed/DvSAWGhPBmE",
         },
         {
           name: "Machine Curl",
@@ -471,7 +471,7 @@ const workoutDatabase = {
           reps: "10-12",
           equipment: "Machine",
           description: "Bài máy phù hợp user mới hoặc cần kiểm soát tốt hơn.",
-          video: "",
+          video: "https://www.youtube.com/embed/v-dd3H9bbXI",
         },
       ],
     },
@@ -486,7 +486,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Dumbbells",
           description: "Grip trung lập giúp tăng độ dày cánh tay.",
-          video: "",
+          video: "https://www.youtube.com/embed/sqs2Qpcv658",
         },
         {
           name: "Alternating Dumbbell Curl",
@@ -496,7 +496,7 @@ const workoutDatabase = {
           reps: "10-12",
           equipment: "Dumbbells",
           description: "Curl từng tay giúp cải thiện mất cân bằng hai bên.",
-          video: "",
+          video: "https://www.youtube.com/embed/CvGi2QAiRCk",
         },
       ],
       gym: [
@@ -508,7 +508,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Barbell",
           description: "Bài curl cổ điển giúp overload tốt hơn.",
-          video: "",
+          video: "https://www.youtube.com/embed/QAXebivQWTA",
         },
         {
           name: "Concentration Curl",
@@ -518,7 +518,7 @@ const workoutDatabase = {
           reps: "10-12",
           equipment: "Bench + Dumbbell",
           description: "Bài cô lập biceps với activation rất mạnh.",
-          video: "",
+          video: "https://www.youtube.com/embed/zk_DuX8jyfg",
         },
       ],
     },
@@ -533,7 +533,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "TRX",
           description: "Curl với dây treo tăng yêu cầu ổn định thân người.",
-          video: "",
+          video: "https://www.youtube.com/embed/S-flV1ZEzTY",
         },
         {
           name: "Underhand Chin-up",
@@ -543,7 +543,7 @@ const workoutDatabase = {
           reps: "5-10",
           equipment: "Pull-up Bar",
           description: "Chin-up grip ngửa giúp bias nhiều vào biceps.",
-          video: "",
+          video: "https://www.youtube.com/embed/ydGjhOAyGe0",
         },
       ],
       gym: [
@@ -555,7 +555,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Lat Pulldown Machine",
           description: "Biến thể kéo xô giúp tay trước hoạt động mạnh hơn.",
-          video: "",
+          video: "https://www.youtube.com/embed/xMJf0OcoSjs",
         },
         {
           name: "Heavy EZ-Bar Curl",
@@ -565,7 +565,7 @@ const workoutDatabase = {
           reps: "5-8",
           equipment: "EZ-Bar",
           description: "Curl nặng cho overload và tăng sức mạnh tay trước.",
-          video: "",
+          video: "https://www.youtube.com/embed/fkGFnJ0VeSQ",
         },
       ],
     },
