@@ -141,10 +141,18 @@ function Profile({ onNavigate, onLogout }) {
         }
       );
 
-      setUser({
-        ...user,
-        avatar: res.data.avatar,
-      });
+      const avatarUrl =
+      `https://fitness-ai-app-71hw.onrender.com/uploads/${res.data.avatar}`;
+
+    setUser({
+      ...user,
+      avatar: avatarUrl,
+    });
+
+    setForm((prev) => ({
+      ...prev,
+      avatar: avatarUrl,
+    }));
     } catch (error) {
       console.log(error);
       alert("Upload avatar failed");
