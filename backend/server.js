@@ -44,8 +44,30 @@ app.get("/", (req, res) => {
   res.send("Fitness AI API Running");
 });
 
-require("./utils/notificationCron");
+//require("./utils/notificationCron");
+const sendEmail = require("./utils/emailService");
 
+app.get("/api/test-email", async (req, res) => {
+  try {
+    await sendEmail({
+      to: "trandu101073@gmail.com",
+      subject: "Fitness AI Test",
+      html: "<h1>Email API Works ✅</h1>",
+    });
+
+    console.log("✅ TEST EMAIL SENT");
+
+    res.json({
+      message: "Email sent successfully",
+    });
+  } catch (error) {
+    console.error("❌ TEST EMAIL ERROR:", error.message);
+
+    res.status(500).json({
+      error: error.message,
+    });
+  }
+});
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
