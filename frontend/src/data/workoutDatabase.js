@@ -866,7 +866,7 @@ const workoutDatabase = {
           reps: "12-15",
           equipment: "Bodyweight",
           description: "Bài gập bụng cơ bản cho người mới.",
-          video: "",
+          video: "https://www.youtube.com/embed/76lO2kJiBLw",
         },
         {
           name: "Supine Dead Bug",
@@ -876,7 +876,7 @@ const workoutDatabase = {
           reps: "8-12",
           equipment: "Bodyweight",
           description: "Bài core anti-extension giúp cải thiện coordination và stability.",
-          video: "",
+          video: "https://www.youtube.com/embed/CsXFFZSvFFg",
         },
       ],
       gym: [
@@ -888,7 +888,7 @@ const workoutDatabase = {
           reps: "10-15",
           equipment: "Machine",
           description: "Máy gập bụng giúp người mới dễ cảm nhận cơ bụng hơn.",
-          video: "",
+          video: "https://www.youtube.com/embed/OOg4C04Jlro",
         },
         {
           name: "Standing Anti-Rotation Press",
@@ -898,7 +898,7 @@ const workoutDatabase = {
           reps: "10-12",
           equipment: "Cable / Band",
           description: "Bài anti-rotation tăng stability cho core.",
-          video: "",
+          video: "https://www.youtube.com/embed/zat5RDK66rc",
         },
       ],
     },
@@ -913,7 +913,7 @@ const workoutDatabase = {
           reps: "30-45 sec",
           equipment: "Bodyweight",
           description: "Plank cơ bản giúp tăng khả năng brace core.",
-          video: "",
+          video: "https://www.youtube.com/embed/1Pmr-P7-q0M",
         },
         {
           name: "Bird-Dog",
@@ -923,7 +923,7 @@ const workoutDatabase = {
           reps: "10-12",
           equipment: "Bodyweight",
           description: "Bài giúp ổn định lưng dưới khi tay và chân di chuyển.",
-          video: "",
+          video: "https://www.youtube.com/embed/_5iSEyPxBgc",
         },
       ],
       gym: [
