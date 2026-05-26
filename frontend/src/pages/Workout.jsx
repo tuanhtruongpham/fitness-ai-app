@@ -44,7 +44,7 @@ const fetchAIPlan = async () => {
     const token = localStorage.getItem("token");
 
     const res = await fetch(
-      "https://fitness-ai-app-71hw.onrender.com/api/workouts/ai-plan",
+      "http://localhost:5000/api/workout/ai-plan",
       {
         headers: {
           authorization: token,
@@ -53,6 +53,7 @@ const fetchAIPlan = async () => {
     );
 
     const data = await res.json();
+    console.log("AI PLAN DATA:", data);
 
     setAiPlan(data.aiPlan);
   } catch (error) {
@@ -162,7 +163,7 @@ const fetchAIPlan = async () => {
       Level: {aiPlan.level} | Location: {aiPlan.location}
     </p>
 
-    {aiPlan.plan.map((day) => (
+    {aiPlan.weeklySchedule.map((day) => (
       <div key={day.day} style={styles.aiDayBox}>
         <h3>{day.day}</h3>
 
@@ -411,6 +412,8 @@ level: { color: "#84cc16", fontWeight: "bold" },
   padding: "25px",
   marginBottom: "30px",
   border: "1px solid rgba(132,204,22,0.3)",
+  maxHeight: "500px",
+  overflowY: "auto",
 },
 
 aiPlanTitle: {

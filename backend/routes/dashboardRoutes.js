@@ -55,7 +55,6 @@ router.get("/", authMiddleware, async (req, res) => {
       ...user.toObject(),
       bmi: realtimeBMI || user?.bmi || 22,
     });
-
     const todayWorkout = aiPlan.todayWorkout;
 
     res.json({

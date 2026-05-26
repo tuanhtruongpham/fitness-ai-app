@@ -44,13 +44,13 @@ function Profile({ onNavigate, onLogout }) {
       const token = localStorage.getItem("token");
 
       const res = await axios.get(
-        "https://fitness-ai-app-71hw.onrender.com/api/dashboard",
-        {
-          headers: {
-            authorization: token,
-          },
-        }
-      );
+  "http://localhost:5000/api/dashboard",
+  {
+    headers: {
+      authorization: token,
+    },
+  }
+);
 
       const data = res.data.dashboard.user;
       setUser(data);

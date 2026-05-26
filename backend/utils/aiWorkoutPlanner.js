@@ -24,8 +24,22 @@ function getBMIClass(bmi) {
   return "normal";
 }
 
-function pickExercises(group, level, location, count = 2) {
-  const list = workoutDatabase?.[group]?.[level]?.[location] || [];
+function pickExercises(group, level, location, count = 3) {
+  const levels = ["Beginner", "Intermediate", "Advanced"];
+  const startIndex = levels.indexOf(level);
+
+  let list = [];
+
+  for (let i = startIndex; i < levels.length; i++) {
+    const levelName = levels[i];
+
+    const exercises =
+      workoutDatabase?.[group]?.[levelName]?.[location] || [];
+
+    list.push(...exercises);
+
+    if (list.length >= count) break;
+  }
 
   return list.slice(0, count).map((exercise) => ({
     name: exercise.name || "Exercise",
@@ -37,49 +51,62 @@ function pickExercises(group, level, location, count = 2) {
   }));
 }
 
-function getSplitByDays(gymDays, goal, gender, bmiClass) {
+function getSplitByDays(gymDays, goal, bmiClass) {
   const daysCount = Number(gymDays || 3);
 
-  if (goal === "fat_loss" || bmiClass === "overweight") {
-    if (daysCount <= 3) return ["Cardio", "Legs", "Abs"];
-    if (daysCount === 4) return ["Cardio", "Legs", "Back", "Abs"];
-    return ["Cardio", "Legs", "Back", "Chest", "Abs"];
+  if (daysCount <= 2) {
+    return ["Push", "Pull"];
   }
 
-  if (goal === "muscle_gain" || goal === "weight_gain") {
-    if (gender === "Nữ") {
-      if (daysCount <= 3) return ["Legs", "Back", "Abs"];
-      if (daysCount === 4) return ["Legs", "Chest", "Back", "Cardio"];
-      return ["Legs", "Back", "Shoulder", "Abs", "Cardio"];
-    }
-
-    if (daysCount <= 3) return ["Chest", "Back", "Legs"];
-    if (daysCount === 4) return ["Chest", "Back", "Legs", "Shoulder"];
-    return ["Chest", "Back", "Legs", "Shoulder", "Arms"];
+  if (daysCount === 3) {
+    return ["Push", "Pull", "Legs"];
   }
 
-  if (daysCount <= 3) return ["Chest", "Back", "Legs"];
-  if (daysCount === 4) return ["Chest", "Back", "Legs", "Cardio"];
-  return ["Chest", "Back", "Legs", "Abs", "Cardio"];
+  if (daysCount === 4) {
+    return ["Push", "Pull", "Legs", "Abs"];
+  }
+
+  if (daysCount === 5) {
+    return ["Push", "Pull", "Legs", "Shoulder", "Abs"];
+  }
+
+  if (daysCount === 6) {
+    return ["Push", "Pull", "Legs", "Push", "Pull", "Legs"];
+  }
+
+  return ["Push", "Pull", "Legs", "Shoulder", "Arms", "Abs", "Cardio"];
 }
 
 function buildWorkoutDay(splitName, level, location, goal) {
   let groups = [];
 
-  if (splitName === "Arms") groups = ["Biceps", "Triceps"];
-  else groups = [splitName];
+  if (splitName === "Push") {
+  groups = ["Chest", "Shoulder", "Triceps"];
+} else if (splitName === "Pull") {
+  groups = ["Back", "Biceps"];
+} else if (splitName === "Legs") {
+  groups = ["Legs"];
+} else if (splitName === "Shoulder") {
+  groups = ["Shoulder", "Abs"];
+} else if (splitName === "Arms") {
+  groups = ["Biceps", "Triceps"];
+} else if (splitName === "Abs") {
+  groups = ["Abs", "Cardio"];
+} else {
+  groups = [splitName];
+}
 
   let exercises = [];
 
   groups.forEach((group) => {
-    exercises.push(...pickExercises(group, level, location, 2));
+    exercises.push(...pickExercises(group, level, location, 3));
   });
 
-  if (goal === "fat_loss" && splitName !== "Cardio") {
-    exercises.push(...pickExercises("Cardio", level, location, 1));
+  if (goal === "fat_loss") {
+    exercises.push(...pickExercises("Cardio", level, location, 2));
   }
 
-  return exercises;
+  return exercises.slice(0, 8);
 }
 
 function generateAIWorkoutPlan(user) {
@@ -90,16 +117,18 @@ function generateAIWorkoutPlan(user) {
   const bmiClass = getBMIClass(bmi);
 
   const split = getSplitByDays(
-    gymDays,
-    user.goal || "maintenance",
-    user.gender,
-    bmiClass
-  );
+  gymDays,
+  user.goal || "maintenance",
+  bmiClass
+);
 
-  const trainingDays = [1, 2, 3, 4, 5, 6].slice(0, gymDays);
+  const trainingDays =
+  gymDays >= 7
+    ? [0, 1, 2, 3, 4, 5, 6]
+    : [1, 2, 3, 4, 5, 6].slice(0, gymDays);
 
   const weeklySchedule = days.map((dayName, index) => {
-    if (index === 0 || !trainingDays.includes(index)) {
+    if (!trainingDays.includes(index)) {
       return {
         dayIndex: index,
         day: dayName,
