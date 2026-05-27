@@ -8,10 +8,7 @@ const sendEmail = require("../utils/emailService");
 
 const router = express.Router();
 
-// ======================================================
 // REGISTER
-// ======================================================
-
 router.post("/register", async (req, res) => {
   try {
     console.log("🔥 REGISTER API CALLED:", req.body);
@@ -42,37 +39,34 @@ router.post("/register", async (req, res) => {
     console.log("✅ USER SAVED:", user.email);
     console.log("📩 ABOUT TO SEND EMAIL:", user.email);
 
-    await sendEmail({
+    sendEmail({
       to: user.email,
       subject: "Welcome to Fitness AI App",
       html: `
         <div style="font-family: Arial; padding: 20px;">
           <h1>Welcome ${user.fullName} 👋</h1>
-
           <p>Your account has been created successfully.</p>
           <p>Thanks for joining Fitness AI App.</p>
-
           <ul>
             <li>Track workouts</li>
             <li>Track calories</li>
             <li>Track water intake</li>
             <li>AI workout suggestions</li>
           </ul>
-
           <h3>Stay healthy and consistent 💪</h3>
         </div>
       `,
+    })
+      .then(() => {
+        console.log("✅ REGISTER WELCOME EMAIL SENT");
+      })
+      .catch((error) => {
+        console.error("❌ REGISTER EMAIL ERROR:", error.message);
+      });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
     });
-
-    console.log("✅ REGISTER WELCOME EMAIL SENT");
-
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
-    );
 
     res.status(201).json({
       message: "Đăng ký thành công",
@@ -94,10 +88,7 @@ router.post("/register", async (req, res) => {
   }
 });
 
-// ======================================================
 // LOGIN
-// ======================================================
-
 router.post("/login", async (req, res) => {
   try {
     const { account, password } = req.body;
@@ -112,10 +103,7 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(
-      password,
-      user.password
-    );
+    const isMatch = await bcrypt.compare(password, user.password);
 
     if (!isMatch) {
       return res.status(400).json({
@@ -123,13 +111,9 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
-    );
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
 
     res.json({
       message: "Đăng nhập thành công",
@@ -151,18 +135,9 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// ======================================================
-// GOOGLE AUTH
-// ======================================================
+const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
-const googleClient = new OAuth2Client(
-  process.env.GOOGLE_CLIENT_ID
-);
-
-// ======================================================
 // GOOGLE REGISTER
-// ======================================================
-
 router.post("/google", async (req, res) => {
   try {
     console.log("🔥 GOOGLE REGISTER API CALLED");
@@ -194,8 +169,7 @@ router.post("/google", async (req, res) => {
 
     if (user) {
       return res.status(400).json({
-        message:
-          "Gmail này đã được sử dụng, vui lòng đăng nhập",
+        message: "Gmail này đã được sử dụng, vui lòng đăng nhập",
       });
     }
 
@@ -218,42 +192,36 @@ router.post("/google", async (req, res) => {
     });
 
     console.log("✅ GOOGLE USER CREATED:", user.email);
-    console.log(
-      "📩 ABOUT TO SEND GOOGLE WELCOME EMAIL:",
-      user.email
-    );
+    console.log("📩 ABOUT TO SEND GOOGLE WELCOME EMAIL:", user.email);
 
-    await sendEmail({
+    sendEmail({
       to: user.email,
       subject: "Welcome to Fitness AI App",
       html: `
         <div style="font-family: Arial; padding: 20px;">
           <h1>Welcome ${user.fullName} 👋</h1>
-
           <p>Your account has been created successfully.</p>
           <p>Thanks for joining Fitness AI App.</p>
-
           <ul>
             <li>Track workouts</li>
             <li>Track calories</li>
             <li>Track water intake</li>
             <li>AI workout suggestions</li>
           </ul>
-
           <h3>Stay healthy and consistent 💪</h3>
         </div>
       `,
+    })
+      .then(() => {
+        console.log("✅ GOOGLE WELCOME EMAIL SENT");
+      })
+      .catch((error) => {
+        console.error("❌ GOOGLE EMAIL ERROR:", error.message);
+      });
+
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
     });
-
-    console.log("✅ GOOGLE WELCOME EMAIL SENT");
-
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
-    );
 
     res.json({
       message: "Đăng ký Google thành công",
@@ -261,10 +229,7 @@ router.post("/google", async (req, res) => {
       user,
     });
   } catch (error) {
-    console.error(
-      "❌ GOOGLE REGISTER ERROR:",
-      error.message
-    );
+    console.error("❌ GOOGLE REGISTER ERROR:", error.message);
 
     res.status(500).json({
       message: "Google register failed",
@@ -273,10 +238,7 @@ router.post("/google", async (req, res) => {
   }
 });
 
-// ======================================================
 // GOOGLE LOGIN
-// ======================================================
-
 router.post("/google-login", async (req, res) => {
   try {
     const { credential } = req.body;
@@ -294,18 +256,13 @@ router.post("/google-login", async (req, res) => {
 
     if (!user) {
       return res.status(404).json({
-        message:
-          "Tài khoản Google này chưa được đăng ký",
+        message: "Tài khoản Google này chưa được đăng ký",
       });
     }
 
-    const token = jwt.sign(
-      { id: user._id },
-      process.env.JWT_SECRET,
-      {
-        expiresIn: "7d",
-      }
-    );
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
+      expiresIn: "7d",
+    });
 
     res.json({
       message: "Đăng nhập Google thành công",
@@ -313,10 +270,7 @@ router.post("/google-login", async (req, res) => {
       user,
     });
   } catch (error) {
-    console.error(
-      "❌ GOOGLE LOGIN ERROR:",
-      error.message
-    );
+    console.error("❌ GOOGLE LOGIN ERROR:", error.message);
 
     res.status(500).json({
       message: "Google login failed",
