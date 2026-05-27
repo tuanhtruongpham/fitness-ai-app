@@ -191,7 +191,6 @@ if (!age) {
           method: "PUT",
           headers: {
           "Content-Type": "application/json",
-          authorization: registerResult.token,
           Authorization: `Bearer ${registerResult.token}`,
         },
           body: JSON.stringify({
