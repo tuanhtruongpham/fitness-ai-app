@@ -25,21 +25,23 @@ function getBMIClass(bmi) {
 }
 
 function pickExercises(group, level, location, count = 3) {
-  const levels = ["Beginner", "Intermediate", "Advanced"];
-  const startIndex = levels.indexOf(level);
+  const fallbackByLevel = {
+    Beginner: ["Beginner", "Intermediate"],
+    Intermediate: ["Intermediate", "Beginner"],
+    Advanced: ["Advanced", "Intermediate", "Beginner"],
+  };
+
+  const levelsToUse =
+    fallbackByLevel[level] || ["Beginner", "Intermediate"];
 
   let list = [];
 
-  for (let i = startIndex; i < levels.length; i++) {
-    const levelName = levels[i];
-
+  levelsToUse.forEach((levelName) => {
     const exercises =
       workoutDatabase?.[group]?.[levelName]?.[location] || [];
 
     list.push(...exercises);
-
-    if (list.length >= count) break;
-  }
+  });
 
   return list.slice(0, count).map((exercise) => ({
     name: exercise.name || "Exercise",
@@ -48,6 +50,8 @@ function pickExercises(group, level, location, count = 3) {
     duration: exercise.duration || "",
     target: exercise.target || "",
     equipment: exercise.equipment || "",
+    description: exercise.description || "",
+    video: exercise.video || "",
   }));
 }
 
@@ -99,7 +103,7 @@ function buildWorkoutDay(splitName, level, location, goal) {
   let exercises = [];
 
   groups.forEach((group) => {
-    exercises.push(...pickExercises(group, level, location, 3));
+    exercises.push(...pickExercises(group, level, location, 4));
   });
 
   if (goal === "fat_loss") {
@@ -111,7 +115,7 @@ function buildWorkoutDay(splitName, level, location, goal) {
 
 function generateAIWorkoutPlan(user) {
   const location = user.workoutPlace === "home" ? "home" : "gym";
-  const gymDays = location === "home" ? 5 : Number(user.gymDays || 3);
+  const gymDays = Number(user.gymDays || 3);
   const level = getLevel(user);
   const bmi = Number(user.bmi || 22);
   const bmiClass = getBMIClass(bmi);
@@ -122,10 +126,17 @@ function generateAIWorkoutPlan(user) {
   bmiClass
 );
 
-  const trainingDays =
-  gymDays >= 7
-    ? [0, 1, 2, 3, 4, 5, 6]
-    : [1, 2, 3, 4, 5, 6].slice(0, gymDays);
+ const trainingDayPatterns = {
+  1: [1],
+  2: [1, 4],
+  3: [1, 3, 5],
+  4: [1, 2, 4, 5],
+  5: [1, 2, 3, 5, 6],
+  6: [1, 2, 3, 4, 5, 6],
+  7: [0, 1, 2, 3, 4, 5, 6],
+};
+
+const trainingDays = trainingDayPatterns[gymDays] || trainingDayPatterns[3];
 
   const weeklySchedule = days.map((dayName, index) => {
     if (!trainingDays.includes(index)) {

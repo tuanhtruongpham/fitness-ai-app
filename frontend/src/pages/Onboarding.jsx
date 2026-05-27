@@ -11,7 +11,7 @@ function Onboarding({ onFinish }) {
   const [data, setData] = useState({
     name: "",
     goal: "",
-    activity: "",
+    trainingMonths: "",
     birthDate: "",
     gender: "",
     height: "",
@@ -22,26 +22,26 @@ function Onboarding({ onFinish }) {
     phone: "",
     password: "",
   });
-const API_URL = "https://fitness-ai-app-71hw.onrender.com";
+
+  const API_URL = "http://localhost:5000";
 
   const goals = ["Giảm cân", "Giữ cân", "Tăng cân", "Tăng cơ"];
 
-  const activities = [
+  const trainingLevels = [
     {
-      title: "Ít vận động",
-      desc: "Phần lớn thời gian ngồi học, ngồi làm việc.",
+      title: "Newbie",
+      desc: "Mới bắt đầu hoặc tập dưới 6 tháng.",
+      value: 0,
     },
     {
-      title: "Vận động nhẹ",
-      desc: "Có đi lại trong ngày nhưng không tập luyện nhiều.",
+      title: "Đã tập một thời gian",
+      desc: "Tập từ 6 tháng đến dưới 2 năm.",
+      value: 6,
     },
     {
-      title: "Năng động",
-      desc: "Thường xuyên di chuyển hoặc có tập luyện vài buổi.",
-    },
-    {
-      title: "Rất năng động",
-      desc: "Tập luyện đều hoặc công việc cần vận động nhiều.",
+      title: "Người tập cũ",
+      desc: "Tập từ 2 năm trở lên.",
+      value: 24,
     },
   ];
 
@@ -106,7 +106,10 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
 
     if (step === 1 && !data.name.trim()) newErrors.name = true;
     if (step === 2 && !data.goal) newErrors.goal = true;
-    if (step === 4 && !data.activity) newErrors.activity = true;
+
+    if (step === 4 && data.trainingMonths === "") {
+      newErrors.trainingMonths = true;
+    }
 
     if (step === 5) {
       if (!data.birthDate) newErrors.birthDate = true;
@@ -117,6 +120,7 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
 
     if (step === 6) {
       if (!data.workoutPlace) newErrors.workoutPlace = true;
+
       if (data.workoutPlace === "gym" && !data.gymDays) {
         newErrors.gymDays = true;
       }
@@ -124,9 +128,11 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
 
     if (step === 7) {
       if (!data.email.trim()) newErrors.email = true;
+
       if (!data.phone || !/^[0-9]{10}$/.test(data.phone)) {
         newErrors.phone = true;
       }
+
       if (!data.password || data.password.length < 8) {
         newErrors.password = true;
       }
@@ -180,7 +186,8 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
             weight: Number(data.weight),
             gender: data.gender,
             goal: mapGoalToBackend(data.goal),
-            activity: data.activity,
+            activity: "moderate",
+            trainingMonths: Number(data.trainingMonths),
             workoutPlace: data.workoutPlace,
             gymDays: Number(data.gymDays || 3),
             bmi: Number(bmi),
@@ -337,20 +344,25 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
 
         {step === 4 && (
           <div style={styles.content}>
-            <h2>Mức độ hoạt động hằng ngày của bạn?</h2>
-            <p style={styles.desc}>Không tính các buổi tập gym riêng.</p>
+            <h2>Bạn đã tập gym được bao lâu?</h2>
+
+            <p style={styles.desc}>
+              Fitness AI sẽ tự xếp level và tạo bài tập phù hợp cho bạn.
+            </p>
 
             <div style={styles.optionList}>
-              {activities.map((item) => (
+              {trainingLevels.map((item) => (
                 <button
                   key={item.title}
                   style={{
                     ...styles.option,
                     textAlign: "left",
-                    ...(data.activity === item.title ? styles.selected : {}),
-                    ...(errors.activity ? styles.errorInput : {}),
+                    ...(data.trainingMonths === item.value
+                      ? styles.selected
+                      : {}),
+                    ...(errors.trainingMonths ? styles.errorInput : {}),
                   }}
-                  onClick={() => updateData("activity", item.title)}
+                  onClick={() => updateData("trainingMonths", item.value)}
                 >
                   <b>{item.title}</b>
                   <br />
@@ -359,8 +371,8 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
               ))}
             </div>
 
-            {errors.activity && (
-              <p style={styles.errorText}>Vui lòng chọn mức độ hoạt động</p>
+            {errors.trainingMonths && (
+              <p style={styles.errorText}>Vui lòng chọn level tập luyện</p>
             )}
           </div>
         )}
@@ -473,10 +485,10 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
               <p style={styles.errorText}>Vui lòng chọn nơi tập</p>
             )}
 
-            {data.workoutPlace === "gym" && (
+            {data.workoutPlace && (
               <>
                 <label style={styles.fieldLabel}>
-                  Bạn có thể đến phòng gym bao nhiêu ngày một tuần?
+                  Bạn muốn tập bao nhiêu ngày một tuần?
                 </label>
 
                 <select
@@ -498,9 +510,7 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
                 </select>
 
                 {errors.gymDays && (
-                  <p style={styles.errorText}>
-                    Vui lòng chọn số ngày có thể đến phòng gym
-                  </p>
+                  <p style={styles.errorText}>Vui lòng chọn số ngày tập</p>
                 )}
               </>
             )}
@@ -570,42 +580,40 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
 
             <p style={styles.passwordNote}>Must be at least 8 characters.</p>
 
-              <GoogleLogin
-                size="large"
-                width="380"
-                onSuccess={async (credentialResponse) => {
-                  try {
-                    const res = await axios.post(`${API_URL}/api/auth/google`, {
-                      credential: credentialResponse.credential,
-                    });
+            <GoogleLogin
+              size="large"
+              width="380"
+              onSuccess={async (credentialResponse) => {
+                try {
+                  const res = await axios.post(`${API_URL}/api/auth/google`, {
+                    credential: credentialResponse.credential,
+                  });
 
-                    localStorage.setItem("token", res.data.token);
-                    localStorage.setItem("user", JSON.stringify(res.data.user));
-                    localStorage.setItem("isLoggedIn", "true");
+                  localStorage.setItem("token", res.data.token);
+                  localStorage.setItem("user", JSON.stringify(res.data.user));
+                  localStorage.setItem("isLoggedIn", "true");
 
-                    if (
-                      !res.data.user.age ||
-                      !res.data.user.height ||
-                      !res.data.user.weight ||
-                      !res.data.user.gender ||
-                      !res.data.user.goal
-                    ) {
-                      localStorage.setItem("needProfile", "true");
-                    }
-
-
-                    window.location.reload();
-                  } catch (error) {
-                    console.log("FULL ERROR:", error);
-                    console.log("RESPONSE:", error.response?.data);
-                    alert(error.message);
+                  if (
+                    !res.data.user.age ||
+                    !res.data.user.height ||
+                    !res.data.user.weight ||
+                    !res.data.user.gender ||
+                    !res.data.user.goal
+                  ) {
+                    localStorage.setItem("needProfile", "true");
                   }
-                }}
+
+                  window.location.reload();
+                } catch (error) {
+                  console.log("FULL ERROR:", error);
+                  console.log("RESPONSE:", error.response?.data);
+                  alert(error.message);
+                }
+              }}
               onError={() => {
                 alert("Đăng nhập Google thất bại");
               }}
             />
-
           </div>
         )}
 

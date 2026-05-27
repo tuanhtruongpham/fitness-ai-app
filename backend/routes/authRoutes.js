@@ -173,20 +173,31 @@ router.post("/google", async (req, res) => {
     console.log("✅ GOOGLE USER CREATED:", user.email);
     console.log("📩 ABOUT TO SEND GOOGLE WELCOME EMAIL:", user.email);
 
-    await sendEmail({
-      to: user.email,
-      subject: "Welcome to Fitness AI App",
-      html: `
-        <div style="font-family: Arial; padding: 20px;">
-          <h1>Welcome ${user.fullName} 👋</h1>
-          <p>Your Google account has been registered successfully.</p>
-          <p>Thanks for joining Fitness AI App.</p>
-          <h3>Stay healthy and consistent 💪</h3>
-        </div>
-      `,
-    });
+   sendEmail({
+  to: user.email,
+  subject: "Welcome to Fitness AI App",
+  html: `
+    <div style="font-family: Arial; padding: 20px;">
+      <h1>Welcome ${user.fullName} 👋</h1>
 
-    console.log("✅ GOOGLE WELCOME EMAIL FUNCTION DONE");
+      <p>Your account has been created successfully.</p>
+      <p>Thanks for joining Fitness AI App.</p>
+
+      <ul>
+        <li>Track workouts</li>
+        <li>Track calories</li>
+        <li>Track water intake</li>
+        <li>AI workout suggestions</li>
+      </ul>
+
+      <h3>Stay healthy and consistent 💪</h3>
+    </div>
+  `,
+}).catch((error) => {
+  console.log("❌ Send email error:", error.message);
+});
+
+console.log("✅ WELCOME EMAIL FUNCTION DONE");
 
     const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
       expiresIn: "7d",
