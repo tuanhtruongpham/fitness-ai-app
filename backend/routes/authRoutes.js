@@ -198,18 +198,52 @@ router.post("/google", async (req, res) => {
       to: user.email,
       subject: "Welcome to Fitness AI App",
       html: `
-        <div style="font-family: Arial; padding: 20px;">
-          <h1>Welcome ${user.fullName} 👋</h1>
-          <p>Your account has been created successfully.</p>
-          <p>Thanks for joining Fitness AI App.</p>
-          <ul>
-            <li>Track workouts</li>
-            <li>Track calories</li>
-            <li>Track water intake</li>
-            <li>AI workout suggestions</li>
-          </ul>
-          <h3>Stay healthy and consistent 💪</h3>
-        </div>
+        <div style="
+  background-image: url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438');
+  background-size: cover;
+  background-position: center;
+  padding: 60px 20px;
+  font-family: Arial;
+">
+
+  <div style="
+    max-width: 600px;
+    margin: auto;
+    background: rgba(0,0,0,0.75);
+    padding: 40px;
+    border-radius: 20px;
+    color: white;
+    text-align: center;
+  ">
+  
+    <h1 style="color:#84cc16;">
+      Welcome ${user.fullName} 💪
+    </h1>
+
+    <p>Your FitnessUT account has been created successfully.</p>
+
+    <p>
+      Start your AI-powered fitness journey today.
+    </p>
+
+    <a
+      href="https://fitnessapput.site"
+      style="
+        display:inline-block;
+        margin-top:20px;
+        padding:14px 24px;
+        background:#84cc16;
+        color:black;
+        text-decoration:none;
+        border-radius:10px;
+        font-weight:bold;
+      "
+    >
+      Open FitnessUT
+    </a>
+
+  </div>
+</div>
       `,
     })
       .then(() => {
