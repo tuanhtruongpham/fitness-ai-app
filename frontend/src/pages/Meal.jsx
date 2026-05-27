@@ -171,33 +171,33 @@ function Meal({ onNavigate, onLogout }) {
 
           <div style={styles.menu}>
             <div style={styles.menuItem} onClick={() => onNavigate("home")}>
-              🏠 Dashboard
+              Dashboard
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("workout")}>
-              💪 Workout
+              Workout
             </div>
 
             <div style={styles.activeMenu} onClick={() => onNavigate("meal")}>
-              🍽 Meal Plan
+              Meal Plan
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("progress")}>
-              📈 Progress
+              Progress
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("ai-coach")}>
-              🤖 AI Coach
+              AI Coach
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("profile")}>
-              👤 Profile
+              Profile
             </div>
           </div>
         </div>
 
         <div style={styles.logout} onClick={onLogout}>
-          🚪 Logout
+          Logout
         </div>
       </div>
 
@@ -229,7 +229,7 @@ function Meal({ onNavigate, onLogout }) {
             <div style={styles.topGrid}>
               <div style={styles.calorieCard}>
                 <div>
-                  <h3>🔥 Hôm nay đã ăn</h3>
+                  <h3>Hôm nay đã ăn</h3>
                   <h1>
                     {eatenCalories} / {dailyTarget?.calories || 0} kcal
                   </h1>
@@ -249,19 +249,19 @@ function Meal({ onNavigate, onLogout }) {
               </div>
 
               <div style={styles.macroCard}>
-                <h3>💪 Protein</h3>
+                <h3> Protein</h3>
                 <h1>{dailyTarget?.proteinG || 0}g</h1>
                 <p style={styles.cardText}>Hỗ trợ phục hồi và tăng cơ</p>
               </div>
 
               <div style={styles.macroCard}>
-                <h3>🍚 Carbs</h3>
+                <h3> Carbs</h3>
                 <h1>{dailyTarget?.carbsG || 0}g</h1>
                 <p style={styles.cardText}>Năng lượng tập luyện</p>
               </div>
 
               <div style={styles.macroCard}>
-                <h3>🥑 Fat</h3>
+                <h3> Fat</h3>
                 <h1>{dailyTarget?.fatG || 0}g</h1>
                 <p style={styles.cardText}>Chất béo tốt cần thiết</p>
               </div>
@@ -400,10 +400,10 @@ function Meal({ onNavigate, onLogout }) {
                               </p>
 
                               <div style={styles.miniMacroGrid}>
-                                <span>🔥 {item.calories} kcal</span>
-                                <span>💪 {item.proteinG}g</span>
-                                <span>🍚 {item.carbsG}g</span>
-                                <span>🥑 {item.fatG}g</span>
+                                <span> {item.calories} kcal</span>
+                                <span> {item.proteinG}g</span>
+                                <span> {item.carbsG}g</span>
+                                <span> {item.fatG}g</span>
                               </div>
                             </div>
                           ))}
@@ -415,7 +415,7 @@ function Meal({ onNavigate, onLogout }) {
               </div>
 
               <div style={styles.aiBox}>
-                <h2 style={styles.aiTitle}>🤖 AI Nutrition Tips</h2>
+                <h2 style={styles.aiTitle}> AI Nutrition Tips</h2>
 
                 <p style={styles.aiText}>Dựa trên profile hiện tại của bạn:</p>
 

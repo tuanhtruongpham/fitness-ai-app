@@ -169,31 +169,31 @@ function Profile({ onNavigate, onLogout }) {
 
           <div style={styles.menu}>
             <div style={styles.menuItem} onClick={() => onNavigate("home")}>
-              🏠 Dashboard
+              Dashboard
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("workout")}>
-              💪 Workout
+              Workout
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("meal")}>
-              🍽 Meal Plan
+              Meal Plan
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("progress")}>
-              📈 Progress
+              Progress
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("ai-coach")}>
-              🤖 AI Coach
+              AI Coach
             </div>
 
-            <div style={styles.activeMenu}>👤 Profile</div>
+            <div style={styles.activeMenu}> Profile</div>
           </div>
         </div>
 
         <div style={styles.logout} onClick={onLogout}>
-          🚪 Logout
+          Logout
         </div>
       </div>
 

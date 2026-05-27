@@ -114,36 +114,36 @@ function Home({ onNavigate, onLogout }) {
 
           <div style={styles.menu}>
             <div style={styles.activeMenu} onClick={() => onNavigate("home")}>
-              🏠 Dashboard
+              Dashboard
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("workout")}>
-              💪 Workout
+              Workout
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("meal")}>
-              🍽 Meal Plan
+              Meal Plan
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("progress")}>
-              📈 Progress
+              Progress
             </div>
 
             <div
               style={styles.menuItem}
               onClick={() => onNavigate("ai-coach")}
             >
-              🤖 AI Coach
+              AI Coach
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("profile")}>
-              👤 Profile
+              Profile
             </div>
           </div>
         </div>
 
         <div style={styles.logout} onClick={onLogout}>
-          🚪 Logout
+          Logout
         </div>
       </div>
 
@@ -151,7 +151,7 @@ function Home({ onNavigate, onLogout }) {
         <div style={styles.header}>
           <div>
             <h1 style={styles.title}>
-              Good Evening, {dashboard?.user?.fullName || "User"} 💪
+              Good Evening, {dashboard?.user?.fullName || "User"} 
             </h1>
 
             <p style={styles.subtitle}>Your body is improving today.</p>
@@ -207,25 +207,25 @@ function Home({ onNavigate, onLogout }) {
 
         <div style={styles.statsGrid}>
           <div style={styles.card}>
-            <h3>🔥 Workouts</h3>
+            <h3> Workouts</h3>
             <h1>{dashboard?.todayWorkoutName || "Rest Day"}</h1>
             <p style={styles.cardText}>Today's workout</p>
           </div>
 
           <div style={styles.card}>
-            <h3>💪 Exercises</h3>
+            <h3> Exercises</h3>
             <h1>{dashboard?.todayExercises || 0}</h1>
             <p style={styles.cardText}>Exercises today</p>
           </div>
 
           <div style={styles.card}>
-            <h3>⚖ Weight</h3>
+            <h3> Weight</h3>
             <h1>{dashboard?.latestWeight || 0} KG</h1>
             <p style={styles.cardText}>Current weight</p>
           </div>
 
           <div style={styles.card}>
-            <h3>📈 BMI</h3>
+            <h3> BMI</h3>
             <h1>{realtimeBMI || 0}</h1>
             <p style={styles.cardText}>Current BMI</p>
           </div>
@@ -233,7 +233,7 @@ function Home({ onNavigate, onLogout }) {
 
         <div style={styles.aiCard}>
           <div>
-            <h2 style={styles.aiTitle}>🤖 AI Coach Recommendation</h2>
+            <h2 style={styles.aiTitle}> AI Coach Recommendation</h2>
 
             <p style={styles.aiText}>
               Based on your BMI and progress, today you should focus on:

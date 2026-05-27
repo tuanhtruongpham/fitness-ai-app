@@ -69,42 +69,42 @@ setLoading(false);
 
           <div style={styles.menu}>
             <div style={styles.menuItem} onClick={() => onNavigate("home")}>
-              🏠 Dashboard
+              Dashboard
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("workout")}>
-              💪 Workout
+              Workout
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("meal")}>
-              🍽 Meal Plan
+              Meal Plan
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("progress")}>
-              📈 Progress
+              Progress
             </div>
 
             <div style={styles.activeMenu}>
-              🤖 AI Coach
+              AI Coach
             </div>
             <div
               style={styles.menuItem}
               onClick={() => onNavigate("profile")}
             >
-              👤 Profile
+              Profile
             </div>
           </div>
         </div>
 
         <div style={styles.logout} onClick={onLogout}>
-          🚪 Logout
+          Logout
         </div>
       </div>
 
       <div style={styles.main}>
         <div style={styles.header}>
           <div>
-            <h1 style={styles.title}>AI Coach 🤖</h1>
+            <h1 style={styles.title}>AI Coach </h1>
             <p style={styles.subtitle}>
               Ask your personal fitness AI assistant
             </p>

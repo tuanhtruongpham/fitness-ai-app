@@ -135,15 +135,15 @@ const chartPoints = progressData.map((item, index) => {
 
           <div style={styles.menu}>
             <div style={styles.menuItem} onClick={() => onNavigate("home")}>
-              🏠 Dashboard
+              Dashboard
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("workout")}>
-              💪 Workout
+              Workout
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("meal")}>
-              🍽 Meal Plan
+              Meal Plan
             </div>
 
             <div style={styles.activeMenu}>📈 Progress</div>
@@ -152,11 +152,11 @@ const chartPoints = progressData.map((item, index) => {
               style={styles.menuItem}
               onClick={() => onNavigate("ai-coach")}
             >
-              🤖 AI Coach
+              AI Coach
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("profile")}>
-              👤 Profile
+              Profile
             </div>
           </div>
         </div>
@@ -180,25 +180,25 @@ const chartPoints = progressData.map((item, index) => {
 
         <div style={styles.topGrid}>
           <div style={styles.card}>
-            <h3>⚖ Current Weight</h3>
+            <h3>Current Weight</h3>
             <h1>{latestProgress.weight} KG</h1>
             <p style={styles.cardText}>Start: {startWeight} KG</p>
           </div>
 
           <div style={styles.card}>
-            <h3>📊 BMI</h3>
+            <h3>BMI</h3>
             <h1>{latestProgress.bmi}</h1>
             <p style={styles.healthy}>Updated BMI</p>
           </div>
 
           <div style={styles.card}>
-            <h3>📅 Last Update</h3>
+            <h3>Last Update</h3>
             <h1 style={styles.smallTitle}>{latestProgress.date}</h1>
             <p style={styles.cardText}>Latest weight record</p>
           </div>
 
           <div style={styles.card}>
-            <h3>🎯 Goal</h3>
+            <h3> Goal</h3>
             <h1>{targetWeight} KG</h1>
             <p style={styles.cardText}>Goal Progress</p>
           </div>
@@ -317,7 +317,7 @@ viewBox={`0 0 ${Math.max(progressData.length * 90, 700)} 260`}
 
         <div style={styles.bottomGrid}>
           <div style={styles.aiBox}>
-            <h2 style={styles.aiTitle}>🤖 AI Progress Analysis</h2>
+            <h2 style={styles.aiTitle}> AI Progress Analysis</h2>
 
             <p style={styles.aiText}>Based on your latest progress:</p>
 
