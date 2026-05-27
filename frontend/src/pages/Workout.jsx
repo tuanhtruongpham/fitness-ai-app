@@ -44,7 +44,7 @@ const fetchAIPlan = async () => {
     const token = localStorage.getItem("token");
 
     const res = await fetch(
-      "http://localhost:5000/api/workout/ai-plan",
+       "https://fitness-ai-app-71hw.onrender.com/api/workout/ai-plan",
       {
         headers: {
           authorization: token,
