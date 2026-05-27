@@ -23,12 +23,7 @@ function Onboarding({ onFinish }) {
     password: "",
   });
 
-<<<<<<< HEAD
 const API_URL = "https://fitness-ai-app-71hw.onrender.com";
-=======
-  const API_URL = "https://fitness-ai-app-71hw.onrender.com";
->>>>>>> 892deb5 (fix production api urls)
-
   const goals = ["Giảm cân", "Giữ cân", "Tăng cân", "Tăng cơ"];
 
   const trainingLevels = [
