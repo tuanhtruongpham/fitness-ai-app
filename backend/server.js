@@ -1,4 +1,3 @@
-
 require("dns").setServers(["8.8.8.8", "8.8.4.4"]);
 require("dotenv").config();
 
@@ -22,9 +21,31 @@ const app = express();
 
 connectDB();
 
-app.use(cors());
+// =========================
+// CORS FIX
+// =========================
+const corsOptions = {
+  origin: [
+    "https://fitnessapput.site",
+    "http://localhost:5173",
+  ],
+  methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
+  allowedHeaders: [
+    "Content-Type",
+    "Authorization",
+    "authorization",
+  ],
+  credentials: true,
+};
+
+app.use(cors(corsOptions));
+app.options("*", cors(corsOptions));
+
 app.use(express.json());
 
+// =========================
+// ROUTES
+// =========================
 app.use("/api/auth", authRoutes);
 app.use("/api/profile", profileRoutes);
 app.use("/api/workout", workoutRoutes);
@@ -33,18 +54,30 @@ app.use("/api/progress", progressRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/chat", chatRoutes);
+app.use("/api/notifications", notificationRoutes);
+
+// =========================
+// TEST ROUTE
+// =========================
 app.get("/api/notifications-test", (req, res) => {
   res.json({ message: "Server test OK" });
 });
-app.use("/api/notifications", notificationRoutes);
 
+// =========================
+// STATIC FILES
+// =========================
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
+// =========================
+// ROOT
+// =========================
 app.get("/", (req, res) => {
   res.send("Fitness AI API Running");
 });
 
-//require("./utils/notificationCron");
+// =========================
+// EMAIL TEST
+// =========================
 const sendEmail = require("./utils/emailService");
 
 app.get("/api/test-email", async (req, res) => {
@@ -68,6 +101,10 @@ app.get("/api/test-email", async (req, res) => {
     });
   }
 });
+
+// =========================
+// SERVER
+// =========================
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {
