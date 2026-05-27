@@ -1,18 +1,31 @@
-const { Resend } = require("resend");
+const nodemailer = require("nodemailer");
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+const transporter = nodemailer.createTransport({
+  host: "smtp.gmail.com",
+  port: 587,
+  secure: false,
+
+  auth: {
+    user: process.env.EMAIL_USER,
+    pass: process.env.EMAIL_PASS,
+  },
+
+  tls: {
+    rejectUnauthorized: false,
+  },
+});
 
 const sendEmail = async ({ to, subject, html }) => {
   console.log("📧 START SEND EMAIL TO:", to);
 
-  const result = await resend.emails.send({
-    from: `Fitness AI App <${process.env.EMAIL_FROM}>`,
+  await transporter.sendMail({
+    from: `"Fitness AI App" <${process.env.EMAIL_USER}>`,
     to,
     subject,
     html,
   });
 
-  console.log("✅ Email sent:", result);
+  console.log("✅ Email sent to:", to);
 };
 
 module.exports = sendEmail;
