@@ -23,7 +23,11 @@ function Onboarding({ onFinish }) {
     password: "",
   });
 
+<<<<<<< HEAD
 const API_URL = "https://fitness-ai-app-71hw.onrender.com";
+=======
+  const API_URL = "https://fitness-ai-app-71hw.onrender.com";
+>>>>>>> 892deb5 (fix production api urls)
 
   const goals = ["Giảm cân", "Giữ cân", "Tăng cân", "Tăng cơ"];
 
@@ -76,21 +80,31 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
   };
 
   const calculateAge = () => {
-    const birth = new Date(data.birthDate);
-    const today = new Date();
+  if (!data.birthDate) return null;
 
-    let age = today.getFullYear() - birth.getFullYear();
+  const birth = new Date(data.birthDate);
+  const today = new Date();
 
-    if (
-      today.getMonth() < birth.getMonth() ||
-      (today.getMonth() === birth.getMonth() &&
-        today.getDate() < birth.getDate())
-    ) {
-      age--;
-    }
+  let age =
+    today.getFullYear() - birth.getFullYear();
 
-    return age;
-  };
+  const monthDiff =
+    today.getMonth() - birth.getMonth();
+
+  if (
+    monthDiff < 0 ||
+    (monthDiff === 0 &&
+      today.getDate() < birth.getDate())
+  ) {
+    age--;
+  }
+
+  if (age < 10 || age > 100) {
+    return null;
+  }
+
+  return age;
+};
 
   const mapGoalToBackend = (goal) => {
     if (goal === "Giảm cân") return "fat_loss";
@@ -112,7 +126,11 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
     }
 
     if (step === 5) {
-      if (!data.birthDate) newErrors.birthDate = true;
+      const age = calculateAge();
+
+if (!age) {
+  newErrors.birthDate = true;
+}
       if (!data.gender) newErrors.gender = true;
       if (!data.height) newErrors.height = true;
       if (!data.weight) newErrors.weight = true;
@@ -177,9 +195,10 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
         const profileResponse = await fetch(`${API_URL}/api/profile/update`, {
           method: "PUT",
           headers: {
-            "Content-Type": "application/json",
-            authorization: registerResult.token,
-          },
+          "Content-Type": "application/json",
+          authorization: registerResult.token,
+          Authorization: `Bearer ${registerResult.token}`,
+        },
           body: JSON.stringify({
             age: calculateAge(),
             height: Number(data.height),
@@ -382,19 +401,27 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
             <h2>Thông tin cơ thể của bạn</h2>
             <p style={styles.desc}>Fitness AI sẽ dùng thông tin này để tính BMI.</p>
 
-            <label style={styles.fieldLabel}>Ngày sinh</label>
-            <input
-              style={{
-                ...styles.input,
-                ...(errors.birthDate ? styles.errorInput : {}),
-              }}
-              type="date"
-              value={data.birthDate}
-              onChange={(e) => updateData("birthDate", e.target.value)}
-            />
-            {errors.birthDate && (
-              <p style={styles.errorText}>Vui lòng chọn ngày sinh</p>
-            )}
+           <label style={styles.fieldLabel}>Ngày sinh</label>
+
+<input
+  style={{
+    ...styles.input,
+    ...(errors.birthDate ? styles.errorInput : {}),
+  }}
+  type="date"
+  min="1925-01-01"
+  max={new Date().toISOString().split("T")[0]}
+  value={data.birthDate}
+  onChange={(e) =>
+    updateData("birthDate", e.target.value)
+  }
+/>
+
+{errors.birthDate && (
+  <p style={styles.errorText}>
+    Vui lòng chọn ngày sinh hợp lệ
+  </p>
+)}
 
             <label style={styles.fieldLabel}>Giới tính</label>
             <select
@@ -584,32 +611,41 @@ const API_URL = "https://fitness-ai-app-71hw.onrender.com";
               size="large"
               width="380"
               onSuccess={async (credentialResponse) => {
-                try {
-                  const res = await axios.post(`${API_URL}/api/auth/google`, {
-                    credential: credentialResponse.credential,
-                  });
+            try {
+              const res = await axios.post(`${API_URL}/api/auth/google`, {
+              credential: credentialResponse.credential,
+              age: calculateAge(),
+              height: Number(data.height),
+              weight: Number(data.weight),
+              gender: data.gender,
+              goal: mapGoalToBackend(data.goal),
+              activity: "moderate",
+              trainingMonths: Number(data.trainingMonths),
+              workoutPlace: data.workoutPlace,
+              gymDays: Number(data.gymDays || 3),
+              bmi: Number(bmi),
+            });
+              if (!res.data.token) {
+              alert(res.data.message || "Đăng ký Google thất bại");
+              return;
+            }
 
-                  localStorage.setItem("token", res.data.token);
-                  localStorage.setItem("user", JSON.stringify(res.data.user));
-                  localStorage.setItem("isLoggedIn", "true");
+              localStorage.setItem("token", res.data.token);
+              localStorage.setItem("user", JSON.stringify(res.data.user));
+              localStorage.setItem("isLoggedIn", "true");
+              localStorage.removeItem("needProfile");
 
-                  if (
-                    !res.data.user.age ||
-                    !res.data.user.height ||
-                    !res.data.user.weight ||
-                    !res.data.user.gender ||
-                    !res.data.user.goal
-                  ) {
-                    localStorage.setItem("needProfile", "true");
-                  }
+              window.location.reload();
+            } catch (error) {
+              console.log("FULL ERROR:", error);
+              console.log("RESPONSE:", error.response?.data);
 
-                  window.location.reload();
-                } catch (error) {
-                  console.log("FULL ERROR:", error);
-                  console.log("RESPONSE:", error.response?.data);
-                  alert(error.message);
-                }
-              }}
+              alert(
+              error.response?.data?.message ||
+              "Đăng ký Google thất bại"
+);
+            }
+          }}
               onError={() => {
                 alert("Đăng nhập Google thất bại");
               }}

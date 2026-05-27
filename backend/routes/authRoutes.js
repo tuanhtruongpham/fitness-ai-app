@@ -138,7 +138,19 @@ router.post("/google", async (req, res) => {
   try {
     console.log("🔥 GOOGLE REGISTER API CALLED");
 
-    const { credential, age, height, weight, gender, goal } = req.body;
+      const {
+    credential,
+    age,
+    height,
+    weight,
+    gender,
+    goal,
+    activity,
+    trainingMonths,
+    workoutPlace,
+    gymDays,
+    bmi,
+  } = req.body;
 
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
@@ -150,25 +162,29 @@ router.post("/google", async (req, res) => {
     const { email, name, picture } = payload;
 
     let user = await User.findOne({ email });
-
-    if (user) {
-      return res.status(400).json({
-        message: "Gmail này đã được sử dụng",
-      });
-    }
+if (user) {
+  return res.status(400).json({
+    message: "Gmail này đã được sử dụng, vui lòng đăng nhập",
+  });
+}
 
     user = await User.create({
-      fullName: name,
-      email,
-      avatar: picture,
-      password: "google-login",
-      phone: "",
-      age,
-      height,
-      weight,
-      gender,
-      goal,
-    });
+    fullName: name,
+    email,
+    avatar: picture,
+    password: "google-login",
+    phone: "",
+    age,
+    height,
+    weight,
+    gender,
+    goal,
+    activity,
+    trainingMonths,
+    workoutPlace,
+    gymDays,
+    bmi,
+  });
 
     console.log("✅ GOOGLE USER CREATED:", user.email);
     console.log("📩 ABOUT TO SEND GOOGLE WELCOME EMAIL:", user.email);
