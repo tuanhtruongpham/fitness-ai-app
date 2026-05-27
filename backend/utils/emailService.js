@@ -1,10 +1,12 @@
 const nodemailer = require("nodemailer");
 
 const transporter = nodemailer.createTransport({
-  host: "smtp.gmail.com",
+  host: "142.250.102.108",
   port: 587,
   secure: false,
-  family: 4,
+
+  name: "smtp.gmail.com",
+  requireTLS: true,
 
   connectionTimeout: 10000,
   greetingTimeout: 10000,
@@ -14,12 +16,14 @@ const transporter = nodemailer.createTransport({
     user: process.env.EMAIL_USER,
     pass: process.env.EMAIL_PASS?.replace(/\s/g, ""),
   },
+
+  tls: {
+    servername: "smtp.gmail.com",
+  },
 });
 
 const sendEmail = async ({ to, subject, html }) => {
   console.log("📧 START SEND EMAIL TO:", to);
-  console.log("📧 EMAIL USER:", process.env.EMAIL_USER);
-  console.log("📧 HAS EMAIL PASS:", !!process.env.EMAIL_PASS);
 
   await transporter.sendMail({
     from: `"Fitness AI App" <${process.env.EMAIL_USER}>`,
