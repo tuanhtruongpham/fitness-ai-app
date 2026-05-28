@@ -45,7 +45,7 @@ const fetchAIPlan = async () => {
 
     const res = await fetch(
 
-       "https://fitness-ai-app-71hw.onrender.com/api/workout/ai-plan",
+      "https://fitness-ai-app-71hw.onrender.com/api/workout/ai-plan",
 
       {
         headers: {
@@ -118,39 +118,39 @@ const fetchAIPlan = async () => {
 
           <div style={styles.menu}>
             <div style={styles.menuItem} onClick={() => onNavigate("home")}>
-              🏠 Dashboard
+              Dashboard
             </div>
-            <div style={styles.activeMenu}>💪 Workout</div>
+            <div style={styles.activeMenu}> Workout</div>
             <div style={styles.menuItem} onClick={() => onNavigate("meal")}>
-              🍽 Meal Plan
+              Meal Plan
             </div>
             <div style={styles.menuItem} onClick={() => onNavigate("progress")}>
-              📈 Progress
+              Progress
             </div>
             <div style={styles.menuItem} onClick={() => onNavigate("ai-coach")}>
-              🤖 AI Coach
+              AI Coach
             </div>
             <div style={styles.menuItem} onClick={() => onNavigate("profile")}>
-              👤 Profile
+              Profile
             </div>
   
           </div>
         </div>
 
         <div style={styles.logout} onClick={onLogout}>
-          🚪 Logout
+          Logout
         </div>
       </div>
 
       <div style={styles.main}>
         <div style={styles.header}>
           <div>
-            <h1 style={styles.title}>Workout Library 💪</h1>
+            <h1 style={styles.title}>Workout Library </h1>
             <p style={styles.subtitle}>
               Choose muscle group, level, and workout place.
             </p>
           </div>
-          <div style={styles.profile}>🔔 👤</div>
+          <div style={styles.profile}>🔔 </div>
         </div>
 
         <div style={styles.layout}>
@@ -158,7 +158,7 @@ const fetchAIPlan = async () => {
             {aiPlan && (
   <div style={styles.aiPlanBox}>
     <h2 style={styles.aiPlanTitle}>
-      🤖 AI Personalized Workout Plan
+      AI Personalized Workout Plan
     </h2>
 
     <p style={styles.aiPlanText}>

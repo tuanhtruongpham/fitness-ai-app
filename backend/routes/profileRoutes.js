@@ -1,4 +1,3 @@
-const fs = require("fs");
 const express = require("express");
 const multer = require("multer");
 const path = require("path");
@@ -9,15 +8,12 @@ const Progress = require("../models/Progress");
 const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
-const uploadDir = path.join(__dirname, "../uploads");
 
-if (!fs.existsSync(uploadDir)) {
-  fs.mkdirSync(uploadDir, { recursive: true });
-}
 const storage = multer.diskStorage({
-destination: function (req, file, cb) {
-  cb(null, uploadDir);
-},
+  destination: function (req, file, cb) {
+    cb(null, "uploads/");
+  },
+
   filename: function (req, file, cb) {
     cb(null, Date.now() + path.extname(file.originalname));
   },
@@ -43,65 +39,80 @@ const calculateBMI = (weight, height) => {
 router.put("/update", authMiddleware, async (req, res) => {
   try {
     const {
-  fullName,
-  avatar,
-  password,
-  age,
-  height,
-  weight,
-  targetWeight,
-  gender,
-  goal,
-  activity,
-  workoutPlace,
-  gymDays,
-  bmi,
-  trainingFocus,
-  dietType,
-} = req.body;
+      fullName,
+      avatar,
+      password,
+      age,
+      height,
+      weight,
+      targetWeight,
+      gender,
+      goal,
+      activity,
+      workoutPlace,
+      gymDays,
+      bmi,
+      trainingFocus,
+      dietType,
+    } = req.body;
 
-    const finalBMI = bmi ? Number(bmi) : calculateBMI(weight, height);
+    const oldUser = await User.findById(req.user.id);
 
-   const currentUser = await User.findById(req.user.id);
+    const updateData = {};
 
-const updateData = {
-  fullName,
-  avatar,
-  age,
-  height,
-  weight,
-  targetWeight,
-  goalStartWeight:
-    currentUser.goalStartWeight || currentUser.weight || Number(weight),
-  gender,
-  goal,
-  activity,
-  workoutPlace,
-  gymDays: Number(gymDays || 3),
-  bmi: finalBMI,
-};
+    if (fullName !== undefined) updateData.fullName = fullName;
+    if (avatar !== undefined) updateData.avatar = avatar;
+    if (age !== undefined) updateData.age = Number(age);
+    if (height !== undefined) updateData.height = Number(height);
+    if (weight !== undefined) updateData.weight = Number(weight);
+    if (targetWeight !== undefined)
+      updateData.targetWeight = Number(targetWeight);
+    if (gender !== undefined) updateData.gender = gender;
+    if (goal !== undefined) updateData.goal = goal;
+    if (activity !== undefined) updateData.activity = activity;
+    if (workoutPlace !== undefined) updateData.workoutPlace = workoutPlace;
+    if (trainingFocus !== undefined) updateData.trainingFocus = trainingFocus;
+    if (dietType !== undefined) updateData.dietType = dietType;
+    if (gymDays !== undefined) updateData.gymDays = Number(gymDays);
+
+    const finalWeight =
+      weight !== undefined ? Number(weight) : Number(oldUser?.weight);
+
+    const finalHeight =
+      height !== undefined ? Number(height) : Number(oldUser?.height);
+
+    if (bmi !== undefined) {
+      updateData.bmi = Number(bmi);
+    } else if (finalWeight && finalHeight) {
+      updateData.bmi = calculateBMI(finalWeight, finalHeight);
+    }
+
+    if (weight !== undefined && oldUser?.goalStartWeight === undefined) {
+      updateData.goalStartWeight = Number(weight);
+    }
+
     if (password && password.trim() !== "") {
       const hashedPassword = await bcrypt.hash(password, 10);
       updateData.password = hashedPassword;
     }
 
-console.log("UPDATE DATA:", updateData);
+    console.log("UPDATE DATA:", updateData);
+
     const updatedUser = await User.findByIdAndUpdate(
       req.user.id,
       updateData,
       { new: true }
     ).select("-password");
 
-    // Nếu có cập nhật cân nặng thì lưu thêm vào Progress
-    if (weight) {
-  await Progress.create({
-    userId: req.user.id,
-    weight: Number(weight),
-    bmi: finalBMI,
-    bodyFat: 0,
-    note: `Updated profile: weight ${weight}kg, target ${targetWeight}kg`,
-  });
-}
+    if (weight !== undefined) {
+      await Progress.create({
+        userId: req.user.id,
+        weight: Number(weight),
+        bmi: updateData.bmi || updatedUser.bmi || 0,
+        bodyFat: 0,
+        note: `Updated weight: ${weight}kg`,
+      });
+    }
 
     res.json({
       message: "Cập nhật hồ sơ thành công",
@@ -122,26 +133,17 @@ router.post(
   upload.single("avatar"),
   async (req, res) => {
     try {
-      console.log("AVATAR ROUTE HIT");
-      console.log("FILE:", req.file);
+      const user = await User.findById(req.user.id);
 
-      if (!req.file) {
-        return res.status(400).json({ message: "Không có file được upload" });
-      }
+      user.avatar = req.file.filename;
 
-      const updatedUser = await User.findByIdAndUpdate(
-        req.user.id,
-        { avatar: req.file.filename },
-        { new: true, runValidators: false }
-      ).select("-password");
+      await user.save();
 
       res.json({
         message: "Upload avatar thành công",
         avatar: req.file.filename,
-        user: updatedUser,
       });
     } catch (error) {
-      console.log("AVATAR ERROR:", error);
       res.status(500).json({
         message: "Lỗi server",
         error: error.message,

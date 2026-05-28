@@ -210,7 +210,7 @@ function Meal({ onNavigate, onLogout }) {
             </p>
           </div>
 
-          <div style={styles.profile}>🔔 👤</div>
+          <div style={styles.profile}>🔔 </div>
         </div>
 
         {!currentPlan ? (
