@@ -7,6 +7,8 @@ const Workout = require("../models/Workout");
 const Meal = require("../models/Meal");
 const Notification = require("../models/Notification");
 
+const sendEmail = require("./emailService");
+
 const Progress = require("../models/Progress");
 const generateAIWorkoutPlan = require("../utils/aiWorkoutPlanner");
 
