@@ -233,46 +233,93 @@ function Home({ onNavigate, onLogout }) {
 
         <div style={styles.aiCard}>
           <div>
-            <h2 style={styles.aiTitle}> AI Coach Recommendation</h2>
+            <h2 style={styles.aiTitle}>AI Coach Recommendation</h2>
 
             <p style={styles.aiText}>
-              Based on your BMI and progress, today you should focus on:
+              Personalized recommendation based on your goal, BMI, weight, and progress.
             </p>
 
-            <ul style={styles.list}>
-              <li>Goal: {dashboard?.user?.goal || "maintenance"}</li>
+            <div style={styles.aiSection}>
 
-              <li>
-                BMI Class: {dashboard?.aiRecommendation?.bmiClass || "normal"}
-              </li>
+              <div style={styles.aiMiniCard}>
+                <h3 style={styles.aiSubTitle}>Goal</h3>
 
-              <li>
-                AI Split: {dashboard?.aiRecommendation?.split || "Full Body"}
-              </li>
+                <p style={styles.aiParagraph}>
+                  {dashboard?.user?.goal || "maintenance"}
+                </p>
+              </div>
 
-              <li>
-                Cardio: {dashboard?.aiRecommendation?.cardio?.type || "Walking"}
-                {" - "}
-                {dashboard?.aiRecommendation?.cardio?.duration || 0} min
-              </li>
+              <div style={styles.aiMiniCard}>
+                <h3 style={styles.aiSubTitle}>AI Summary</h3>
 
-              <li>
-                Weekly Volume:{" "}
-                {dashboard?.aiRecommendation?.volume || "6-10 sets"}
-              </li>
+                <p style={styles.aiParagraph}>
+                  {dashboard?.aiRecommendation?.summary || "No summary available yet."}
+                </p>
+              </div>
 
-              <li>
-                {dashboard?.aiRecommendation?.recommendation ||
-                  "AI recommendation unavailable"}
-              </li>
-            </ul>
+              <div style={styles.aiMiniCard}>
+                <h3 style={styles.aiSubTitle}>AI Advice</h3>
 
-            <div style={styles.ruleBox}>
-              {dashboard?.aiRecommendation?.rulesApplied?.map((rule) => (
-                <span key={rule} style={styles.ruleTag}>
-                  {rule}
-                </span>
-              ))}
+                <p style={styles.aiParagraph}>
+                  {dashboard?.aiRecommendation?.advice || "No advice available yet."}
+                </p>
+              </div>
+
+              <div style={styles.aiMiniCard}>
+                <h3 style={styles.aiSubTitle}>Nutrition Focus</h3>
+
+                <p style={styles.aiParagraph}>
+                  {dashboard?.aiRecommendation?.nutritionFocus || "No nutrition focus available yet."}
+                </p>
+              </div>
+
+              <div style={styles.aiMiniCard}>
+                <h3 style={styles.aiSubTitle}>Training Focus</h3>
+
+                <p style={styles.aiParagraph}>
+                  {dashboard?.aiRecommendation?.trainingFocus || "No training focus available yet."}
+                </p>
+              </div>
+
+              <div style={styles.aiMiniCard}>
+                <h3 style={styles.aiSubTitle}>Recovery</h3>
+
+                <p style={styles.aiParagraph}>
+                  {dashboard?.aiRecommendation?.recovery || "No recovery advice available yet."}
+                </p>
+              </div>
+
+              <div style={styles.aiMiniCard}>
+                <h3 style={styles.aiSubTitle}>Risk Analysis</h3>
+
+                <p style={styles.aiParagraph}>
+                  {dashboard?.aiRecommendation?.riskAnalysis || "No risk analysis available yet."}
+                </p>
+              </div>
+
+              <div style={styles.aiMiniCard}>
+                <h3 style={styles.aiSubTitle}>Progress Prediction</h3>
+
+                <p style={styles.aiParagraph}>
+                  {dashboard?.aiRecommendation?.prediction || "No prediction available yet."}
+                </p>
+              </div>
+
+              <div style={styles.aiMiniCard}>
+                <h3 style={styles.aiSubTitle}>AI Motivation</h3>
+
+                <p style={styles.aiParagraph}>
+                  {dashboard?.aiRecommendation?.motivation || "Keep going. Consistency creates results."}
+                </p>
+              </div>
+
+              <div style={styles.aiMiniCard}>
+                <h3 style={styles.aiSubTitle}>Next Action</h3>
+
+                <p style={styles.aiParagraph}>
+                  {dashboard?.aiRecommendation?.nextAction || "Complete today's plan."}
+                </p>
+              </div>
             </div>
           </div>
 
@@ -310,7 +357,7 @@ function Home({ onNavigate, onLogout }) {
                           onNavigate("workout");
                         }}
                       >
-                        💪 {exercise.name}
+                        {exercise.name}
                       </div>
 
                       <button
@@ -603,20 +650,25 @@ const styles = {
   },
 
   aiCircle: {
-    width: "140px",
-    height: "140px",
-    borderRadius: "50%",
-    border: "none",
-    background: "#84cc16",
-    color: "#0f172a",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    fontSize: "40px",
-    fontWeight: "bold",
-    boxShadow: "0 0 40px rgba(132,204,22,0.5)",
-    cursor: "pointer",
-  },
+  width: "120px",
+  height: "120px",
+  borderRadius: "50%",
+  border: "none",
+  background: "#84cc16",
+  color: "#0f172a",
+
+  display: "flex",
+  justifyContent: "center",
+  alignItems: "center",
+
+  fontSize: "38px",
+  fontWeight: "bold",
+
+  boxShadow: "0 0 35px rgba(132,204,22,0.5)",
+  cursor: "pointer",
+
+  alignSelf: "center",
+},
 
   bottomGrid: {
     display: "grid",
@@ -699,21 +751,31 @@ const styles = {
     fontWeight: "bold",
   },
 
-  ruleBox: {
-    display: "flex",
-    flexWrap: "wrap",
-    gap: "10px",
-    marginTop: "20px",
-  },
+  
+  aiSection: {
+  marginTop: "20px",
 
-  ruleTag: {
-    padding: "8px 14px",
-    borderRadius: "999px",
-    background: "#84cc16",
-    color: "#0f172a",
-    fontWeight: "bold",
-    fontSize: "14px",
-  },
+  display: "grid",
+  gridTemplateColumns: "1fr 1fr",
+  gap: "18px",
+},
+aiMiniCard: {
+  background: "#0f172a",
+  border: "1px solid #1f2937",
+  borderRadius: "16px",
+  padding: "16px",
+},
+aiSubTitle: {
+  color: "#84cc16",
+  marginBottom: "8px",
+  marginTop: "18px",
+},
+
+aiParagraph: {
+  color: "#e2e8f0",
+  lineHeight: "1.8",
+  fontSize: "15px",
+},
 };
 
 export default Home;
