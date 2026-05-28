@@ -3,21 +3,19 @@ console.log("✅ NOTIFICATION CRON VERSION: REAL SCHEDULE");
 const cron = require("node-cron");
 
 const User = require("../models/User");
-const Workout = require("../models/Workout");
 const Meal = require("../models/Meal");
 const Notification = require("../models/Notification");
+const Progress = require("../models/Progress");
 
 const sendEmail = require("./emailService");
-
-const Progress = require("../models/Progress");
-const generateAIWorkoutPlan = require("../utils/aiWorkoutPlanner");
+const generateAIWorkoutPlan = require("./aiWorkoutPlanner");
 
 const TIMEZONE = "Asia/Ho_Chi_Minh";
 
 // =====================================================
 // DAILY MORNING NOTIFICATION
 // 7:00 AM every day
-// mỗi user chỉ tạo 1 thông báo buổi sáng / ngày
+// TEST: đang chạy mỗi phút
 // =====================================================
 cron.schedule(
   "* * * * *",
@@ -71,66 +69,31 @@ cron.schedule(
 
         console.log("CREATE DAILY NOTIFICATION", user.email);
 
-        // =======================
-        // SEND EMAIL
-        // =======================
-
         if (user.email) {
+          console.log("TRY SEND EMAIL:", user.email);
+
           await sendEmail({
             to: user.email,
             subject: "🌅 Your Fitness Plan Today",
             html: `
               <div style="font-family: Arial; padding:24px; background:#0f172a; color:white;">
-                
-                <h1 style="color:#84cc16;">
-                  Good Morning 💪
-                </h1>
+                <h1 style="color:#84cc16;">Good Morning 💪</h1>
+                <p>Your AI fitness plan today:</p>
 
-                <p>
-                  Here is your AI fitness plan today:
-                </p>
-
-                <div style="
-                  background:#111827;
-                  padding:16px;
-                  border-radius:14px;
-                  margin-top:16px;
-                ">
-                  <h2 style="color:#84cc16;">
-                    Workout
-                  </h2>
-
-                  <p>
-                    <strong>${workoutName}</strong>
-                  </p>
-
-                  <p>
-                    ${exerciseCount} exercises
-                  </p>
+                <div style="background:#111827;padding:16px;border-radius:14px;margin-top:16px;">
+                  <h2 style="color:#84cc16;">Workout</h2>
+                  <p><strong>${workoutName}</strong></p>
+                  <p>${exerciseCount} exercises</p>
                 </div>
 
-                <div style="
-                  background:#111827;
-                  padding:16px;
-                  border-radius:14px;
-                  margin-top:16px;
-                ">
-                  <h2 style="color:#84cc16;">
-                    Meal Target
-                  </h2>
-
-                  <p>
-                    <strong>${mealCalories} kcal</strong>
-                  </p>
+                <div style="background:#111827;padding:16px;border-radius:14px;margin-top:16px;">
+                  <h2 style="color:#84cc16;">Meal Target</h2>
+                  <p><strong>${mealCalories} kcal</strong></p>
                 </div>
 
-                <p style="
-                  margin-top:24px;
-                  color:#94a3b8;
-                ">
+                <p style="margin-top:24px;color:#94a3b8;">
                   Stay consistent and trust the process 🚀
                 </p>
-
               </div>
             `,
           });
