@@ -15,10 +15,9 @@ const TIMEZONE = "Asia/Ho_Chi_Minh";
 // =====================================================
 // DAILY MORNING NOTIFICATION
 // 7:00 AM every day
-// TEST: đang chạy mỗi phút
 // =====================================================
 cron.schedule(
-  "* * * * *",
+  "0 7 * * *",
   async () => {
     console.log("Running morning notifications...");
 
