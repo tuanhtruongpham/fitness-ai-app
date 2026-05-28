@@ -58,6 +58,11 @@ app.use("/api/chat", chatRoutes);
 app.use("/api/notifications", notificationRoutes);
 
 // =========================
+// NOTIFICATION CRON
+// =========================
+require("./utils/notificationCron");
+
+// =========================
 // TEST ROUTE
 // =========================
 app.get("/api/notifications-test", (req, res) => {
