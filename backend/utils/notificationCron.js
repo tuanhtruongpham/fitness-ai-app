@@ -3,6 +3,7 @@ console.log("✅ NOTIFICATION CRON VERSION: REAL SCHEDULE");
 const cron = require("node-cron");
 
 const User = require("../models/User");
+const Workout = require("../models/Workout");
 const Meal = require("../models/Meal");
 const Notification = require("../models/Notification");
 
@@ -17,7 +18,7 @@ const TIMEZONE = "Asia/Ho_Chi_Minh";
 // mỗi user chỉ tạo 1 thông báo buổi sáng / ngày
 // =====================================================
 cron.schedule(
-  "0 7 * * *",
+  "* * * * *",
   async () => {
     console.log("Running morning notifications...");
 
@@ -84,7 +85,7 @@ cron.schedule(
 // Every 2 hours from 6AM to 10PM
 // =====================================================
 cron.schedule(
-  "0 6-22/2 * * *",
+  "* * * * *",
   async () => {
     console.log("Running water reminders...");
 
