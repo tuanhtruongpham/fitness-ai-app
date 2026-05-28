@@ -20,7 +20,7 @@ const TIMEZONE = "Asia/Ho_Chi_Minh";
 // mỗi user chỉ tạo 1 thông báo buổi sáng / ngày
 // =====================================================
 cron.schedule(
-  "0 7 * * *",
+  "* * * * *",
   async () => {
     console.log("Running morning notifications...");
 
@@ -70,6 +70,73 @@ cron.schedule(
         });
 
         console.log("CREATE DAILY NOTIFICATION", user.email);
+
+        // =======================
+        // SEND EMAIL
+        // =======================
+
+        if (user.email) {
+          await sendEmail({
+            to: user.email,
+            subject: "🌅 Your Fitness Plan Today",
+            html: `
+              <div style="font-family: Arial; padding:24px; background:#0f172a; color:white;">
+                
+                <h1 style="color:#84cc16;">
+                  Good Morning 💪
+                </h1>
+
+                <p>
+                  Here is your AI fitness plan today:
+                </p>
+
+                <div style="
+                  background:#111827;
+                  padding:16px;
+                  border-radius:14px;
+                  margin-top:16px;
+                ">
+                  <h2 style="color:#84cc16;">
+                    Workout
+                  </h2>
+
+                  <p>
+                    <strong>${workoutName}</strong>
+                  </p>
+
+                  <p>
+                    ${exerciseCount} exercises
+                  </p>
+                </div>
+
+                <div style="
+                  background:#111827;
+                  padding:16px;
+                  border-radius:14px;
+                  margin-top:16px;
+                ">
+                  <h2 style="color:#84cc16;">
+                    Meal Target
+                  </h2>
+
+                  <p>
+                    <strong>${mealCalories} kcal</strong>
+                  </p>
+                </div>
+
+                <p style="
+                  margin-top:24px;
+                  color:#94a3b8;
+                ">
+                  Stay consistent and trust the process 🚀
+                </p>
+
+              </div>
+            `,
+          });
+
+          console.log("EMAIL SENT TO:", user.email);
+        }
       }
 
       console.log("Morning notifications created");
