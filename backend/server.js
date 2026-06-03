@@ -6,6 +6,7 @@ const cors = require("cors");
 const path = require("path");
 
 const connectDB = require("./config/db");
+const adminRoutes = require("./routes/adminRoutes");
 
 const authRoutes = require("./routes/authRoutes");
 const chatRoutes = require("./routes/chatRoutes");
@@ -56,6 +57,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.use("/api/admin", adminRoutes);
 
 // =========================
 // NOTIFICATION CRON

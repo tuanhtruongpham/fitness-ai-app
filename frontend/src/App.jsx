@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { lazy, Suspense, useEffect, useState } from "react";
 
 import Landing from "./pages/Landing";
 import Onboarding from "./pages/Onboarding";
@@ -10,6 +10,8 @@ import Meal from "./pages/Meal";
 import Progress from "./pages/Progress";
 import AICoach from "./pages/AICoach";
 import Profile from "./pages/Profile";
+
+const AdminDashboard = lazy(() => import("./pages/AdminDashboard"));
 
 function App() {
   const [page, setPage] = useState("landing");
@@ -104,6 +106,27 @@ function App() {
           onNavigate={(targetPage) => setPage(targetPage)}
           onLogout={logout}
         />
+      )}
+
+      {page === "admin" && (
+        <Suspense
+          fallback={
+            <div
+              style={{
+                minHeight: "100vh",
+                display: "grid",
+                placeItems: "center",
+                background: "#0f172a",
+                color: "#84cc16",
+                fontFamily: "Arial",
+              }}
+            >
+              Loading admin...
+            </div>
+          }
+        >
+          <AdminDashboard />
+        </Suspense>
       )}
     </>
   );

@@ -139,6 +139,10 @@ function Home({ onNavigate, onLogout }) {
             <div style={styles.menuItem} onClick={() => onNavigate("profile")}>
               Profile
             </div>
+
+            <div style={styles.menuItem} onClick={() => onNavigate("admin")}>
+              Admin
+            </div>
           </div>
         </div>
 

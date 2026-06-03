@@ -36,9 +36,6 @@ router.post("/register", async (req, res) => {
 
     await user.save();
 
-    console.log("✅ USER SAVED:", user.email);
-    console.log("📩 ABOUT TO SEND EMAIL:", user.email);
-
     sendEmail({
       to: user.email,
       subject: "Welcome to Fitness AI App",
@@ -47,26 +44,22 @@ router.post("/register", async (req, res) => {
           <h1>Welcome ${user.fullName} 👋</h1>
           <p>Your account has been created successfully.</p>
           <p>Thanks for joining Fitness AI App.</p>
-          <ul>
-            <li>Track workouts</li>
-            <li>Track calories</li>
-            <li>Track water intake</li>
-            <li>AI workout suggestions</li>
-          </ul>
-          <h3>Stay healthy and consistent 💪</h3>
         </div>
       `,
-    })
-      .then(() => {
-        console.log("✅ REGISTER WELCOME EMAIL SENT");
-      })
-      .catch((error) => {
-        console.error("❌ REGISTER EMAIL ERROR:", error.message);
-      });
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
+    }).catch((error) => {
+      console.error("❌ REGISTER EMAIL ERROR:", error.message);
     });
+
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     res.status(201).json({
       message: "Đăng ký thành công",
@@ -76,6 +69,7 @@ router.post("/register", async (req, res) => {
         fullName: user.fullName,
         phone: user.phone,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -111,9 +105,16 @@ router.post("/login", async (req, res) => {
       });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     res.json({
       message: "Đăng nhập thành công",
@@ -123,6 +124,7 @@ router.post("/login", async (req, res) => {
         fullName: user.fullName,
         phone: user.phone,
         email: user.email,
+        role: user.role,
       },
     });
   } catch (error) {
@@ -191,76 +193,37 @@ router.post("/google", async (req, res) => {
       bmi,
     });
 
-    console.log("✅ GOOGLE USER CREATED:", user.email);
-    console.log("📩 ABOUT TO SEND GOOGLE WELCOME EMAIL:", user.email);
-
     sendEmail({
       to: user.email,
       subject: "Welcome to Fitness AI App",
       html: `
-        <div style="
-  background-image: url('https://images.unsplash.com/photo-1517836357463-d25dfeac3438');
-  background-size: cover;
-  background-position: center;
-  padding: 60px 20px;
-  font-family: Arial;
-">
-
-  <div style="
-    max-width: 600px;
-    margin: auto;
-    background: rgba(0,0,0,0.75);
-    padding: 40px;
-    border-radius: 20px;
-    color: white;
-    text-align: center;
-  ">
-  
-    <h1 style="color:#84cc16;">
-      Welcome ${user.fullName} 💪
-    </h1>
-
-    <p>Your FitnessUT account has been created successfully.</p>
-
-    <p>
-      Start your AI-powered fitness journey today.
-    </p>
-
-    <a
-      href="https://fitnessapput.site"
-      style="
-        display:inline-block;
-        margin-top:20px;
-        padding:14px 24px;
-        background:#84cc16;
-        color:black;
-        text-decoration:none;
-        border-radius:10px;
-        font-weight:bold;
-      "
-    >
-      Open FitnessUT
-    </a>
-
-  </div>
-</div>
+        <div style="font-family: Arial; padding: 20px;">
+          <h1>Welcome ${user.fullName} 💪</h1>
+          <p>Your FitnessUT account has been created successfully.</p>
+        </div>
       `,
-    })
-      .then(() => {
-        console.log("✅ GOOGLE WELCOME EMAIL SENT");
-      })
-      .catch((error) => {
-        console.error("❌ GOOGLE EMAIL ERROR:", error.message);
-      });
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
+    }).catch((error) => {
+      console.error("❌ GOOGLE EMAIL ERROR:", error.message);
     });
+
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     res.json({
       message: "Đăng ký Google thành công",
       token,
-      user,
+      user: {
+        ...user.toObject(),
+        role: user.role,
+      },
     });
   } catch (error) {
     console.error("❌ GOOGLE REGISTER ERROR:", error.message);
@@ -294,9 +257,16 @@ router.post("/google-login", async (req, res) => {
       });
     }
 
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: "7d",
-    });
+    const token = jwt.sign(
+      {
+        id: user._id,
+        role: user.role,
+      },
+      process.env.JWT_SECRET,
+      {
+        expiresIn: "7d",
+      }
+    );
 
     res.json({
       message: "Đăng nhập Google thành công",
