@@ -2,7 +2,7 @@ import { useState } from "react";
 import { GoogleLogin } from "@react-oauth/google";
 import axios from "axios";
 
-function Onboarding({ onFinish }) {
+function Onboarding({ onFinish, onBack }) {
   const [step, setStep] = useState(0);
   const [errors, setErrors] = useState({});
   const [showPassword, setShowPassword] = useState(false);
@@ -239,12 +239,16 @@ if (!age) {
     setStep(step + 1);
   };
 
-  const prevStep = () => {
-    if (step > 0) {
-      setErrors({});
-      setStep(step - 1);
-    }
-  };
+const prevStep = () => {
+  setErrors({});
+
+  if (step === 0) {
+    if (onBack) onBack();
+    return;
+  }
+
+  setStep(step - 1);
+};
 
   const progress = ((step + 1) / 8) * 100;
 
@@ -649,15 +653,15 @@ if (!age) {
 
         <div style={styles.actions}>
           <button
-            style={{
-              ...styles.backBtn,
-              ...(step === 0 || loading ? styles.disabledBtn : {}),
-            }}
-            onClick={prevStep}
-            disabled={step === 0 || loading}
-          >
-            BACK
-          </button>
+          style={{
+            ...styles.backBtn,
+            ...(loading ? styles.disabledBtn : {}),
+          }}
+          onClick={prevStep}
+          disabled={loading}
+        >
+          BACK
+        </button>
 
           <button
             style={{
@@ -726,6 +730,7 @@ const styles = {
   content: {
     padding: "55px 70px 130px",
     textAlign: "center",
+    color: "#111827",
   },
 
   desc: {
@@ -751,6 +756,8 @@ const styles = {
     borderRadius: "6px",
     marginBottom: "18px",
     boxSizing: "border-box",
+    background: "white",
+    color: "#111827",
   },
 
   errorInput: {
@@ -758,18 +765,19 @@ const styles = {
   },
 
   errorText: {
-    color: "#ef4444",
-    fontSize: "14px",
-    textAlign: "left",
-    marginTop: "-10px",
-    marginBottom: "14px",
-  },
+  color: "#ef4444",
+  fontSize: "14px",
+  textAlign: "left",
+  marginTop: "10px",
+  marginBottom: "18px",
+},
 
   optionList: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "12px",
-  },
+  display: "flex",
+  flexDirection: "column",
+  gap: "12px",
+  marginBottom: "22px",
+},
 
   option: {
     width: "100%",
@@ -778,6 +786,7 @@ const styles = {
     border: "2px solid #d1d5db",
     borderRadius: "6px",
     background: "white",
+    color: "#111827",
     cursor: "pointer",
   },
 
@@ -830,6 +839,7 @@ const styles = {
     borderRadius: "6px",
     marginBottom: "10px",
     boxSizing: "border-box",
+    background: "white",
   },
 
   passwordInput: {
@@ -838,6 +848,8 @@ const styles = {
     fontSize: "20px",
     border: "none",
     outline: "none",
+    background: "white",
+    color: "#111827",
   },
 
   eyeBtn: {

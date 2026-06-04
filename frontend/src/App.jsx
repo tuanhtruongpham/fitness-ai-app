@@ -17,24 +17,24 @@ function App() {
   const [page, setPage] = useState("landing");
 
   useEffect(() => {
-  const checkLogin = () => {
-    const token = localStorage.getItem("token");
+    const checkLogin = () => {
+      const token = localStorage.getItem("token");
 
-    if (token) {
-      setPage("home");
-    } else {
-      setPage("landing");
-    }
-  };
+      if (token) {
+        setPage("home");
+      } else {
+        setPage("landing");
+      }
+    };
 
-  checkLogin();
+    checkLogin();
 
-  window.addEventListener("storage", checkLogin);
+    window.addEventListener("storage", checkLogin);
 
-  return () => {
-    window.removeEventListener("storage", checkLogin);
-  };
-}, []);
+    return () => {
+      window.removeEventListener("storage", checkLogin);
+    };
+  }, []);
 
   const logout = () => {
     localStorage.removeItem("token");
@@ -45,68 +45,35 @@ function App() {
     setPage("landing");
   };
 
+  const navigate = (targetPage) => {
+    setPage(targetPage);
+  };
+
   return (
     <>
       {page === "landing" && (
-        <Landing
-          onStart={() => setPage("onboarding")}
-          onLogin={() => setPage("login")}
-        />
+        <Landing onStart={() => setPage("onboarding")} onLogin={() => setPage("login")} />
       )}
 
       {page === "onboarding" && (
-        <Onboarding
-          onFinish={() => setPage("home")}
-          onBack={() => setPage("landing")}
-        />
+        <Onboarding onFinish={() => setPage("home")} onBack={() => setPage("landing")} />
       )}
 
       {page === "login" && (
-        <Login
-          onBack={() => setPage("landing")}
-          onLoginSuccess={() => setPage("home")}
-        />
+        <Login onBack={() => setPage("landing")} onLoginSuccess={() => setPage("home")} />
       )}
 
-      {page === "home" && (
-        <Home
-          onNavigate={(targetPage) => setPage(targetPage)}
-          onLogout={logout}
-        />
-      )}
+      {page === "home" && <Home onNavigate={navigate} onLogout={logout} />}
 
-      {page === "workout" && (
-        <Workout
-          onNavigate={(targetPage) => setPage(targetPage)}
-          onLogout={logout}
-        />
-      )}
+      {page === "workout" && <Workout onNavigate={navigate} onLogout={logout} />}
 
-      {page === "meal" && (
-        <Meal
-          onNavigate={(targetPage) => setPage(targetPage)}
-          onLogout={logout}
-        />
-      )}
+      {page === "meal" && <Meal onNavigate={navigate} onLogout={logout} />}
 
-      {page === "progress" && (
-        <Progress
-          onNavigate={(targetPage) => setPage(targetPage)}
-          onLogout={logout}
-        />
-      )}
-{page === "profile" && (
-  <Profile
-    onNavigate={(targetPage) => setPage(targetPage)}
-    onLogout={logout}
-  />
-)}
-      {page === "ai-coach" && (
-        <AICoach
-          onNavigate={(targetPage) => setPage(targetPage)}
-          onLogout={logout}
-        />
-      )}
+      {page === "progress" && <Progress onNavigate={navigate} onLogout={logout} />}
+
+      {page === "profile" && <Profile onNavigate={navigate} onLogout={logout} />}
+
+      {page === "ai-coach" && <AICoach onNavigate={navigate} onLogout={logout} />}
 
       {page === "admin" && (
         <Suspense
@@ -125,7 +92,7 @@ function App() {
             </div>
           }
         >
-          <AdminDashboard />
+          <AdminDashboard onNavigate={navigate} onLogout={logout} />
         </Suspense>
       )}
     </>

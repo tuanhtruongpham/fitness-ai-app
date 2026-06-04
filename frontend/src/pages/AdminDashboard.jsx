@@ -1,48 +1,16 @@
 import { useCallback, useEffect, useMemo, useState } from "react";
 import axios from "axios";
 import {
-  CheckIcon,
   EditIcon,
   PlusIcon,
   RefreshCwIcon,
   SearchIcon,
   Trash2Icon,
   XIcon,
+  CheckIcon,
 } from "lucide-react";
 
-import { AppSidebar } from "@/components/app-sidebar";
-import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import {
-  SidebarInset,
-  SidebarProvider,
-} from "@/components/ui/sidebar";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { TooltipProvider } from "@/components/ui/tooltip";
-import { SiteHeader } from "@/components/site-header";
+import "./AdminDashboard.css";
 
 const API_BASE = import.meta.env.VITE_API_BASE || "/api";
 
@@ -54,7 +22,7 @@ const emptyForm = {
   role: "user",
 };
 
-function AdminDashboard() {
+function AdminDashboard({ onNavigate, onLogout }) {
   const [users, setUsers] = useState([]);
   const [search, setSearch] = useState("");
   const [form, setForm] = useState(emptyForm);
@@ -68,7 +36,7 @@ function AdminDashboard() {
 
   const authHeaders = useMemo(
     () => ({
-      authorization: token,
+      Authorization: `Bearer ${token}`,
     }),
     [token]
   );
@@ -86,7 +54,7 @@ function AdminDashboard() {
     } catch (err) {
       setError(
         err.response?.data?.message ||
-          "Khong the tai danh sach user. Hay kiem tra token admin."
+          "Không thể tải danh sách user. Hãy kiểm tra quyền admin."
       );
     } finally {
       setLoading(false);
@@ -118,6 +86,7 @@ function AdminDashboard() {
     setEditingUser(user);
     setMessage("");
     setError("");
+
     setForm({
       fullName: user.fullName || "",
       email: user.email || "",
@@ -153,7 +122,7 @@ function AdminDashboard() {
       }
 
       if (!editingUser && !payload.password) {
-        setError("Mat khau la bat buoc khi tao user moi.");
+        setError("Mật khẩu là bắt buộc khi tạo user mới.");
         return;
       }
 
@@ -169,26 +138,29 @@ function AdminDashboard() {
             user._id === editingUser._id ? res.data.user : user
           )
         );
-        setMessage("Cap nhat user thanh cong.");
+
+        setMessage("Cập nhật user thành công.");
       } else {
         const res = await axios.post(`${API_BASE}/admin/users`, payload, {
           headers: authHeaders,
         });
 
         setUsers((current) => [res.data.user, ...current]);
-        setMessage("Tao user thanh cong.");
+        setMessage("Tạo user thành công.");
       }
 
       resetForm();
     } catch (err) {
-      setError(err.response?.data?.message || "Khong the luu user.");
+      setError(err.response?.data?.message || "Không thể lưu user.");
     } finally {
       setSaving(false);
     }
   };
 
   const deleteUser = async (user) => {
-    const confirmed = window.confirm(`Xoa user ${user.fullName || user.email}?`);
+    const confirmed = window.confirm(
+      `Xóa user ${user.fullName || user.email}?`
+    );
 
     if (!confirmed) return;
 
@@ -201,242 +173,246 @@ function AdminDashboard() {
       });
 
       setUsers((current) => current.filter((item) => item._id !== user._id));
-      setMessage("Xoa user thanh cong.");
+      setMessage("Xóa user thành công.");
     } catch (err) {
-      setError(err.response?.data?.message || "Khong the xoa user.");
+      setError(err.response?.data?.message || "Không thể xóa user.");
     }
   };
 
   return (
-    <TooltipProvider>
-      <SidebarProvider>
-        <AppSidebar variant="inset" />
-        <SidebarInset>
-          <SiteHeader title="User Management" />
-          <main className="flex flex-1 flex-col gap-6 p-4 lg:p-6">
-            <header className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
-              <div>
-                <p className="text-sm font-medium text-primary">Admin Panel</p>
-                <h1 className="text-2xl font-semibold tracking-normal">
-                  Quan ly user
-                </h1>
-                <p className="mt-1 text-sm text-muted-foreground">
-                  Tao, sua, xoa va phan quyen tai khoan nguoi dung.
-                </p>
-              </div>
+    <div className="app-layout">
+            <div className="admin-sidebar">
+        <div>
+          <h1 className="admin-logo">
+            FITNESS <span>UT</span>
+          </h1>
 
-              <Button variant="outline" onClick={fetchUsers} disabled={loading}>
-                <RefreshCwIcon />
-                Refresh
-              </Button>
-            </header>
+          <div className="admin-menu">
+            <div className="admin-menu-item" onClick={() => onNavigate("home")}>
+              Dashboard
+            </div>
 
-            {(message || error) && (
-              <div
-                className={`rounded-lg border px-4 py-3 text-sm ${
-                  error
-                    ? "border-destructive/40 bg-destructive/10 text-destructive"
-                    : "border-primary/40 bg-primary/10 text-primary"
-                }`}
+            <div className="admin-menu-item" onClick={() => onNavigate("workout")}>
+              Workout
+            </div>
+
+            <div className="admin-menu-item" onClick={() => onNavigate("meal")}>
+              Meal Plan
+            </div>
+
+            <div className="admin-menu-item" onClick={() => onNavigate("progress")}>
+              Progress
+            </div>
+
+            <div className="admin-menu-item" onClick={() => onNavigate("ai-coach")}>
+              AI Coach
+            </div>
+
+            <div className="admin-menu-item" onClick={() => onNavigate("profile")}>
+              Profile
+            </div>
+
+            <div className="admin-menu-active" onClick={() => onNavigate("admin")}>
+              Admin
+            </div>
+          </div>
+        </div>
+
+        <div className="admin-logout" onClick={onLogout}>
+          Logout
+        </div>
+      </div>
+
+      <main className="main-content admin-page">
+        <div className="admin-header">
+          <div>
+            <h1>Quản lý user</h1>
+            <p>Tạo, sửa, xóa và phân quyền tài khoản người dùng.</p>
+          </div>
+
+          <button
+            className="admin-refresh-btn"
+            onClick={fetchUsers}
+            disabled={loading}
+          >
+            <RefreshCwIcon size={16} />
+            Refresh
+          </button>
+        </div>
+
+        {(message || error) && (
+          <div className={error ? "admin-alert error" : "admin-alert success"}>
+            {error || message}
+          </div>
+        )}
+
+        <section className="admin-card">
+          <div className="admin-card-title">
+            <h2>{editingUser ? "Sửa user" : "Tạo user mới"}</h2>
+            <p>
+              Khi sửa user, để trống password nếu không muốn đổi mật khẩu.
+            </p>
+          </div>
+
+          <form className="admin-form" onSubmit={handleSubmit}>
+            <div className="admin-field">
+              <label>Full name</label>
+              <input
+                value={form.fullName}
+                onChange={(e) => updateField("fullName", e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="admin-field">
+              <label>Email</label>
+              <input
+                type="email"
+                value={form.email}
+                onChange={(e) => updateField("email", e.target.value)}
+                required
+              />
+            </div>
+
+            <div className="admin-field">
+              <label>Phone</label>
+              <input
+                value={form.phone}
+                onChange={(e) => updateField("phone", e.target.value)}
+              />
+            </div>
+
+            <div className="admin-field">
+              <label>Password</label>
+              <input
+                type="password"
+                value={form.password}
+                onChange={(e) => updateField("password", e.target.value)}
+                required={!editingUser}
+              />
+            </div>
+
+            <div className="admin-field">
+              <label>Role</label>
+              <select
+                value={form.role}
+                onChange={(e) => updateField("role", e.target.value)}
               >
-                {error || message}
-              </div>
-            )}
+                <option value="user">User</option>
+                <option value="admin">Admin</option>
+              </select>
+            </div>
 
-            <Card>
-              <CardHeader>
-                <CardTitle>
-                  {editingUser ? "Sua user" : "Tao user moi"}
-                </CardTitle>
-                <CardDescription>
-                  Khi sua user, de trong password neu khong muon doi mat khau.
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <form
-                  className="grid gap-4 md:grid-cols-2 xl:grid-cols-5"
-                  onSubmit={handleSubmit}
+            <div className="admin-actions">
+              <button className="admin-main-btn" type="submit" disabled={saving}>
+                {editingUser ? <CheckIcon size={16} /> : <PlusIcon size={16} />}
+                {editingUser ? "Lưu thay đổi" : "Tạo user"}
+              </button>
+
+              {editingUser && (
+                <button
+                  className="admin-cancel-btn"
+                  type="button"
+                  onClick={resetForm}
                 >
-                  <div className="grid gap-2">
-                    <Label htmlFor="fullName">Full name</Label>
-                    <Input
-                      id="fullName"
-                      value={form.fullName}
-                      onChange={(event) =>
-                        updateField("fullName", event.target.value)
-                      }
-                      required
-                    />
-                  </div>
+                  <XIcon size={16} />
+                  Hủy
+                </button>
+              )}
+            </div>
+          </form>
+        </section>
 
-                  <div className="grid gap-2">
-                    <Label htmlFor="email">Email</Label>
-                    <Input
-                      id="email"
-                      type="email"
-                      value={form.email}
-                      onChange={(event) =>
-                        updateField("email", event.target.value)
-                      }
-                      required
-                    />
-                  </div>
+        <section className="admin-card">
+          <div className="admin-list-header">
+            <div>
+              <h2>Danh sách user</h2>
+              <p>{filteredUsers.length} tài khoản</p>
+            </div>
 
-                  <div className="grid gap-2">
-                    <Label htmlFor="phone">Phone</Label>
-                    <Input
-                      id="phone"
-                      value={form.phone}
-                      onChange={(event) =>
-                        updateField("phone", event.target.value)
-                      }
-                    />
-                  </div>
+            <div className="admin-search">
+              <SearchIcon size={16} />
+              <input
+                placeholder="Tìm tên, email, phone, role..."
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+              />
+            </div>
+          </div>
 
-                  <div className="grid gap-2">
-                    <Label htmlFor="password">Password</Label>
-                    <Input
-                      id="password"
-                      type="password"
-                      value={form.password}
-                      onChange={(event) =>
-                        updateField("password", event.target.value)
-                      }
-                      required={!editingUser}
-                    />
-                  </div>
+          <div className="admin-table-wrap">
+            <table className="admin-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Email</th>
+                  <th>Phone</th>
+                  <th>Role</th>
+                  <th>Created</th>
+                  <th>Actions</th>
+                </tr>
+              </thead>
 
-                  <div className="grid gap-2">
-                    <Label>Role</Label>
-                    <Select
-                      value={form.role}
-                      onValueChange={(value) => updateField("role", value)}
-                    >
-                      <SelectTrigger>
-                        <SelectValue />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="user">User</SelectItem>
-                        <SelectItem value="admin">Admin</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan="6" className="admin-empty">
+                      Đang tải user...
+                    </td>
+                  </tr>
+                ) : filteredUsers.length === 0 ? (
+                  <tr>
+                    <td colSpan="6" className="admin-empty">
+                      Không có user phù hợp.
+                    </td>
+                  </tr>
+                ) : (
+                  filteredUsers.map((user) => (
+                    <tr key={user._id}>
+                      <td>{user.fullName || "No name"}</td>
+                      <td>{user.email}</td>
+                      <td>{user.phone || "-"}</td>
+                      <td>
+                        <span
+                          className={
+                            user.role === "admin"
+                              ? "role-badge admin"
+                              : "role-badge"
+                          }
+                        >
+                          {user.role || "user"}
+                        </span>
+                      </td>
+                      <td>
+                        {user.createdAt
+                          ? new Date(user.createdAt).toLocaleDateString()
+                          : "-"}
+                      </td>
+                      <td>
+                        <div className="table-actions">
+                          <button onClick={() => startEdit(user)}>
+                            <EditIcon size={14} />
+                            Sửa
+                          </button>
 
-                  <div className="flex gap-2 md:col-span-2 xl:col-span-5">
-                    <Button type="submit" disabled={saving}>
-                      {editingUser ? <CheckIcon /> : <PlusIcon />}
-                      {editingUser ? "Luu thay doi" : "Tao user"}
-                    </Button>
-                    {editingUser && (
-                      <Button type="button" variant="outline" onClick={resetForm}>
-                        <XIcon />
-                        Huy
-                      </Button>
-                    )}
-                  </div>
-                </form>
-              </CardContent>
-            </Card>
-
-            <Card>
-              <CardHeader className="gap-4 md:flex-row md:items-center md:justify-between">
-                <div>
-                  <CardTitle>Danh sach user</CardTitle>
-                  <CardDescription>
-                    {filteredUsers.length} tai khoan
-                  </CardDescription>
-                </div>
-                <div className="relative w-full md:w-80">
-                  <SearchIcon className="pointer-events-none absolute left-2.5 top-2 size-4 text-muted-foreground" />
-                  <Input
-                    className="pl-8"
-                    placeholder="Tim ten, email, phone, role..."
-                    value={search}
-                    onChange={(event) => setSearch(event.target.value)}
-                  />
-                </div>
-              </CardHeader>
-              <CardContent>
-                <Table>
-                  <TableHeader>
-                    <TableRow>
-                      <TableHead>Name</TableHead>
-                      <TableHead>Email</TableHead>
-                      <TableHead>Phone</TableHead>
-                      <TableHead>Role</TableHead>
-                      <TableHead>Created</TableHead>
-                      <TableHead className="text-right">Actions</TableHead>
-                    </TableRow>
-                  </TableHeader>
-                  <TableBody>
-                    {loading ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="h-24 text-center">
-                          Dang tai user...
-                        </TableCell>
-                      </TableRow>
-                    ) : filteredUsers.length === 0 ? (
-                      <TableRow>
-                        <TableCell colSpan={6} className="h-24 text-center">
-                          Khong co user phu hop.
-                        </TableCell>
-                      </TableRow>
-                    ) : (
-                      filteredUsers.map((user) => (
-                        <TableRow key={user._id}>
-                          <TableCell className="font-medium">
-                            {user.fullName || "No name"}
-                          </TableCell>
-                          <TableCell>{user.email}</TableCell>
-                          <TableCell>{user.phone || "-"}</TableCell>
-                          <TableCell>
-                            <Badge
-                              variant="outline"
-                              className={
-                                user.role === "admin"
-                                  ? "border-primary/40 text-primary"
-                                  : "text-muted-foreground"
-                              }
-                            >
-                              {user.role || "user"}
-                            </Badge>
-                          </TableCell>
-                          <TableCell>
-                            {user.createdAt
-                              ? new Date(user.createdAt).toLocaleDateString()
-                              : "-"}
-                          </TableCell>
-                          <TableCell>
-                            <div className="flex justify-end gap-2">
-                              <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={() => startEdit(user)}
-                              >
-                                <EditIcon />
-                                Sua
-                              </Button>
-                              <Button
-                                variant="destructive"
-                                size="sm"
-                                onClick={() => deleteUser(user)}
-                              >
-                                <Trash2Icon />
-                                Xoa
-                              </Button>
-                            </div>
-                          </TableCell>
-                        </TableRow>
-                      ))
-                    )}
-                  </TableBody>
-                </Table>
-              </CardContent>
-            </Card>
-          </main>
-        </SidebarInset>
-      </SidebarProvider>
-    </TooltipProvider>
+                          <button
+                            className="delete"
+                            onClick={() => deleteUser(user)}
+                          >
+                            <Trash2Icon size={14} />
+                            Xóa
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      </main>
+    </div>
   );
 }
 

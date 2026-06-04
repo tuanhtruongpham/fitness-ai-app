@@ -2,7 +2,11 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 function Meal({ onNavigate, onLogout }) {
+  const user = JSON.parse(localStorage.getItem("user"));
   const today = new Date().toLocaleDateString();
+
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
 
   const [water, setWater] = useState(() => {
     const saved = JSON.parse(localStorage.getItem("waterData"));
@@ -38,11 +42,12 @@ function Meal({ onNavigate, onLogout }) {
     return saved.meals || [];
   });
 
- const API_URL = "https://fitness-ai-app-71hw.onrender.com/api/meal";
+  const API_URL = "https://fitness-ai-app-71hw.onrender.com/api/meal";
 
- useEffect(() => {
-  generateTodayPlan();
-}, []);
+  useEffect(() => {
+    generateTodayPlan();
+    fetchNotifications();
+  }, []);
 
   useEffect(() => {
     localStorage.setItem(
@@ -84,52 +89,98 @@ function Meal({ onNavigate, onLogout }) {
     };
   };
 
-  const generateTodayPlan = async () => {
-  try {
-    const savedDate = localStorage.getItem("mealPlanDate");
-    const todayDate = new Date().toLocaleDateString();
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    if (savedDate === todayDate) {
-      const res = await axios.get(API_URL, getAuthHeader());
+      const res = await axios.get(
+        "https://fitness-ai-app-71hw.onrender.com/api/notifications",
+        {
+          headers: {
+            authorization: token,
+          },
+        }
+      );
 
-      if (res.data.mealPlans?.length > 0) {
-        setCurrentPlan(res.data.mealPlans[0]);
-        return;
-      }
+      setNotifications(res.data);
+    } catch (error) {
+      console.log(error);
     }
+  };
 
-    const newPlan = await axios.post(
-      `${API_URL}/save-today`,
-      {},
-      getAuthHeader()
-    );
+  const markAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    localStorage.setItem("mealPlanDate", todayDate);
-    setCurrentPlan(newPlan.data.mealPlan);
-  } catch (error) {
-    console.log(error);
-  }
-};
+      await axios.put(
+        "https://fitness-ai-app-71hw.onrender.com/api/notifications/read",
+        {},
+        {
+          headers: {
+            authorization: token,
+          },
+        }
+      );
 
- const generateMealPlan = async () => {
-  try {
-    const res = await axios.post(
-      `${API_URL}/save-today`,
-      {},
-      getAuthHeader()
-    );
+      setNotifications((prev) =>
+        prev.map((item) => ({
+          ...item,
+          isRead: true,
+        }))
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-    localStorage.setItem("mealPlanDate", new Date().toLocaleDateString());
+  const unreadCount = notifications.filter((item) => !item.isRead).length;
 
-    setCurrentPlan(res.data.mealPlan);
-    setMealPlans((prev) => [res.data.mealPlan, ...prev]);
-    setEatenCalories(0);
-    setEatenMeals([]);
-  } catch (error) {
-    console.log(error);
-    alert("Hãy cập nhật đầy đủ Profile trước khi tạo meal plan");
-  }
-};
+  const generateTodayPlan = async () => {
+    try {
+      const savedDate = localStorage.getItem("mealPlanDate");
+      const todayDate = new Date().toLocaleDateString();
+
+      if (savedDate === todayDate) {
+        const res = await axios.get(API_URL, getAuthHeader());
+
+        if (res.data.mealPlans?.length > 0) {
+          setCurrentPlan(res.data.mealPlans[0]);
+          return;
+        }
+      }
+
+      const newPlan = await axios.post(
+        `${API_URL}/save-today`,
+        {},
+        getAuthHeader()
+      );
+
+      localStorage.setItem("mealPlanDate", todayDate);
+      setCurrentPlan(newPlan.data.mealPlan);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const generateMealPlan = async () => {
+    try {
+      const res = await axios.post(
+        `${API_URL}/save-today`,
+        {},
+        getAuthHeader()
+      );
+
+      localStorage.setItem("mealPlanDate", new Date().toLocaleDateString());
+
+      setCurrentPlan(res.data.mealPlan);
+      setMealPlans((prev) => [res.data.mealPlan, ...prev]);
+      setEatenCalories(0);
+      setEatenMeals([]);
+    } catch (error) {
+      console.log(error);
+      alert("Hãy cập nhật đầy đủ Profile trước khi tạo meal plan");
+    }
+  };
 
   const getMealKey = (meal) => {
     return meal._id || meal.label || meal.time;
@@ -193,6 +244,12 @@ function Meal({ onNavigate, onLogout }) {
             <div style={styles.menuItem} onClick={() => onNavigate("profile")}>
               Profile
             </div>
+
+            {user?.role === "admin" && (
+              <div style={styles.menuItem} onClick={() => onNavigate("admin")}>
+                Admin
+              </div>
+            )}
           </div>
         </div>
 
@@ -210,7 +267,51 @@ function Meal({ onNavigate, onLogout }) {
             </p>
           </div>
 
-          <div style={styles.profile}>🔔 </div>
+          <div style={styles.notificationWrapper}>
+            <button
+              style={styles.notificationBtn}
+              onClick={() => setShowNotifications(!showNotifications)}
+            >
+              🔔
+
+              {unreadCount > 0 && (
+                <span style={styles.notificationBadge}>{unreadCount}</span>
+              )}
+            </button>
+
+            {showNotifications && (
+              <div style={styles.notificationBox}>
+                <div style={styles.notificationHeader}>
+                  <h3 style={{ margin: 0 }}>Notifications</h3>
+
+                  <button style={styles.markReadBtn} onClick={markAllAsRead}>
+                    Mark all as read
+                  </button>
+                </div>
+
+                {notifications.length === 0 ? (
+                  <p style={styles.emptyNotification}>No notifications yet.</p>
+                ) : (
+                  notifications.map((item) => (
+                    <div
+                      key={item._id}
+                      style={{
+                        ...styles.notificationItem,
+                        background: item.isRead ? "#0f172a" : "#1e293b",
+                      }}
+                    >
+                      <h4 style={styles.notificationTitle}>{item.title}</h4>
+                      <p style={styles.notificationMessage}>{item.message}</p>
+
+                      <span style={styles.notificationTime}>
+                        {new Date(item.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         {!currentPlan ? (
@@ -532,22 +633,21 @@ const styles = {
     fontFamily: "Arial",
   },
 
- sidebar: {
-  width: "260px",
-  background: "#111827",
-  padding: "30px",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-  borderRight: "1px solid #1f2937",
-
-  position: "fixed",
-  left: 0,
-  top: 0,
-  height: "100vh",
-  boxSizing: "border-box",
-  zIndex: 1000,
-},
+  sidebar: {
+    width: "260px",
+    background: "#111827",
+    padding: "30px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    borderRight: "1px solid #1f2937",
+    position: "fixed",
+    left: 0,
+    top: 0,
+    height: "100vh",
+    boxSizing: "border-box",
+    zIndex: 1000,
+  },
 
   logo: { fontSize: "30px", marginBottom: "40px" },
   green: { color: "#84cc16" },
@@ -571,21 +671,21 @@ const styles = {
   },
 
   logout: {
-  padding: "16px",
-  borderRadius: "14px",
-  background: "#1f2937",
-  textAlign: "center",
-  cursor: "pointer",
-  marginBottom: "80px",
-},
+    padding: "16px",
+    borderRadius: "14px",
+    background: "#1f2937",
+    textAlign: "center",
+    cursor: "pointer",
+    marginBottom: "80px",
+  },
 
   main: {
-  flex: 1,
-  padding: "40px",
-  marginLeft: "320px",
-  width: "calc(100% - 320px)",
-  boxSizing: "border-box",
-},
+    flex: 1,
+    padding: "40px",
+    marginLeft: "320px",
+    width: "calc(100% - 320px)",
+    boxSizing: "border-box",
+  },
 
   header: {
     display: "flex",
@@ -596,7 +696,90 @@ const styles = {
 
   title: { margin: 0, fontSize: "38px" },
   subtitle: { color: "#94a3b8", marginTop: "10px" },
-  profile: { fontSize: "28px" },
+
+  notificationWrapper: {
+    position: "relative",
+  },
+
+  notificationBtn: {
+    position: "relative",
+    background: "transparent",
+    border: "none",
+    color: "white",
+    fontSize: "28px",
+    cursor: "pointer",
+  },
+
+  notificationBadge: {
+    position: "absolute",
+    top: "-6px",
+    right: "-8px",
+    background: "red",
+    color: "white",
+    borderRadius: "50%",
+    fontSize: "12px",
+    padding: "2px 6px",
+    fontWeight: "bold",
+  },
+
+  notificationBox: {
+    position: "absolute",
+    top: "45px",
+    right: 0,
+    width: "390px",
+    maxHeight: "420px",
+    overflowY: "auto",
+    background: "#111827",
+    border: "1px solid rgba(132,204,22,0.4)",
+    borderRadius: "18px",
+    padding: "18px",
+    zIndex: 999,
+    boxShadow: "0 0 30px rgba(132,204,22,0.25)",
+  },
+
+  notificationHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "15px",
+  },
+
+  markReadBtn: {
+    background: "transparent",
+    border: "none",
+    color: "#84cc16",
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
+
+  notificationItem: {
+    padding: "14px",
+    borderRadius: "14px",
+    marginBottom: "10px",
+    border: "1px solid #1f2937",
+  },
+
+  notificationTitle: {
+    margin: 0,
+    color: "white",
+    fontSize: "15px",
+  },
+
+  notificationMessage: {
+    margin: "8px 0",
+    color: "#cbd5e1",
+    fontSize: "14px",
+    lineHeight: "1.5",
+  },
+
+  notificationTime: {
+    color: "#94a3b8",
+    fontSize: "12px",
+  },
+
+  emptyNotification: {
+    color: "#94a3b8",
+  },
 
   emptyBox: {
     background: "#111827",

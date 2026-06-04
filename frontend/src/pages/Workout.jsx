@@ -1,4 +1,5 @@
 import { useEffect, useState } from "react";
+import axios from "axios";
 import workoutDatabase from "../data/workoutDatabase";
 
 function Workout({ onNavigate, onLogout }) {
@@ -7,61 +8,111 @@ function Workout({ onNavigate, onLogout }) {
   const [selectedExercise, setSelectedExercise] = useState(null);
   const [aiPlan, setAiPlan] = useState(null);
 
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
+  const user = JSON.parse(localStorage.getItem("user"));
   const muscleGroups = Object.keys(workoutDatabase);
+
   useEffect(() => {
-  fetchAIPlan();
-}, []);
+    fetchAIPlan();
+    fetchNotifications();
+  }, []);
 
-useEffect(() => {
-  const exerciseName = localStorage.getItem("selectedExercise");
+  useEffect(() => {
+    const exerciseName = localStorage.getItem("selectedExercise");
 
-  if (!exerciseName) return;
+    if (!exerciseName) return;
 
-  for (const group of Object.keys(workoutDatabase)) {
-    for (const level of Object.keys(workoutDatabase[group])) {
-      const homeExercises = workoutDatabase[group][level].home || [];
-      const gymExercises = workoutDatabase[group][level].gym || [];
+    for (const group of Object.keys(workoutDatabase)) {
+      for (const level of Object.keys(workoutDatabase[group])) {
+        const homeExercises = workoutDatabase[group][level].home || [];
+        const gymExercises = workoutDatabase[group][level].gym || [];
 
-      const foundExercise = [...homeExercises, ...gymExercises].find(
-        (exercise) => exercise.name === exerciseName
-      );
+        const foundExercise = [...homeExercises, ...gymExercises].find(
+          (exercise) => exercise.name === exerciseName
+        );
 
-      if (foundExercise) {
-        setSelectedGroup(group);
-        setSelectedLevel(level);
-        setSelectedExercise(foundExercise);
+        if (foundExercise) {
+          setSelectedGroup(group);
+          setSelectedLevel(level);
+          setSelectedExercise(foundExercise);
 
-        localStorage.removeItem("selectedExercise");
-        localStorage.removeItem("selectedWorkout");
-        return;
+          localStorage.removeItem("selectedExercise");
+          localStorage.removeItem("selectedWorkout");
+          return;
+        }
       }
     }
-  }
-}, []);
+  }, []);
 
-const fetchAIPlan = async () => {
-  try {
-    const token = localStorage.getItem("token");
+  const fetchAIPlan = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    const res = await fetch(
+      const res = await fetch(
+        "https://fitness-ai-app-71hw.onrender.com/api/workout/ai-plan",
+        {
+          headers: {
+            authorization: token,
+          },
+        }
+      );
 
-      "https://fitness-ai-app-71hw.onrender.com/api/workout/ai-plan",
+      const data = await res.json();
+      console.log("AI PLAN DATA:", data);
 
-      {
-        headers: {
-          authorization: token,
-        },
-      }
-    );
+      setAiPlan(data.aiPlan);
+    } catch (error) {
+      console.log(error);
+    }
+  };
 
-    const data = await res.json();
-    console.log("AI PLAN DATA:", data);
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem("token");
 
-    setAiPlan(data.aiPlan);
-  } catch (error) {
-    console.log(error);
-  }
-};
+      const res = await axios.get(
+        "https://fitness-ai-app-71hw.onrender.com/api/notifications",
+        {
+          headers: {
+            authorization: token,
+          },
+        }
+      );
+
+      setNotifications(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.put(
+        "https://fitness-ai-app-71hw.onrender.com/api/notifications/read",
+        {},
+        {
+          headers: {
+            authorization: token,
+          },
+        }
+      );
+
+      setNotifications((prev) =>
+        prev.map((item) => ({
+          ...item,
+          isRead: true,
+        }))
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const unreadCount = notifications.filter((item) => !item.isRead).length;
 
   const levelInfo = {
     Beginner: "< 6 tháng tập",
@@ -78,14 +129,14 @@ const fetchAIPlan = async () => {
   const ExerciseCard = ({ exercise }) => (
     <div style={styles.exerciseCard}>
       <div style={styles.videoBox}>
-  <img
-    src={`https://img.youtube.com/vi/${
-      exercise.video.split("/embed/")[1]
-    }/hqdefault.jpg`}
-    alt={exercise.name}
-    style={styles.thumbnail}
-  />
-</div>
+        <img
+          src={`https://img.youtube.com/vi/${
+            exercise.video.split("/embed/")[1]
+          }/hqdefault.jpg`}
+          alt={exercise.name}
+          style={styles.thumbnail}
+        />
+      </div>
 
       <h3>{exercise.name}</h3>
       <p style={styles.level}>{exercise.target}</p>
@@ -120,20 +171,30 @@ const fetchAIPlan = async () => {
             <div style={styles.menuItem} onClick={() => onNavigate("home")}>
               Dashboard
             </div>
-            <div style={styles.activeMenu}> Workout</div>
+
+            <div style={styles.activeMenu}>Workout</div>
+
             <div style={styles.menuItem} onClick={() => onNavigate("meal")}>
               Meal Plan
             </div>
+
             <div style={styles.menuItem} onClick={() => onNavigate("progress")}>
               Progress
             </div>
+
             <div style={styles.menuItem} onClick={() => onNavigate("ai-coach")}>
               AI Coach
             </div>
+
             <div style={styles.menuItem} onClick={() => onNavigate("profile")}>
               Profile
             </div>
-  
+
+            {user?.role === "admin" && (
+              <div style={styles.menuItem} onClick={() => onNavigate("admin")}>
+                Admin
+              </div>
+            )}
           </div>
         </div>
 
@@ -145,58 +206,98 @@ const fetchAIPlan = async () => {
       <div style={styles.main}>
         <div style={styles.header}>
           <div>
-            <h1 style={styles.title}>Workout Library </h1>
+            <h1 style={styles.title}>Workout Library</h1>
             <p style={styles.subtitle}>
               Choose muscle group, level, and workout place.
             </p>
           </div>
-          <div style={styles.profile}>🔔 </div>
+
+          <div style={styles.notificationWrapper}>
+            <button
+              style={styles.notificationBtn}
+              onClick={() => setShowNotifications(!showNotifications)}
+            >
+              🔔
+
+              {unreadCount > 0 && (
+                <span style={styles.notificationBadge}>{unreadCount}</span>
+              )}
+            </button>
+
+            {showNotifications && (
+              <div style={styles.notificationBox}>
+                <div style={styles.notificationHeader}>
+                  <h3 style={{ margin: 0 }}>Notifications</h3>
+
+                  <button style={styles.markReadBtn} onClick={markAllAsRead}>
+                    Mark all as read
+                  </button>
+                </div>
+
+                {notifications.length === 0 ? (
+                  <p style={styles.emptyNotification}>No notifications yet.</p>
+                ) : (
+                  notifications.map((item) => (
+                    <div
+                      key={item._id}
+                      style={{
+                        ...styles.notificationItem,
+                        background: item.isRead ? "#0f172a" : "#1e293b",
+                      }}
+                    >
+                      <h4 style={styles.notificationTitle}>{item.title}</h4>
+
+                      <p style={styles.notificationMessage}>{item.message}</p>
+
+                      <span style={styles.notificationTime}>
+                        {new Date(item.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <div style={styles.layout}>
           <div style={styles.exerciseSection}>
             {aiPlan && (
-  <div style={styles.aiPlanBox}>
-    <h2 style={styles.aiPlanTitle}>
-      AI Personalized Workout Plan
-    </h2>
+              <div style={styles.aiPlanBox}>
+                <h2 style={styles.aiPlanTitle}>
+                  AI Personalized Workout Plan
+                </h2>
 
-    <p style={styles.aiPlanText}>
-      Level: {aiPlan.level} | Location: {aiPlan.location}
-    </p>
+                <p style={styles.aiPlanText}>
+                  Level: {aiPlan.level} | Location: {aiPlan.location}
+                </p>
 
-    {aiPlan.weeklySchedule.map((day) => (
-      <div key={day.day} style={styles.aiDayBox}>
-        <h3>{day.day}</h3>
+                {aiPlan.weeklySchedule.map((day) => (
+                  <div key={day.day} style={styles.aiDayBox}>
+                    <h3>{day.day}</h3>
 
-        <div style={styles.aiExerciseGrid}>
-          {day.exercises.map((exercise) => (
-            <div
-              key={exercise.name}
-              style={styles.aiExerciseCard}
-            >
-              <h4>{exercise.name}</h4>
+                    <div style={styles.aiExerciseGrid}>
+                      {day.exercises.map((exercise) => (
+                        <div key={exercise.name} style={styles.aiExerciseCard}>
+                          <h4>{exercise.name}</h4>
 
-              <p>{exercise.target}</p>
+                          <p>{exercise.target}</p>
 
-              <p>
-                {exercise.sets
-                  ? `${exercise.sets} sets`
-                  : ""}
-                {exercise.reps
-                  ? ` x ${exercise.reps}`
-                  : ""}
-                {exercise.duration
-                  ? ` - ${exercise.duration}`
-                  : ""}
-              </p>
-            </div>
-          ))}
-        </div>
-      </div>
-    ))}
-  </div>
-)}
+                          <p>
+                            {exercise.sets ? `${exercise.sets} sets` : ""}
+                            {exercise.reps ? ` x ${exercise.reps}` : ""}
+                            {exercise.duration
+                              ? ` - ${exercise.duration}`
+                              : ""}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+
             <h2 style={styles.sectionTitle}>{selectedGroup} Workout</h2>
 
             <div style={styles.levelBox}>
@@ -220,6 +321,7 @@ const fetchAIPlan = async () => {
             </div>
 
             <h2 style={styles.workoutPlaceTitle}>🏠 Home Workout</h2>
+
             {currentData.home.length > 0 ? (
               <div style={styles.exerciseGrid}>
                 {currentData.home.map((exercise) => (
@@ -231,6 +333,7 @@ const fetchAIPlan = async () => {
             )}
 
             <h2 style={styles.workoutPlaceTitle}>🏋️ Gym Workout</h2>
+
             {currentData.gym.length > 0 ? (
               <div style={styles.exerciseGrid}>
                 {currentData.gym.map((exercise) => (
@@ -323,127 +426,441 @@ const fetchAIPlan = async () => {
 }
 
 const styles = {
-  page: { display: "flex", minHeight: "100vh", background: "#0f172a", color: "white", fontFamily: "Arial" },
+  page: {
+    display: "flex",
+    minHeight: "100vh",
+    background: "#0f172a",
+    color: "white",
+    fontFamily: "Arial",
+  },
+
   sidebar: {
-  width: "260px",
-  background: "#111827",
-  padding: "30px",
-  display: "flex",
-  flexDirection: "column",
-  justifyContent: "space-between",
-  borderRight: "1px solid #1f2937",
+    width: "260px",
+    background: "#111827",
+    padding: "30px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "space-between",
+    borderRight: "1px solid #1f2937",
+    position: "fixed",
+    left: 0,
+    top: 0,
+    height: "100vh",
+    boxSizing: "border-box",
+    zIndex: 1000,
+  },
 
-  position: "fixed",
-  left: 0,
-  top: 0,
-  height: "100vh",
-  boxSizing: "border-box",
-  zIndex: 1000,
-},
-  logo: { fontSize: "30px", marginBottom: "40px" },
-  green: { color: "#84cc16" },
-  menu: { display: "flex", flexDirection: "column", gap: "16px" },
-  menuItem: { padding: "16px", borderRadius: "14px", background: "#1f2937", cursor: "pointer" },
-  activeMenu: { padding: "16px", borderRadius: "14px", background: "linear-gradient(90deg,#84cc16,#65a30d)", color: "#0f172a", fontWeight: "bold", cursor: "pointer" },
+  logo: {
+    fontSize: "30px",
+    marginBottom: "40px",
+  },
+
+  green: {
+    color: "#84cc16",
+  },
+
+  menu: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+  },
+
+  menuItem: {
+    padding: "16px",
+    borderRadius: "14px",
+    background: "#1f2937",
+    cursor: "pointer",
+  },
+
+  activeMenu: {
+    padding: "16px",
+    borderRadius: "14px",
+    background: "linear-gradient(90deg,#84cc16,#65a30d)",
+    color: "#0f172a",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+
   logout: {
-  padding: "16px",
-  borderRadius: "14px",
-  background: "#1f2937",
-  textAlign: "center",
-  cursor: "pointer",
-  marginBottom: "80px",
-},
+    padding: "16px",
+    borderRadius: "14px",
+    background: "#1f2937",
+    textAlign: "center",
+    cursor: "pointer",
+    marginBottom: "80px",
+  },
+
   main: {
-  flex: 1,
-  padding: "40px",
-  marginLeft: "320px",
-},
-  header: { display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "35px" },
-  title: { margin: 0, fontSize: "38px" },
-  subtitle: { color: "#94a3b8", marginTop: "10px" },
-  profile: { fontSize: "28px" },
-layout: {
-  display: "grid",
-  gridTemplateColumns: "minmax(0, 1fr) 300px",
-  gap: "28px",
-  alignItems: "start",
-},  exerciseSection: { background: "#111827", borderRadius: "24px", padding: "30px", border: "1px solid rgba(132,204,22,0.2)" },
-  sectionTitle: { color: "#84cc16", marginBottom: "25px" },
-  levelBox: { display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: "16px", marginBottom: "32px" },
-  levelBtn: { padding: "18px", borderRadius: "18px", border: "1px solid #1f2937", background: "#0f172a", color: "white", cursor: "pointer", display: "flex", flexDirection: "column", gap: "8px", textAlign: "left", fontSize: "16px" },
-  activeLevelBtn: { padding: "18px", borderRadius: "18px", border: "none", background: "#84cc16", color: "#0f172a", cursor: "pointer", display: "flex", flexDirection: "column", gap: "8px", textAlign: "left", fontSize: "16px", fontWeight: "bold" },
-  workoutPlaceTitle: { color: "#84cc16", marginTop: "28px", marginBottom: "18px" },
-exerciseGrid: {
-  display: "grid",
-  gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
-  gap: "22px",
-},
-  exerciseCard: { background: "#0f172a", padding: "22px", borderRadius: "20px", border: "1px solid #1f2937" },
-videoBox: {
-  width: "100%",
-  aspectRatio: "16 / 9",
-  overflow: "hidden",
-  borderRadius: "16px",
-  background: "#1e293b",
-},
-thumbnail: {
-  width: "100%",
-  height: "100%",
-  objectFit: "cover",
-  display: "block",
-},
-level: { color: "#84cc16", fontWeight: "bold" },
-  sets: { color: "#cbd5e1" },
-  desc: { color: "#94a3b8", lineHeight: "1.6" },
-  detailBtn: { marginTop: "12px", padding: "12px 18px", border: "none", borderRadius: "12px", background: "#84cc16", color: "#0f172a", fontWeight: "bold", cursor: "pointer" },
-  filterBox: { background: "#111827", borderRadius: "24px", padding: "25px", border: "1px solid rgba(132,204,22,0.2)", height: "fit-content", position: "sticky", top: "30px" },
-  filterTitle: { color: "#84cc16", marginBottom: "20px" },
-  groupBtn: { width: "100%", padding: "16px", marginBottom: "12px", borderRadius: "14px", border: "none", background: "#1f2937", color: "white", fontWeight: "bold", cursor: "pointer", textAlign: "left" },
-  activeGroupBtn: { width: "100%", padding: "16px", marginBottom: "12px", borderRadius: "14px", border: "none", background: "#84cc16", color: "#0f172a", fontWeight: "bold", cursor: "pointer", textAlign: "left" },
-  emptyBox: { padding: "30px", borderRadius: "18px", background: "#0f172a", color: "#94a3b8", textAlign: "center" },
-  modalOverlay: { position: "fixed", inset: 0, background: "rgba(0,0,0,0.7)", display: "flex", justifyContent: "center", alignItems: "center", zIndex: 999 },
-  modalBox: { width: "720px", maxHeight: "90vh", overflowY: "auto", background: "#111827", borderRadius: "24px", padding: "30px", border: "1px solid rgba(132,204,22,0.4)", position: "relative" },
-  closeBtn: { position: "absolute", top: "20px", right: "20px", border: "none", background: "#1f2937", color: "white", width: "40px", height: "40px", borderRadius: "50%", cursor: "pointer", fontSize: "18px" },
-  modalTitle: { color: "#84cc16", marginBottom: "20px" },
-  videoDetailBox: { height: "320px", borderRadius: "18px", background: "#1f2937", display: "flex", justifyContent: "center", alignItems: "center", color: "#94a3b8", marginBottom: "20px", overflow: "hidden" },
-  infoGrid: { display: "grid", gridTemplateColumns: "repeat(2, 1fr)", gap: "10px", color: "#cbd5e1" },
-  modalDesc: { color: "#cbd5e1", lineHeight: "1.7", marginTop: "20px" },
+    flex: 1,
+    padding: "40px",
+    marginLeft: "320px",
+  },
+
+  header: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "35px",
+  },
+
+  title: {
+    margin: 0,
+    fontSize: "38px",
+  },
+
+  subtitle: {
+    color: "#94a3b8",
+    marginTop: "10px",
+  },
+
+  layout: {
+    display: "grid",
+    gridTemplateColumns: "minmax(0, 1fr) 300px",
+    gap: "28px",
+    alignItems: "start",
+  },
+
+  exerciseSection: {
+    background: "#111827",
+    borderRadius: "24px",
+    padding: "30px",
+    border: "1px solid rgba(132,204,22,0.2)",
+  },
+
+  sectionTitle: {
+    color: "#84cc16",
+    marginBottom: "25px",
+  },
+
+  levelBox: {
+    display: "grid",
+    gridTemplateColumns: "repeat(3, 1fr)",
+    gap: "16px",
+    marginBottom: "32px",
+  },
+
+  levelBtn: {
+    padding: "18px",
+    borderRadius: "18px",
+    border: "1px solid #1f2937",
+    background: "#0f172a",
+    color: "white",
+    cursor: "pointer",
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+    textAlign: "left",
+    fontSize: "16px",
+  },
+
+  activeLevelBtn: {
+    padding: "18px",
+    borderRadius: "18px",
+    border: "none",
+    background: "#84cc16",
+    color: "#0f172a",
+    cursor: "pointer",
+    display: "flex",
+    flexDirection: "column",
+    gap: "8px",
+    textAlign: "left",
+    fontSize: "16px",
+    fontWeight: "bold",
+  },
+
+  workoutPlaceTitle: {
+    color: "#84cc16",
+    marginTop: "28px",
+    marginBottom: "18px",
+  },
+
+  exerciseGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))",
+    gap: "22px",
+  },
+
+  exerciseCard: {
+    background: "#0f172a",
+    padding: "22px",
+    borderRadius: "20px",
+    border: "1px solid #1f2937",
+  },
+
+  videoBox: {
+    width: "100%",
+    aspectRatio: "16 / 9",
+    overflow: "hidden",
+    borderRadius: "16px",
+    background: "#1e293b",
+  },
+
+  thumbnail: {
+    width: "100%",
+    height: "100%",
+    objectFit: "cover",
+    display: "block",
+  },
+
+  level: {
+    color: "#84cc16",
+    fontWeight: "bold",
+  },
+
+  sets: {
+    color: "#cbd5e1",
+  },
+
+  desc: {
+    color: "#94a3b8",
+    lineHeight: "1.6",
+  },
+
+  detailBtn: {
+    marginTop: "12px",
+    padding: "12px 18px",
+    border: "none",
+    borderRadius: "12px",
+    background: "#84cc16",
+    color: "#0f172a",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
+
+  filterBox: {
+    background: "#111827",
+    borderRadius: "24px",
+    padding: "25px",
+    border: "1px solid rgba(132,204,22,0.2)",
+    height: "fit-content",
+    position: "sticky",
+    top: "30px",
+  },
+
+  filterTitle: {
+    color: "#84cc16",
+    marginBottom: "20px",
+  },
+
+  groupBtn: {
+    width: "100%",
+    padding: "16px",
+    marginBottom: "12px",
+    borderRadius: "14px",
+    border: "none",
+    background: "#1f2937",
+    color: "white",
+    fontWeight: "bold",
+    cursor: "pointer",
+    textAlign: "left",
+  },
+
+  activeGroupBtn: {
+    width: "100%",
+    padding: "16px",
+    marginBottom: "12px",
+    borderRadius: "14px",
+    border: "none",
+    background: "#84cc16",
+    color: "#0f172a",
+    fontWeight: "bold",
+    cursor: "pointer",
+    textAlign: "left",
+  },
+
+  emptyBox: {
+    padding: "30px",
+    borderRadius: "18px",
+    background: "#0f172a",
+    color: "#94a3b8",
+    textAlign: "center",
+  },
+
+  modalOverlay: {
+    position: "fixed",
+    inset: 0,
+    background: "rgba(0,0,0,0.7)",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    zIndex: 999,
+  },
+
+  modalBox: {
+    width: "720px",
+    maxHeight: "90vh",
+    overflowY: "auto",
+    background: "#111827",
+    borderRadius: "24px",
+    padding: "30px",
+    border: "1px solid rgba(132,204,22,0.4)",
+    position: "relative",
+  },
+
+  closeBtn: {
+    position: "absolute",
+    top: "20px",
+    right: "20px",
+    border: "none",
+    background: "#1f2937",
+    color: "white",
+    width: "40px",
+    height: "40px",
+    borderRadius: "50%",
+    cursor: "pointer",
+    fontSize: "18px",
+  },
+
+  modalTitle: {
+    color: "#84cc16",
+    marginBottom: "20px",
+  },
+
+  videoDetailBox: {
+    height: "320px",
+    borderRadius: "18px",
+    background: "#1f2937",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    color: "#94a3b8",
+    marginBottom: "20px",
+    overflow: "hidden",
+  },
+
+  infoGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2, 1fr)",
+    gap: "10px",
+    color: "#cbd5e1",
+  },
+
+  modalDesc: {
+    color: "#cbd5e1",
+    lineHeight: "1.7",
+    marginTop: "20px",
+  },
+
   aiPlanBox: {
-  background: "#0f172a",
-  borderRadius: "22px",
-  padding: "25px",
-  marginBottom: "30px",
-  border: "1px solid rgba(132,204,22,0.3)",
-  maxHeight: "500px",
-  overflowY: "auto",
-},
+    background: "#0f172a",
+    borderRadius: "22px",
+    padding: "25px",
+    marginBottom: "30px",
+    border: "1px solid rgba(132,204,22,0.3)",
+    maxHeight: "500px",
+    overflowY: "auto",
+  },
 
-aiPlanTitle: {
-  color: "#84cc16",
-  marginBottom: "10px",
-},
+  aiPlanTitle: {
+    color: "#84cc16",
+    marginBottom: "10px",
+  },
 
-aiPlanText: {
-  color: "#cbd5e1",
-  marginBottom: "25px",
-},
+  aiPlanText: {
+    color: "#cbd5e1",
+    marginBottom: "25px",
+  },
 
-aiDayBox: {
-  marginBottom: "30px",
-},
+  aiDayBox: {
+    marginBottom: "30px",
+  },
 
-aiExerciseGrid: {
-  display: "grid",
-  gridTemplateColumns: "repeat(2,1fr)",
-  gap: "16px",
-},
+  aiExerciseGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(2,1fr)",
+    gap: "16px",
+  },
 
-aiExerciseCard: {
-  background: "#111827",
-  padding: "18px",
-  borderRadius: "18px",
-  border: "1px solid #1f2937",
-},
+  aiExerciseCard: {
+    background: "#111827",
+    padding: "18px",
+    borderRadius: "18px",
+    border: "1px solid #1f2937",
+  },
+
+  notificationWrapper: {
+    position: "relative",
+  },
+
+  notificationBtn: {
+    position: "relative",
+    background: "transparent",
+    border: "none",
+    color: "white",
+    fontSize: "28px",
+    cursor: "pointer",
+  },
+
+  notificationBadge: {
+    position: "absolute",
+    top: "-6px",
+    right: "-8px",
+    background: "red",
+    color: "white",
+    borderRadius: "50%",
+    fontSize: "12px",
+    padding: "2px 6px",
+    fontWeight: "bold",
+  },
+
+  notificationBox: {
+    position: "absolute",
+    top: "45px",
+    right: 0,
+    width: "390px",
+    maxHeight: "420px",
+    overflowY: "auto",
+    background: "#111827",
+    border: "1px solid rgba(132,204,22,0.4)",
+    borderRadius: "18px",
+    padding: "18px",
+    zIndex: 999,
+    boxShadow: "0 0 30px rgba(132,204,22,0.25)",
+  },
+
+  notificationHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "15px",
+  },
+
+  markReadBtn: {
+    background: "transparent",
+    border: "none",
+    color: "#84cc16",
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
+
+  notificationItem: {
+    padding: "14px",
+    borderRadius: "14px",
+    marginBottom: "10px",
+    border: "1px solid #1f2937",
+  },
+
+  notificationTitle: {
+    margin: 0,
+    color: "white",
+    fontSize: "15px",
+  },
+
+  notificationMessage: {
+    margin: "8px 0",
+    color: "#cbd5e1",
+    fontSize: "14px",
+    lineHeight: "1.5",
+  },
+
+  notificationTime: {
+    color: "#94a3b8",
+    fontSize: "12px",
+  },
+
+  emptyNotification: {
+    color: "#94a3b8",
+  },
 };
 
 export default Workout;

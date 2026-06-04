@@ -5,6 +5,7 @@ function Home({ onNavigate, onLogout }) {
   const [dashboard, setDashboard] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const user = JSON.parse(localStorage.getItem("user"));
 
   const [completedExercises, setCompletedExercises] = useState(() => {
     return JSON.parse(localStorage.getItem("completedExercises")) || [];
@@ -96,6 +97,13 @@ function Home({ onNavigate, onLogout }) {
     const h = height / 100;
     return (weight / (h * h)).toFixed(1);
   };
+  const getGoalText = (goal) => {
+  if (goal === "fat_loss") return "Fat Loss";
+  if (goal === "muscle_gain") return "Muscle Gain";
+  if (goal === "weight_gain") return "Weight Gain";
+  if (goal === "maintenance") return "Maintenance";
+  return "Not Set";
+};
 
   const realtimeBMI = calculateBMI(
     dashboard?.latestWeight,
@@ -137,12 +145,17 @@ function Home({ onNavigate, onLogout }) {
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("profile")}>
-              Profile
-            </div>
+          Profile
+        </div>
 
-            <div style={styles.menuItem} onClick={() => onNavigate("admin")}>
-              Admin
-            </div>
+        {user?.role === "admin" && (
+          <div
+            style={styles.menuItem}
+            onClick={() => onNavigate("admin")}
+          >
+            Admin
+          </div>
+        )}
           </div>
         </div>
 
@@ -249,8 +262,8 @@ function Home({ onNavigate, onLogout }) {
                 <h3 style={styles.aiSubTitle}>Goal</h3>
 
                 <p style={styles.aiParagraph}>
-                  {dashboard?.user?.goal || "maintenance"}
-                </p>
+                {getGoalText(dashboard?.user?.goal)}
+              </p>
               </div>
 
               <div style={styles.aiMiniCard}>

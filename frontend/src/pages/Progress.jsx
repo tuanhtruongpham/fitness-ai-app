@@ -2,6 +2,8 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 
 function Progress({ onNavigate, onLogout }) {
+  const currentUser = JSON.parse(localStorage.getItem("user"));
+
   const [selectedDate, setSelectedDate] = useState("");
   const [progressData, setProgressData] = useState([]);
   const [user, setUser] = useState(null);
@@ -10,9 +12,59 @@ function Progress({ onNavigate, onLogout }) {
   const [editingWeight, setEditingWeight] = useState(false);
   const [editingGoal, setEditingGoal] = useState(false);
 
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [notifications, setNotifications] = useState([]);
+
   useEffect(() => {
     fetchProgress();
+    fetchNotifications();
   }, []);
+
+  const fetchNotifications = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      const res = await axios.get(
+        "https://fitness-ai-app-71hw.onrender.com/api/notifications",
+        {
+          headers: {
+            authorization: token,
+          },
+        }
+      );
+
+      setNotifications(res.data);
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const markAllAsRead = async () => {
+    try {
+      const token = localStorage.getItem("token");
+
+      await axios.put(
+        "https://fitness-ai-app-71hw.onrender.com/api/notifications/read",
+        {},
+        {
+          headers: {
+            authorization: token,
+          },
+        }
+      );
+
+      setNotifications((prev) =>
+        prev.map((item) => ({
+          ...item,
+          isRead: true,
+        }))
+      );
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
+  const unreadCount = notifications.filter((item) => !item.isRead).length;
 
   const fetchProgress = async () => {
     try {
@@ -201,16 +253,19 @@ function Progress({ onNavigate, onLogout }) {
 
             <div style={styles.activeMenu}>Progress</div>
 
-            <div
-              style={styles.menuItem}
-              onClick={() => onNavigate("ai-coach")}
-            >
+            <div style={styles.menuItem} onClick={() => onNavigate("ai-coach")}>
               AI Coach
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("profile")}>
               Profile
             </div>
+
+            {currentUser?.role === "admin" && (
+              <div style={styles.menuItem} onClick={() => onNavigate("admin")}>
+                Admin
+              </div>
+            )}
           </div>
         </div>
 
@@ -228,7 +283,51 @@ function Progress({ onNavigate, onLogout }) {
             </p>
           </div>
 
-          <div style={styles.profile}>🔔</div>
+          <div style={styles.notificationWrapper}>
+            <button
+              style={styles.notificationBtn}
+              onClick={() => setShowNotifications(!showNotifications)}
+            >
+              🔔
+
+              {unreadCount > 0 && (
+                <span style={styles.notificationBadge}>{unreadCount}</span>
+              )}
+            </button>
+
+            {showNotifications && (
+              <div style={styles.notificationBox}>
+                <div style={styles.notificationHeader}>
+                  <h3 style={{ margin: 0 }}>Notifications</h3>
+
+                  <button style={styles.markReadBtn} onClick={markAllAsRead}>
+                    Mark all as read
+                  </button>
+                </div>
+
+                {notifications.length === 0 ? (
+                  <p style={styles.emptyNotification}>No notifications yet.</p>
+                ) : (
+                  notifications.map((item) => (
+                    <div
+                      key={item._id}
+                      style={{
+                        ...styles.notificationItem,
+                        background: item.isRead ? "#0f172a" : "#1e293b",
+                      }}
+                    >
+                      <h4 style={styles.notificationTitle}>{item.title}</h4>
+                      <p style={styles.notificationMessage}>{item.message}</p>
+
+                      <span style={styles.notificationTime}>
+                        {new Date(item.createdAt).toLocaleString()}
+                      </span>
+                    </div>
+                  ))
+                )}
+              </div>
+            )}
+          </div>
         </div>
 
         <div style={styles.topGrid}>
@@ -575,8 +674,88 @@ const styles = {
     marginTop: "10px",
   },
 
-  profile: {
+  notificationWrapper: {
+    position: "relative",
+  },
+
+  notificationBtn: {
+    position: "relative",
+    background: "transparent",
+    border: "none",
+    color: "white",
     fontSize: "28px",
+    cursor: "pointer",
+  },
+
+  notificationBadge: {
+    position: "absolute",
+    top: "-6px",
+    right: "-8px",
+    background: "red",
+    color: "white",
+    borderRadius: "50%",
+    fontSize: "12px",
+    padding: "2px 6px",
+    fontWeight: "bold",
+  },
+
+  notificationBox: {
+    position: "absolute",
+    top: "45px",
+    right: 0,
+    width: "390px",
+    maxHeight: "420px",
+    overflowY: "auto",
+    background: "#111827",
+    border: "1px solid rgba(132,204,22,0.4)",
+    borderRadius: "18px",
+    padding: "18px",
+    zIndex: 999,
+    boxShadow: "0 0 30px rgba(132,204,22,0.25)",
+  },
+
+  notificationHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "15px",
+  },
+
+  markReadBtn: {
+    background: "transparent",
+    border: "none",
+    color: "#84cc16",
+    cursor: "pointer",
+    fontWeight: "bold",
+  },
+
+  notificationItem: {
+    padding: "14px",
+    borderRadius: "14px",
+    marginBottom: "10px",
+    border: "1px solid #1f2937",
+  },
+
+  notificationTitle: {
+    margin: 0,
+    color: "white",
+    fontSize: "15px",
+  },
+
+  notificationMessage: {
+    margin: "8px 0",
+    color: "#cbd5e1",
+    fontSize: "14px",
+    lineHeight: "1.5",
+  },
+
+  notificationTime: {
+    color: "#94a3b8",
+    fontSize: "12px",
+  },
+
+  emptyNotification: {
+    color: "#94a3b8",
   },
 
   topGrid: {
@@ -607,14 +786,14 @@ const styles = {
   },
 
   editBtn: {
-  padding: "8px 14px",
-  borderRadius: "10px",
-  border: "1px solid rgba(132,204,22,0.4)",
-  background: "transparent",
-  color: "#84cc16",
-  fontWeight: "bold",
-  cursor: "pointer",
-},
+    padding: "8px 14px",
+    borderRadius: "10px",
+    border: "1px solid rgba(132,204,22,0.4)",
+    background: "transparent",
+    color: "#84cc16",
+    fontWeight: "bold",
+    cursor: "pointer",
+  },
 
   inlineEdit: {
     display: "flex",

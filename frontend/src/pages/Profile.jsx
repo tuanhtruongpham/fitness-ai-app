@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 
 function Profile({ onNavigate, onLogout }) {
+  const currentUser = JSON.parse(localStorage.getItem("user"));
   const [user, setUser] = useState(null);
 
   const [form, setForm] = useState({
@@ -187,7 +188,14 @@ function Profile({ onNavigate, onLogout }) {
             <div style={styles.menuItem} onClick={() => onNavigate("ai-coach")}>
               AI Coach
             </div>
-
+            {currentUser?.role === "admin" && (
+              <div
+                style={styles.menuItem}
+                onClick={() => onNavigate("admin")}
+              >
+                Admin
+              </div>
+            )}
             <div style={styles.activeMenu}> Profile</div>
           </div>
         </div>
