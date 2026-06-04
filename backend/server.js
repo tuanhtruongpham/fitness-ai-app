@@ -57,6 +57,9 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/ai", aiRoutes);
 app.use("/api/chat", chatRoutes);
 app.use("/api/notifications", notificationRoutes);
+app.get("/api/admin-test", (req, res) => {
+  res.json({ message: "Admin route test OK" });
+});
 app.use("/api/admin", adminRoutes);
 
 // =========================
