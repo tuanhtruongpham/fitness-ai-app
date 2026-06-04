@@ -1,4 +1,5 @@
 const express = require("express");
+const fs = require("fs");
 const multer = require("multer");
 const path = require("path");
 const bcrypt = require("bcryptjs");
@@ -8,7 +9,9 @@ const Progress = require("../models/Progress");
 const authMiddleware = require("../middleware/authMiddleware");
 
 const router = express.Router();
-
+if (!fs.existsSync("uploads")) {
+  fs.mkdirSync("uploads");
+}
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "uploads/");
