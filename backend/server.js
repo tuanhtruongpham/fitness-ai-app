@@ -28,14 +28,13 @@ connectDB();
 const corsOptions = {
   origin: [
     "https://fitnessapput.site",
+    "https://www.fitnessapput.site",
+    "https://fitness-ai-app-one.vercel.app",
+    "https://fitness-ai-app-fitness-ut-s-projects.vercel.app",
     "http://localhost:5173",
   ],
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"],
-  allowedHeaders: [
-    "Content-Type",
-    "Authorization",
-    "authorization",
-  ],
+  allowedHeaders: ["Content-Type", "Authorization", "authorization"],
   credentials: true,
 };
 
