@@ -468,7 +468,7 @@ const styles = {
     padding: "30px",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "space-between",
+    justifyContent: "flex-start",
     borderRight: "1px solid #1f2937",
     overflowY: "auto",
   },
@@ -483,10 +483,11 @@ const styles = {
   },
 
   menu: {
-    display: "flex",
-    flexDirection: "column",
-    gap: "16px",
-  },
+  display: "flex",
+  flexDirection: "column",
+  gap: "16px",
+  flex: 1,
+},
 
   menuItem: {
     padding: "16px",
@@ -505,15 +506,15 @@ const styles = {
     cursor: "pointer",
   },
 
-  logout: {
-    padding: "16px",
-    borderRadius: "14px",
-    background: "#1f2937",
-    textAlign: "center",
-    cursor: "pointer",
-    marginBottom: "120px",
-  },
-
+logout: {
+  padding: "16px",
+  borderRadius: "14px",
+  background: "#1f2937",
+  textAlign: "center",
+  cursor: "pointer",
+  marginTop: "auto",
+  marginBottom: "20px",
+},
   main: {
     flex: 1,
     padding: "40px",
