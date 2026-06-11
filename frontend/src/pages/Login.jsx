@@ -243,7 +243,7 @@ const styles = {
     color: "#111827",
   },
 
-  input: {
+    input: {
     width: "100%",
     padding: "18px",
     fontSize: "18px",
@@ -251,6 +251,8 @@ const styles = {
     borderRadius: "6px",
     marginBottom: "18px",
     boxSizing: "border-box",
+    color: "#111827",
+    backgroundColor: "#ffffff",
   },
 
   errorInput: {
@@ -275,12 +277,14 @@ const styles = {
     boxSizing: "border-box",
   },
 
-  passwordInput: {
+    passwordInput: {
     flex: 1,
     padding: "18px",
     fontSize: "18px",
     border: "none",
     outline: "none",
+    color: "#111827",
+    backgroundColor: "#ffffff",
   },
 
   eyeBtn: {
