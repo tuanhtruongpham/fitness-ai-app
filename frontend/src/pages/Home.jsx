@@ -5,6 +5,8 @@ function Home({ onNavigate, onLogout }) {
   const [dashboard, setDashboard] = useState(null);
   const [showNotifications, setShowNotifications] = useState(false);
   const [notifications, setNotifications] = useState([]);
+  const [greeting, setGreeting] = useState("");
+
   const user = JSON.parse(localStorage.getItem("user"));
 
   const [completedExercises, setCompletedExercises] = useState(() => {
@@ -14,6 +16,26 @@ function Home({ onNavigate, onLogout }) {
   useEffect(() => {
     fetchDashboard();
     fetchNotifications();
+  }, []);
+
+  useEffect(() => {
+    const updateGreeting = () => {
+      const hour = new Date().getHours();
+
+      if (hour < 12) {
+        setGreeting("Good Morning");
+      } else if (hour < 18) {
+        setGreeting("Good Afternoon");
+      } else {
+        setGreeting("Good Evening");
+      }
+    };
+
+    updateGreeting();
+
+    const interval = setInterval(updateGreeting, 60000);
+
+    return () => clearInterval(interval);
   }, []);
 
   const fetchDashboard = async () => {
@@ -97,13 +119,14 @@ function Home({ onNavigate, onLogout }) {
     const h = height / 100;
     return (weight / (h * h)).toFixed(1);
   };
+
   const getGoalText = (goal) => {
-  if (goal === "fat_loss") return "Fat Loss";
-  if (goal === "muscle_gain") return "Muscle Gain";
-  if (goal === "weight_gain") return "Weight Gain";
-  if (goal === "maintenance") return "Maintenance";
-  return "Not Set";
-};
+    if (goal === "fat_loss") return "Fat Loss";
+    if (goal === "muscle_gain") return "Muscle Gain";
+    if (goal === "weight_gain") return "Weight Gain";
+    if (goal === "maintenance") return "Maintenance";
+    return "Not Set";
+  };
 
   const realtimeBMI = calculateBMI(
     dashboard?.latestWeight,
@@ -115,7 +138,7 @@ function Home({ onNavigate, onLogout }) {
   return (
     <div style={styles.page}>
       <div style={styles.sidebar}>
-        <div>
+        <div style={styles.sidebarContent}>
           <h1 style={styles.logo}>
             FITNESS <span style={styles.green}>UT</span>
           </h1>
@@ -137,25 +160,19 @@ function Home({ onNavigate, onLogout }) {
               Progress
             </div>
 
-            <div
-              style={styles.menuItem}
-              onClick={() => onNavigate("ai-coach")}
-            >
+            <div style={styles.menuItem} onClick={() => onNavigate("ai-coach")}>
               AI Coach
             </div>
 
             <div style={styles.menuItem} onClick={() => onNavigate("profile")}>
-          Profile
-        </div>
+              Profile
+            </div>
 
-        {user?.role === "admin" && (
-          <div
-            style={styles.menuItem}
-            onClick={() => onNavigate("admin")}
-          >
-            Admin
-          </div>
-        )}
+            {user?.role === "admin" && (
+              <div style={styles.menuItem} onClick={() => onNavigate("admin")}>
+                Admin
+              </div>
+            )}
           </div>
         </div>
 
@@ -168,7 +185,7 @@ function Home({ onNavigate, onLogout }) {
         <div style={styles.header}>
           <div>
             <h1 style={styles.title}>
-              Good Evening, {dashboard?.user?.fullName || "User"} 
+              {greeting}, {dashboard?.user?.fullName || "User"}
             </h1>
 
             <p style={styles.subtitle}>Your body is improving today.</p>
@@ -257,20 +274,20 @@ function Home({ onNavigate, onLogout }) {
             </p>
 
             <div style={styles.aiSection}>
-
               <div style={styles.aiMiniCard}>
                 <h3 style={styles.aiSubTitle}>Goal</h3>
 
                 <p style={styles.aiParagraph}>
-                {getGoalText(dashboard?.user?.goal)}
-              </p>
+                  {getGoalText(dashboard?.user?.goal)}
+                </p>
               </div>
 
               <div style={styles.aiMiniCard}>
                 <h3 style={styles.aiSubTitle}>AI Summary</h3>
 
                 <p style={styles.aiParagraph}>
-                  {dashboard?.aiRecommendation?.summary || "No summary available yet."}
+                  {dashboard?.aiRecommendation?.summary ||
+                    "No summary available yet."}
                 </p>
               </div>
 
@@ -278,7 +295,8 @@ function Home({ onNavigate, onLogout }) {
                 <h3 style={styles.aiSubTitle}>AI Advice</h3>
 
                 <p style={styles.aiParagraph}>
-                  {dashboard?.aiRecommendation?.advice || "No advice available yet."}
+                  {dashboard?.aiRecommendation?.advice ||
+                    "No advice available yet."}
                 </p>
               </div>
 
@@ -286,7 +304,8 @@ function Home({ onNavigate, onLogout }) {
                 <h3 style={styles.aiSubTitle}>Nutrition Focus</h3>
 
                 <p style={styles.aiParagraph}>
-                  {dashboard?.aiRecommendation?.nutritionFocus || "No nutrition focus available yet."}
+                  {dashboard?.aiRecommendation?.nutritionFocus ||
+                    "No nutrition focus available yet."}
                 </p>
               </div>
 
@@ -294,7 +313,8 @@ function Home({ onNavigate, onLogout }) {
                 <h3 style={styles.aiSubTitle}>Training Focus</h3>
 
                 <p style={styles.aiParagraph}>
-                  {dashboard?.aiRecommendation?.trainingFocus || "No training focus available yet."}
+                  {dashboard?.aiRecommendation?.trainingFocus ||
+                    "No training focus available yet."}
                 </p>
               </div>
 
@@ -302,7 +322,8 @@ function Home({ onNavigate, onLogout }) {
                 <h3 style={styles.aiSubTitle}>Recovery</h3>
 
                 <p style={styles.aiParagraph}>
-                  {dashboard?.aiRecommendation?.recovery || "No recovery advice available yet."}
+                  {dashboard?.aiRecommendation?.recovery ||
+                    "No recovery advice available yet."}
                 </p>
               </div>
 
@@ -310,7 +331,8 @@ function Home({ onNavigate, onLogout }) {
                 <h3 style={styles.aiSubTitle}>Risk Analysis</h3>
 
                 <p style={styles.aiParagraph}>
-                  {dashboard?.aiRecommendation?.riskAnalysis || "No risk analysis available yet."}
+                  {dashboard?.aiRecommendation?.riskAnalysis ||
+                    "No risk analysis available yet."}
                 </p>
               </div>
 
@@ -318,7 +340,8 @@ function Home({ onNavigate, onLogout }) {
                 <h3 style={styles.aiSubTitle}>Progress Prediction</h3>
 
                 <p style={styles.aiParagraph}>
-                  {dashboard?.aiRecommendation?.prediction || "No prediction available yet."}
+                  {dashboard?.aiRecommendation?.prediction ||
+                    "No prediction available yet."}
                 </p>
               </div>
 
@@ -326,7 +349,8 @@ function Home({ onNavigate, onLogout }) {
                 <h3 style={styles.aiSubTitle}>AI Motivation</h3>
 
                 <p style={styles.aiParagraph}>
-                  {dashboard?.aiRecommendation?.motivation || "Keep going. Consistency creates results."}
+                  {dashboard?.aiRecommendation?.motivation ||
+                    "Keep going. Consistency creates results."}
                 </p>
               </div>
 
@@ -334,7 +358,8 @@ function Home({ onNavigate, onLogout }) {
                 <h3 style={styles.aiSubTitle}>Next Action</h3>
 
                 <p style={styles.aiParagraph}>
-                  {dashboard?.aiRecommendation?.nextAction || "Complete today's plan."}
+                  {dashboard?.aiRecommendation?.nextAction ||
+                    "Complete today's plan."}
                 </p>
               </div>
             </div>
@@ -468,9 +493,12 @@ const styles = {
     padding: "30px",
     display: "flex",
     flexDirection: "column",
-    justifyContent: "flex-start",
     borderRight: "1px solid #1f2937",
     overflowY: "auto",
+  },
+
+  sidebarContent: {
+    flex: 1,
   },
 
   logo: {
@@ -483,11 +511,10 @@ const styles = {
   },
 
   menu: {
-  display: "flex",
-  flexDirection: "column",
-  gap: "16px",
-  flex: 1,
-},
+    display: "flex",
+    flexDirection: "column",
+    gap: "16px",
+  },
 
   menuItem: {
     padding: "16px",
@@ -506,15 +533,16 @@ const styles = {
     cursor: "pointer",
   },
 
-logout: {
-  padding: "16px",
-  borderRadius: "14px",
-  background: "#1f2937",
-  textAlign: "center",
-  cursor: "pointer",
-  marginTop: "auto",
-  marginBottom: "20px",
-},
+  logout: {
+    padding: "16px",
+    borderRadius: "14px",
+    background: "#1f2937",
+    textAlign: "center",
+    cursor: "pointer",
+    marginTop: "auto",
+    marginBottom: "20px",
+  },
+
   main: {
     flex: 1,
     padding: "40px",
@@ -663,30 +691,22 @@ logout: {
     lineHeight: "1.7",
   },
 
-  list: {
-    lineHeight: "2",
-  },
-
   aiCircle: {
-  width: "120px",
-  height: "120px",
-  borderRadius: "50%",
-  border: "none",
-  background: "#84cc16",
-  color: "#0f172a",
-
-  display: "flex",
-  justifyContent: "center",
-  alignItems: "center",
-
-  fontSize: "38px",
-  fontWeight: "bold",
-
-  boxShadow: "0 0 35px rgba(132,204,22,0.5)",
-  cursor: "pointer",
-
-  alignSelf: "center",
-},
+    width: "120px",
+    height: "120px",
+    borderRadius: "50%",
+    border: "none",
+    background: "#84cc16",
+    color: "#0f172a",
+    display: "flex",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: "38px",
+    fontWeight: "bold",
+    boxShadow: "0 0 35px rgba(132,204,22,0.5)",
+    cursor: "pointer",
+    alignSelf: "center",
+  },
 
   bottomGrid: {
     display: "grid",
@@ -769,31 +789,31 @@ logout: {
     fontWeight: "bold",
   },
 
-  
   aiSection: {
-  marginTop: "20px",
+    marginTop: "20px",
+    display: "grid",
+    gridTemplateColumns: "1fr 1fr",
+    gap: "18px",
+  },
 
-  display: "grid",
-  gridTemplateColumns: "1fr 1fr",
-  gap: "18px",
-},
-aiMiniCard: {
-  background: "#0f172a",
-  border: "1px solid #1f2937",
-  borderRadius: "16px",
-  padding: "16px",
-},
-aiSubTitle: {
-  color: "#84cc16",
-  marginBottom: "8px",
-  marginTop: "18px",
-},
+  aiMiniCard: {
+    background: "#0f172a",
+    border: "1px solid #1f2937",
+    borderRadius: "16px",
+    padding: "16px",
+  },
 
-aiParagraph: {
-  color: "#e2e8f0",
-  lineHeight: "1.8",
-  fontSize: "15px",
-},
+  aiSubTitle: {
+    color: "#84cc16",
+    marginBottom: "8px",
+    marginTop: "18px",
+  },
+
+  aiParagraph: {
+    color: "#e2e8f0",
+    lineHeight: "1.8",
+    fontSize: "15px",
+  },
 };
 
 export default Home;

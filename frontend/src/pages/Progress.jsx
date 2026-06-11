@@ -270,7 +270,7 @@ function Progress({ onNavigate, onLogout }) {
         </div>
 
         <div style={styles.logout} onClick={onLogout}>
-          🚪 Logout
+          Logout
         </div>
       </div>
 

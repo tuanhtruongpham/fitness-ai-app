@@ -105,6 +105,9 @@ router.post("/login", async (req, res) => {
       });
     }
 
+    user.lastLoginAt = new Date();
+    await user.save();
+
     const token = jwt.sign(
       {
         id: user._id,
@@ -136,8 +139,6 @@ router.post("/login", async (req, res) => {
     });
   }
 });
-
-const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 // GOOGLE REGISTER
 router.post("/google", async (req, res) => {
@@ -191,6 +192,7 @@ router.post("/google", async (req, res) => {
       workoutPlace,
       gymDays,
       bmi,
+      lastLoginAt: new Date(),
     });
 
     sendEmail({
@@ -256,6 +258,8 @@ router.post("/google-login", async (req, res) => {
         message: "Tài khoản Google này chưa được đăng ký",
       });
     }
+    user.lastLoginAt = new Date();
+    await user.save();
 
     const token = jwt.sign(
       {

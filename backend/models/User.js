@@ -21,6 +21,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     default: "",
   },
+  lastLoginAt: {
+  type: Date,
+  default: Date.now,
+},
 
   age: Number,
 
