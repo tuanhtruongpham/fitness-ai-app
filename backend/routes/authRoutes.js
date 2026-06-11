@@ -7,6 +7,9 @@ const User = require("../models/User");
 const sendEmail = require("../utils/emailService");
 
 const router = express.Router();
+const googleClient = new OAuth2Client(
+  process.env.GOOGLE_CLIENT_ID
+);
 
 // REGISTER
 router.post("/register", async (req, res) => {
