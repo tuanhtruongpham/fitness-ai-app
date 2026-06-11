@@ -240,7 +240,27 @@ router.post("/google", async (req, res) => {
 // GOOGLE LOGIN
 router.post("/google-login", async (req, res) => {
   try {
+    console.log("🔥 GOOGLE LOGIN API CALLED");
+
     const { credential } = req.body;
+
+    if (!credential) {
+      return res.status(400).json({
+        message: "Missing Google credential",
+      });
+    }
+
+    if (!process.env.GOOGLE_CLIENT_ID) {
+      return res.status(500).json({
+        message: "Missing GOOGLE_CLIENT_ID",
+      });
+    }
+
+    if (!process.env.JWT_SECRET) {
+      return res.status(500).json({
+        message: "Missing JWT_SECRET",
+      });
+    }
 
     const ticket = await googleClient.verifyIdToken({
       idToken: credential,
@@ -248,16 +268,16 @@ router.post("/google-login", async (req, res) => {
     });
 
     const payload = ticket.getPayload();
-
     const { email } = payload;
 
-    let user = await User.findOne({ email });
+    const user = await User.findOne({ email });
 
     if (!user) {
       return res.status(404).json({
         message: "Tài khoản Google này chưa được đăng ký",
       });
     }
+
     user.lastLoginAt = new Date();
     await user.save();
 
@@ -275,10 +295,17 @@ router.post("/google-login", async (req, res) => {
     res.json({
       message: "Đăng nhập Google thành công",
       token,
-      user,
+      user: {
+        id: user._id,
+        fullName: user.fullName,
+        email: user.email,
+        phone: user.phone,
+        avatar: user.avatar,
+        role: user.role,
+      },
     });
   } catch (error) {
-    console.error("❌ GOOGLE LOGIN ERROR:", error.message);
+    console.error("❌ GOOGLE LOGIN ERROR:", error);
 
     res.status(500).json({
       message: "Google login failed",
